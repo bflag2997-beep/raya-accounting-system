@@ -12315,7 +12315,9 @@ var _RAYA_KEY = 'raya_blue_v10';
 // resetAllData() — إعادة تهيئة كاملة (استخدم من console أو زر الإعدادات)
 // ============================================================
 function resetAllData() {
-  if (!confirm("تحذير: سيتم حذف جميع البيانات نهائياً. هل أنت متأكد؟")) return;
+  var pw = prompt("أدخل كلمة المرور الخاصة بالحذف الكامل:");
+  if (pw !== "DELETE-RAYA-2026") { alert("كلمة المرور خاطئة — لم يتم حذف أي شيء"); return; }
+  if (!confirm("تحذير أخير: سيتم حذف جميع البيانات نهائياً بدون رجعة. هل أنت متأكد 100%؟")) return;
   JOURNAL_ENTRIES_DATA.splice(0);
   CUSTOMERS_DB.splice(0);
   SUPPLIERS_DB.splice(0);
