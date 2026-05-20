@@ -2150,16 +2150,18 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:14px 0}
 </div></div>
 </div>
 <div class="page" id="page-users">
-<div class="ph"><div class="phi"><h2>🔑 المستخدمون والصلاحيات</h2><p>8 مستخدمين</p></div><div class="pha"><button class="btn btn-p" onclick="openM('m-user')">＋ مستخدم جديد</button></div></div>
-<div class="card"><div class="tw"><table>
-<thead><tr><th>المستخدم</th><th>الدور</th><th>المبيعات</th><th>المخزون</th><th>المشتريات</th><th>المحاسبة</th><th>التقارير</th><th>الإعدادات</th><th>آخر دخول</th></tr></thead>
-<tbody>
-<tr><td><b>مدير النظام</b></td><td><span class="badge badge-yellow">مدير</span></td><td>✅ كامل</td><td>✅ كامل</td><td>✅ كامل</td><td>✅ كامل</td><td>✅ كامل</td><td>✅ كامل</td><td style="color:#198754">الآن</td></tr>
-<tr><td><b>محاسب أول</b></td><td><span class="badge badge-green">محاسب</span></td><td>✅ كامل</td><td>✅ كامل</td><td>✅ كامل</td><td>✅ كامل</td><td>✅ كامل</td><td>❌</td><td>قبل ساعة</td></tr>
-<tr><td><b>موظف مبيعات</b></td><td><span class="badge badge-blue">مبيعات</span></td><td>✅ كامل</td><td>👁 عرض</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>قبل 3 ساعات</td></tr>
-<tr><td><b>أمين المخزن</b></td><td><span class="badge badge-yellow">مخزن</span></td><td>❌</td><td>✅ كامل</td><td>👁 عرض</td><td>❌</td><td>❌</td><td>❌</td><td>أمس</td></tr>
-<tr><td><b>فني صيانة</b></td><td><span class="badge badge-gray">فني</span></td><td>❌</td><td>👁 عرض</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>قبل يومين</td></tr>
-</tbody></table></div></div></div>
+<div class="ph">
+  <div class="phi"><h2>🔑 المستخدمون والصلاحيات</h2><p id="users-subtitle">إدارة حسابات المستخدمين وصلاحياتهم</p></div>
+  <div class="pha">
+    <button class="btn btn-secondary btn-sm" onclick="openAddPermModule()" title="إضافة وحدة صلاحية جديدة للجدول">＋ صلاحية جديدة</button>
+    <button class="btn btn-p" onclick="openAddUser()">＋ مستخدم جديد</button>
+  </div>
+</div>
+<div class="alert alert-info"><span>💡</span><div>انقر على أي خلية صلاحية لتغييرها مباشرة (كامل ← عرض فقط ← محظور). أو اضغط ✏️ لتعديل بيانات المستخدم الكاملة.</div></div>
+<div class="card">
+  <div id="users-table-wrap" style="overflow-x:auto;min-height:120px"></div>
+</div>
+</div>
 <div class="page" id="page-log">
 <div class="ph"><div class="phi"><h2>📋 سجل نشاط النظام</h2><p>كل العمليات مسجلة</p></div></div>
 <div class="card"><div class="tw"><table>
@@ -4767,23 +4769,55 @@ try {
 
 // ===== STATE =====
 const SERIALS=['GEN-0045','GEN-0062','GEN-0070','GEN-0038','GEN-0055','GEN-0031','GEN-0048','GEN-0071','GEN-0080','GEN-0081','GEN-0090','GEN-0091'];
-const USERS={admin:{pass:'123456',name:'مدير النظام',role:'admin'},accountant:{pass:'acc2026',name:'محاسب أول',role:'accountant'},sales:{pass:'sales123',name:'موظف مبيعات',role:'sales'}};
+// ============================================================
+// USERS_DB — قاعدة بيانات المستخدمين والصلاحيات
+// ============================================================
+var PERM_MODULES = [
+  {key:"dashboard",  label:"لوحة التحكم"},
+  {key:"sales",      label:"المبيعات"},
+  {key:"customers",  label:"الزبائن"},
+  {key:"inventory",  label:"المخزون"},
+  {key:"purchases",  label:"المشتريات"},
+  {key:"accounting", label:"المحاسبة"},
+  {key:"maintenance",label:"الصيانة"},
+  {key:"employees",  label:"الموظفون"},
+  {key:"installments",label:"الأقساط"},
+  {key:"reports",    label:"التقارير"},
+  {key:"settings",   label:"الإعدادات"}
+];
+
+var USERS_DB = [
+  {id:"USR-001", username:"admin",      pass:"123456",  name:"مدير النظام",     role:"admin",
+   perms:{dashboard:"full",sales:"full",customers:"full",inventory:"full",purchases:"full",accounting:"full",maintenance:"full",employees:"full",installments:"full",reports:"full",settings:"full"},
+   lastLogin:""},
+  {id:"USR-002", username:"accountant", pass:"acc2026", name:"محاسب أول",       role:"accountant",
+   perms:{dashboard:"full",sales:"full",customers:"full",inventory:"full",purchases:"full",accounting:"full",maintenance:"full",employees:"view",installments:"full",reports:"full",settings:"none"},
+   lastLogin:""},
+  {id:"USR-003", username:"sales",      pass:"sales123",name:"موظف مبيعات",     role:"sales",
+   perms:{dashboard:"full",sales:"full",customers:"full",inventory:"view",purchases:"none",accounting:"none",maintenance:"none",employees:"none",installments:"view",reports:"none",settings:"none"},
+   lastLogin:""}
+];
 let currentUser=null,lineCount=1;
 
 // ===== AUTH =====
 function doLogin(){
-  const u=document.getElementById('lu').value.trim(),p=document.getElementById('lp').value;
-  const e=document.getElementById('login-err');
-  if(USERS[u]&&USERS[u].pass===p){
-    currentUser={...USERS[u],username:u};
+  var uname=document.getElementById('lu').value.trim();
+  var p=document.getElementById('lp').value;
+  var e=document.getElementById('login-err');
+  var db=typeof USERS_DB!=='undefined'?USERS_DB:[];
+  var uRec=db.find(function(u){return u.username===uname&&u.pass===p;});
+  if(uRec){
+    currentUser={username:uRec.username,name:uRec.name,role:uRec.role,perms:uRec.perms||{}};
+    uRec.lastLogin=new Date().toISOString().replace('T',' ').substring(0,16);
     document.getElementById('login-screen').style.display='none';
     document.getElementById('app').style.display='block';
     document.getElementById('user-name-display').textContent=currentUser.name;
     document.getElementById('topbar-bc').textContent='مرحباً، '+currentUser.name;
-    const n=new Date();
+    var n=new Date();
     document.getElementById('dash-date').textContent='آخر تحديث: '+n.toLocaleString('en-US');
     e.style.display='none';
     renderTree();
+    setTimeout(function(){if(typeof saveToStorage==='function')saveToStorage();},500);
   } else {
     e.style.display='block';
     document.getElementById('lp').value='';
@@ -4830,6 +4864,7 @@ function go(pg,el){
   if(pg==='expenses')     setTimeout(()=>{if(typeof renderExpensesPage==='function')renderExpensesPage();},100);
   if(pg==='maintenance')  setTimeout(()=>{if(typeof renderMaintenancePage==='function')renderMaintenancePage();},100);
   if(pg==='workflow')      setTimeout(function(){if(typeof renderWorkflowPage==='function')renderWorkflowPage();},100);
+  if(pg==='users')         setTimeout(function(){if(typeof renderUsersPage==='function')renderUsersPage();},100);
 }
 
 // ===== MODALS =====
@@ -5088,17 +5123,179 @@ function saveInventoryItem() {
   notify('تم إضافة الصنف "'+name+'" بنجاح ✓','success');
 }
 
-function saveNewUser() {
-  var username=(document.getElementById('usr-username')?.value||'').trim();
-  var fullname=(document.getElementById('usr-fullname')?.value||'').trim();
-  var pass=(document.getElementById('usr-pass')?.value||'').trim();
-  var role=document.getElementById('usr-role')?.value||'sales';
-  if(!username){notify('يجب إدخال اسم المستخدم ✕','danger');return;}
-  if(!fullname){notify('يجب إدخال الاسم الكامل ✕','danger');return;}
-  if(!pass||pass.length<6){notify('كلمة المرور يجب أن تكون 6 أحرف على الأقل ✕','danger');return;}
-  closeM('m-user');
-  notify('تم إنشاء المستخدم "'+username+'" بنجاح ✓','success');
+// ============================================================
+// USER MANAGEMENT — إدارة المستخدمين والصلاحيات
+// ============================================================
+function renderUsersPage() {
+  var wrap = document.getElementById('users-table-wrap');
+  if (!wrap) return;
+  var db   = typeof USERS_DB !== 'undefined' ? USERS_DB : [];
+  var mods = typeof PERM_MODULES !== 'undefined' ? PERM_MODULES : [];
+  var sub  = document.getElementById('users-subtitle');
+  if (sub) sub.textContent = db.length + ' مستخدم مسجل';
+  if (!db.length) {
+    wrap.innerHTML = '<div style="text-align:center;padding:40px;color:#9ca3af">لا يوجد مستخدمون</div>';
+    return;
+  }
+  var roleLabels = {admin:'👑 مدير', accountant:'📊 محاسب', sales:'💼 مبيعات', warehouse:'📦 مخزن', technician:'🔧 فني'};
+  var permLabel  = {full:'✅ كامل', view:'👁 عرض', none:'❌'};
+  var permColor  = {full:'var(--odoo-green-l)', view:'#eff6ff', none:''};
+  var thead = '<tr><th>المستخدم</th><th>اسم الدخول</th><th>الدور</th>';
+  mods.forEach(function(m) {
+    thead += '<th style="min-width:80px;text-align:center">' + m.label +
+      ' <span style="cursor:pointer;color:var(--odoo-red);font-size:10px;vertical-align:middle" onclick="deletePermModule(\''+ m.key +'\')" title="حذف عمود الصلاحية">✕</span></th>';
+  });
+  thead += '<th>آخر دخول</th><th>إجراء</th></tr>';
+  var rows = db.map(function(u) {
+    var cells = '';
+    mods.forEach(function(m) {
+      var pv = (u.perms || {})[m.key] || 'none';
+      cells += '<td style="text-align:center;cursor:pointer;background:' + (permColor[pv]||'') +
+        '" onclick="cyclePermInline(\''+ u.id +'\',\''+ m.key +'\')" title="انقر للتغيير">' + (permLabel[pv]||pv) + '</td>';
+    });
+    var isAdmin = u.username === 'admin';
+    return '<tr>' +
+      '<td><strong>' + u.name + '</strong></td>' +
+      '<td style="font-family:monospace;color:var(--odoo-blue)">' + u.username + '</td>' +
+      '<td>' + (roleLabels[u.role] || u.role) + '</td>' +
+      cells +
+      '<td style="font-size:11px;color:var(--text-m)">' + (u.lastLogin || '—') + '</td>' +
+      '<td style="white-space:nowrap">' +
+        '<button class="btn btn-secondary btn-xs" onclick="openEditUser(\''+ u.id +'\')" title="تعديل">✏️</button> ' +
+        (!isAdmin ? '<button class="btn btn-danger btn-xs" onclick="deleteUser(\''+ u.id +'\')" title="حذف">🗑</button>' : '') +
+      '</td></tr>';
+  }).join('');
+  wrap.innerHTML = '<div class="o-table-wrap"><table class="o-table"><thead>' + thead + '</thead><tbody>' + rows + '</tbody></table></div>';
 }
+
+function cyclePermInline(userId, moduleKey) {
+  var db = typeof USERS_DB !== 'undefined' ? USERS_DB : [];
+  var u = db.find(function(u){ return u.id === userId; });
+  if (!u) return;
+  if (!u.perms) u.perms = {};
+  var order = ['full', 'view', 'none'];
+  var cur = u.perms[moduleKey] || 'none';
+  u.perms[moduleKey] = order[(order.indexOf(cur) + 1) % order.length];
+  saveToStorage();
+  renderUsersPage();
+}
+
+function openEditUser(id) {
+  var db = typeof USERS_DB !== 'undefined' ? USERS_DB : [];
+  var u = id ? db.find(function(u){ return u.id === id; }) : null;
+  document.getElementById('usr-edit-id').value = id || '';
+  var titleEl = document.getElementById('usr-modal-title');
+  if (titleEl) titleEl.textContent = id ? '✏️ تعديل المستخدم' : '🔑 إضافة مستخدم جديد';
+  document.getElementById('usr-username').value = u ? u.username : '';
+  document.getElementById('usr-fullname').value = u ? u.name : '';
+  document.getElementById('usr-pass').value     = u ? u.pass : '';
+  var roleEl = document.getElementById('usr-role');
+  if (roleEl) roleEl.value = u ? (u.role || 'sales') : 'sales';
+  renderUserPermsGrid(u ? u.perms : {});
+  openM('m-user');
+}
+
+function openAddUser() { openEditUser(null); }
+
+function renderUserPermsGrid(perms) {
+  var mods = typeof PERM_MODULES !== 'undefined' ? PERM_MODULES : [];
+  var grid = document.getElementById('usr-perms-grid');
+  if (!grid || !mods.length) { if(grid) grid.innerHTML='<div style="padding:16px;color:var(--text-s);text-align:center">لا توجد وحدات صلاحيات</div>'; return; }
+  grid.innerHTML = mods.map(function(m) {
+    var pv = (perms || {})[m.key] || 'none';
+    var bg = pv==='full'?'var(--odoo-green-l)':pv==='view'?'#eff6ff':'';
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--border);background:'+bg+'">' +
+      '<span style="font-size:13px;font-weight:500">' + m.label + '</span>' +
+      '<select class="form-control" style="width:140px" id="perm-' + m.key + '" onchange="updatePermRowBg(this)">' +
+        '<option value="full"'  + (pv==='full'?' selected':'') + '>✅ كامل</option>' +
+        '<option value="view"'  + (pv==='view'?' selected':'') + '>👁 عرض فقط</option>' +
+        '<option value="none"'  + (pv==='none'?' selected':'') + '>❌ محظور</option>' +
+      '</select>' +
+    '</div>';
+  }).join('');
+}
+
+function updatePermRowBg(sel) {
+  var bg = sel.value==='full'?'var(--odoo-green-l)':sel.value==='view'?'#eff6ff':'';
+  if (sel.parentElement) sel.parentElement.style.background = bg;
+}
+
+function setAllPerms(val) {
+  var mods = typeof PERM_MODULES !== 'undefined' ? PERM_MODULES : [];
+  mods.forEach(function(m) {
+    var sel = document.getElementById('perm-' + m.key);
+    if (sel) { sel.value = val; updatePermRowBg(sel); }
+  });
+}
+
+function saveUserForm() {
+  var id       = (document.getElementById('usr-edit-id').value || '').trim();
+  var username = (document.getElementById('usr-username').value || '').trim();
+  var name     = (document.getElementById('usr-fullname').value || '').trim();
+  var pass     = (document.getElementById('usr-pass').value || '').trim();
+  var role     = document.getElementById('usr-role').value || 'sales';
+  if (!username) { notify('يجب إدخال اسم الدخول ✕', 'danger'); return; }
+  if (!name)     { notify('يجب إدخال الاسم الكامل ✕', 'danger'); return; }
+  if (!pass || pass.length < 4) { notify('كلمة المرور يجب أن تكون 4 أحرف على الأقل ✕', 'danger'); return; }
+  var mods = typeof PERM_MODULES !== 'undefined' ? PERM_MODULES : [];
+  var perms = {};
+  mods.forEach(function(m) {
+    var sel = document.getElementById('perm-' + m.key);
+    if (sel) perms[m.key] = sel.value;
+  });
+  var db = typeof USERS_DB !== 'undefined' ? USERS_DB : [];
+  if (id) {
+    var u = db.find(function(u){ return u.id === id; });
+    if (u) { u.username=username; u.name=name; u.pass=pass; u.role=role; u.perms=perms; }
+  } else {
+    if (db.find(function(u){ return u.username===username; })) {
+      notify('اسم الدخول "'+username+'" موجود مسبقاً ✕', 'danger'); return;
+    }
+    db.push({id:'USR-'+String(Date.now()).slice(-5), username:username, name:name, pass:pass, role:role, perms:perms, lastLogin:''});
+  }
+  saveToStorage();
+  closeM('m-user');
+  renderUsersPage();
+  notify('تم حفظ بيانات المستخدم ✓', 'success');
+}
+
+function deleteUser(id) {
+  if (!confirm('هل تريد حذف هذا المستخدم؟')) return;
+  var db = typeof USERS_DB !== 'undefined' ? USERS_DB : [];
+  var idx = db.findIndex(function(u){ return u.id === id; });
+  if (idx >= 0) db.splice(idx, 1);
+  saveToStorage();
+  renderUsersPage();
+  notify('تم حذف المستخدم ✓', 'success');
+}
+
+function openAddPermModule() {
+  var key = prompt('أدخل مفتاح الصلاحية الجديدة (بالإنجليزي بدون مسافات):');
+  if (!key || !key.trim()) return;
+  key = key.trim().toLowerCase().replace(/\s+/g, '_');
+  var label = prompt('أدخل اسم الصلاحية (بالعربي):');
+  if (!label || !label.trim()) return;
+  var mods = typeof PERM_MODULES !== 'undefined' ? PERM_MODULES : [];
+  if (mods.find(function(m){ return m.key === key; })) {
+    notify('الصلاحية "'+key+'" موجودة مسبقاً', 'warning'); return;
+  }
+  mods.push({key: key, label: label.trim()});
+  saveToStorage();
+  renderUsersPage();
+  notify('تمت إضافة صلاحية "'+label+'" ✓', 'success');
+}
+
+function deletePermModule(key) {
+  if (!confirm('هل تريد حذف عمود الصلاحية "'+key+'" من الجدول؟')) return;
+  var mods = typeof PERM_MODULES !== 'undefined' ? PERM_MODULES : [];
+  var idx = mods.findIndex(function(m){ return m.key === key; });
+  if (idx >= 0) mods.splice(idx, 1);
+  saveToStorage();
+  renderUsersPage();
+  notify('تم حذف الصلاحية ✓', 'success');
+}
+
+function saveNewUser() { saveUserForm(); } // alias for backward compat
 
 function confirmNewCustomer() {
   var name=(document.getElementById('nc-name')?.value||'').trim();
@@ -12567,7 +12764,9 @@ function _syncToServer() {
       maint:     MAINT_DB,
       payroll:   PAYROLL_RECORDS,
       wfOrders:  (typeof WF_ORDERS !== 'undefined' ? WF_ORDERS : []),
-      serials:   (typeof SERIALS_DB !== 'undefined' ? SERIALS_DB : [])
+      serials:   (typeof SERIALS_DB !== 'undefined' ? SERIALS_DB : []),
+      usersDb:   (typeof USERS_DB !== 'undefined' ? USERS_DB : []),
+      permMods:  (typeof PERM_MODULES !== 'undefined' ? PERM_MODULES : [])
     });
     var xhr = new XMLHttpRequest();
     xhr.open('POST', '/api/data?client=' + _RAYA_CLIENT_ID, true);
@@ -12699,7 +12898,9 @@ function saveToStorage() {
       maint:     MAINT_DB,
       payroll:   PAYROLL_RECORDS,
       wfOrders:  (typeof WF_ORDERS !== 'undefined' ? WF_ORDERS : []),
-      serials:   (typeof SERIALS_DB !== 'undefined' ? SERIALS_DB : [])
+      serials:   (typeof SERIALS_DB !== 'undefined' ? SERIALS_DB : []),
+      usersDb:   (typeof USERS_DB !== 'undefined' ? USERS_DB : []),
+      permMods:  (typeof PERM_MODULES !== 'undefined' ? PERM_MODULES : [])
     }));
   } catch(e) { /* quota/private */ }
   if (typeof _syncToServer === 'function') _syncToServer();
@@ -12723,6 +12924,17 @@ function loadFromStorage() {
     merge(PAYROLL_RECORDS, d.payroll);
     if (d.wfOrders && typeof WF_ORDERS !== 'undefined') merge(WF_ORDERS, d.wfOrders);
     if (d.serials && typeof SERIALS_DB !== 'undefined') merge(SERIALS_DB, d.serials);
+    if (d.usersDb && typeof USERS_DB !== 'undefined') {
+      d.usersDb.forEach(function(nu){
+        var ex=USERS_DB.find(function(u){return u.id===nu.id;});
+        if(ex){Object.assign(ex,nu);}else{USERS_DB.push(nu);}
+      });
+    }
+    if (d.permMods && Array.isArray(d.permMods) && typeof PERM_MODULES !== 'undefined') {
+      d.permMods.forEach(function(nm){
+        if(!PERM_MODULES.find(function(m){return m.key===nm.key;})) PERM_MODULES.push(nm);
+      });
+    }
     return true;
   } catch(e) { return false; }
 }
@@ -13445,18 +13657,19 @@ window.addEventListener('unhandledrejection', function(ev) {
 
 <!-- ===== USER MODAL ===== -->
 <div class="modal-overlay" id="m-user">
-<div class="modal">
+<div class="modal lg">
 <div class="modal-header">
-  <h3>🔑 إضافة مستخدم جديد</h3>
+  <h3 id="usr-modal-title">🔑 إضافة مستخدم جديد</h3>
   <button class="modal-close" onclick="closeM('m-user')">✕</button>
 </div>
 <div class="modal-body">
+  <input type="hidden" id="usr-edit-id">
   <div class="form-row">
-    <div class="form-group"><label>اسم المستخدم <span class="req">*</span></label><input type="text" class="form-control" id="usr-username" placeholder="user123" dir="ltr"></div>
+    <div class="form-group"><label>اسم الدخول <span class="req">*</span></label><input type="text" class="form-control" id="usr-username" placeholder="user123" dir="ltr" autocomplete="off"></div>
     <div class="form-group"><label>الاسم الكامل <span class="req">*</span></label><input type="text" class="form-control" id="usr-fullname" placeholder="الاسم الكامل"></div>
   </div>
   <div class="form-row">
-    <div class="form-group"><label>كلمة المرور <span class="req">*</span></label><input type="password" class="form-control" id="usr-pass" placeholder="••••••••" dir="ltr"></div>
+    <div class="form-group"><label>كلمة المرور <span class="req">*</span></label><input type="password" class="form-control" id="usr-pass" placeholder="••••••••" dir="ltr" autocomplete="new-password"></div>
     <div class="form-group"><label>الدور <span class="req">*</span></label>
       <select class="form-control" id="usr-role">
         <option value="admin">👑 مدير</option>
@@ -13467,11 +13680,19 @@ window.addEventListener('unhandledrejection', function(ev) {
       </select>
     </div>
   </div>
-  <div class="form-group"><label>البريد الإلكتروني</label><input type="email" class="form-control" id="usr-email" placeholder="user@raya-blue.iq" dir="ltr"></div>
+  <div style="margin-top:16px;border-top:2px solid var(--odoo-purple);padding-top:14px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div style="font-weight:700;color:var(--odoo-purple);font-size:14px">🛡️ الصلاحيات</div>
+      <button class="btn btn-secondary btn-xs" onclick="setAllPerms('full')" title="تعيين كامل للجميع">✅ كامل للكل</button>
+      <button class="btn btn-secondary btn-xs" onclick="setAllPerms('view')" title="عرض فقط للجميع">👁 عرض للكل</button>
+      <button class="btn btn-danger btn-xs"    onclick="setAllPerms('none')" title="حظر الجميع">❌ حظر الكل</button>
+    </div>
+    <div id="usr-perms-grid" style="border:1px solid var(--border);border-radius:var(--r);overflow:hidden;max-height:340px;overflow-y:auto"></div>
+  </div>
 </div>
 <div class="modal-footer">
   <button class="btn btn-secondary" onclick="closeM('m-user')">إلغاء</button>
-  <button class="btn btn-primary" onclick="saveNewUser()">💾 حفظ المستخدم</button>
+  <button class="btn btn-primary" onclick="saveUserForm()">💾 حفظ</button>
 </div>
 </div></div>
 
