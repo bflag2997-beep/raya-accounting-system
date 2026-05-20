@@ -4725,7 +4725,7 @@ function doLogin(){
     document.getElementById('user-name-display').textContent=currentUser.name;
     document.getElementById('topbar-bc').textContent='مرحباً، '+currentUser.name;
     const n=new Date();
-    document.getElementById('dash-date').textContent='آخر تحديث: '+n.toLocaleString('ar-IQ');
+    document.getElementById('dash-date').textContent='آخر تحديث: '+n.toLocaleString('en-US');
     e.style.display='none';
     renderTree();
   } else {
@@ -5168,9 +5168,9 @@ function calcWarranty(){
   const pctH=Math.min(100,Math.round(current/hours*100)),pctD=Math.min(100,Math.round((today-start)/(endByDate-start)*100));
   let msg,color;
   if(hoursLeft===0||daysLeft===0){msg='❌ الضمان منتهي';color='var(--odoo-red)';}
-  else{const hR=current/hours,dR=(today-start)/(endByDate-start);if(hR>dR){msg=`⏰ الساعات أقرب — متبقي <strong>${hoursLeft.toLocaleString()} ساعة</strong>`;color='var(--odoo-orange)';}else{msg=`📅 التاريخ أقرب — متبقي <strong>${daysLeft.toLocaleString()} يوم</strong> حتى ${endByDate.toLocaleDateString('ar-IQ')}`;color='var(--odoo-blue)';}}
+  else{const hR=current/hours,dR=(today-start)/(endByDate-start);if(hR>dR){msg=`⏰ الساعات أقرب — متبقي <strong>${hoursLeft.toLocaleString('en-US')} ساعة</strong>`;color='var(--odoo-orange)';}else{msg=`📅 التاريخ أقرب — متبقي <strong>${daysLeft.toLocaleString('en-US')} يوم</strong> حتى ${endByDate.toLocaleDateString('en-GB')}`;color='var(--odoo-blue)';}}
   res.style.cssText=`border:2px solid ${color};background:${color}15;border-radius:var(--r);padding:14px;`;
-  res.innerHTML=`<div style="font-weight:700;color:${color};margin-bottom:10px">${msg}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div><div style="font-size:11px;color:var(--text-m);margin-bottom:4px">📅 بالتاريخ</div><div style="font-weight:700">${endByDate.toLocaleDateString('ar-IQ')} (${daysLeft} يوم)</div><div style="height:5px;background:var(--bg);border-radius:3px;margin-top:4px;overflow:hidden"><div style="width:${pctD}%;height:100%;background:${pctD>80?'var(--odoo-red)':pctD>50?'var(--odoo-orange)':'var(--odoo-green)'};border-radius:3px"></div></div><div style="font-size:10px;color:var(--text-s)">${pctD}% مستهلك</div></div><div><div style="font-size:11px;color:var(--text-m);margin-bottom:4px">⏰ بالساعات</div><div style="font-weight:700">${hoursLeft.toLocaleString()} ساعة متبقية</div><div style="height:5px;background:var(--bg);border-radius:3px;margin-top:4px;overflow:hidden"><div style="width:${pctH}%;height:100%;background:${pctH>80?'var(--odoo-red)':pctH>50?'var(--odoo-orange)':'var(--odoo-green)'};border-radius:3px"></div></div><div style="font-size:10px;color:var(--text-s)">${pctH}% مستهلك</div></div></div>`;
+  res.innerHTML=`<div style="font-weight:700;color:${color};margin-bottom:10px">${msg}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div><div style="font-size:11px;color:var(--text-m);margin-bottom:4px">📅 بالتاريخ</div><div style="font-weight:700">${endByDate.toLocaleDateString('en-GB')} (${daysLeft} يوم)</div><div style="height:5px;background:var(--bg);border-radius:3px;margin-top:4px;overflow:hidden"><div style="width:${pctD}%;height:100%;background:${pctD>80?'var(--odoo-red)':pctD>50?'var(--odoo-orange)':'var(--odoo-green)'};border-radius:3px"></div></div><div style="font-size:10px;color:var(--text-s)">${pctD}% مستهلك</div></div><div><div style="font-size:11px;color:var(--text-m);margin-bottom:4px">⏰ بالساعات</div><div style="font-weight:700">${hoursLeft.toLocaleString('en-US')} ساعة متبقية</div><div style="height:5px;background:var(--bg);border-radius:3px;margin-top:4px;overflow:hidden"><div style="width:${pctH}%;height:100%;background:${pctH>80?'var(--odoo-red)':pctH>50?'var(--odoo-orange)':'var(--odoo-green)'};border-radius:3px"></div></div><div style="font-size:10px;color:var(--text-s)">${pctH}% مستهلك</div></div></div>`;
 }
 
 // ===== PARTS FILTER =====
@@ -8626,7 +8626,7 @@ function fmtM(n) {
   if (!n && n !== 0) return '—';
   if (n >= 1000000) return (n/1000000).toFixed(2).replace(/\.?0+$/, '') + ' مليون د.ع';
   if (n >= 1000)    return (n/1000).toFixed(0) + ' ألف د.ع';
-  return n.toLocaleString() + ' د.ع';
+  return n.toLocaleString('en-US') + ' د.ع';
 }
 
 // ── 8. AUDIT LOG ─────────────────────────────────────────────────
@@ -9140,10 +9140,10 @@ var REPORT_CONFIGS = {
           if (typeof getAccountBalance === 'function') {
             var b = getAccountBalance(a.code);
             rows.push([a.code, a.name,
-              b.debit  > 0 ? b.debit.toLocaleString()  : '',
-              b.credit > 0 ? b.credit.toLocaleString() : '',
-              b.balance > 0 ? b.balance.toLocaleString() : '',
-              b.balance < 0 ? Math.abs(b.balance).toLocaleString() : '',
+              b.debit  > 0 ? b.debit.toLocaleString('en-US')  : '',
+              b.credit > 0 ? b.credit.toLocaleString('en-US') : '',
+              b.balance > 0 ? b.balance.toLocaleString('en-US') : '',
+              b.balance < 0 ? Math.abs(b.balance).toLocaleString('en-US') : '',
             ]);
           }
         });
@@ -9204,8 +9204,8 @@ var REPORT_CONFIGS = {
           rows.push([
             entry.id, entry.date, entry.description||'—',
             line.code, acc.name,
-            line.debit  > 0 ? line.debit.toLocaleString()  : '',
-            line.credit > 0 ? line.credit.toLocaleString() : '',
+            line.debit  > 0 ? line.debit.toLocaleString('en-US')  : '',
+            line.credit > 0 ? line.credit.toLocaleString('en-US') : '',
           ]);
         });
       });
@@ -9232,7 +9232,7 @@ var REPORT_CONFIGS = {
           var remain = s.total - s.paid;
           var st = s.status === 'paid' ? 'مسدد' : s.status === 'partial' ? 'جزئي' : 'غير مسدد';
           var m  = s.method === 'cash' ? 'نقد' : s.method === 'credit' ? 'آجل' : s.method === 'transfer' ? 'حوالة' : s.method;
-          return [s.id, s.date, s.customer, s.total.toLocaleString(), s.paid.toLocaleString(), remain.toLocaleString(), m, st];
+          return [s.id, s.date, s.customer, s.total.toLocaleString('en-US'), s.paid.toLocaleString('en-US'), remain.toLocaleString('en-US'), m, st];
         });
       }
       return [
@@ -9253,7 +9253,7 @@ var REPORT_CONFIGS = {
       if (ai.length) {
         return ai.map(function(c){
           var st = c.debt === 0 ? 'مسدد' : c.debt > 10000000 ? 'مديونية عالية' : 'مديونية عادية';
-          return [c.id, c.name, c.city||'—', c.phone, '—', c.debt.toLocaleString(), st];
+          return [c.id, c.name, c.city||'—', c.phone, '—', c.debt.toLocaleString('en-US'), st];
         });
       }
       return [];
@@ -9268,7 +9268,7 @@ var REPORT_CONFIGS = {
       var ai = typeof AI_DATA !== 'undefined' ? AI_DATA.installments : [];
       if (ai.length) {
         return ai.map(function(i){
-          return [i.id, i.customer, i.total.toLocaleString(), i.paid.toLocaleString(), i.remain.toLocaleString(), i.next_due, i.overdue ? 'متأخر ⚠️' : 'منتظم ✅'];
+          return [i.id, i.customer, i.total.toLocaleString('en-US'), i.paid.toLocaleString('en-US'), i.remain.toLocaleString('en-US'), i.next_due, i.overdue ? 'متأخر ⚠️' : 'منتظم ✅'];
         });
       }
       return [];
@@ -9285,7 +9285,7 @@ var REPORT_CONFIGS = {
       return inv.map(function(i){
         var status = i.qty === 0 ? 'نفد 🔴' : i.qty < i.min ? 'منخفض ⚠️' : 'طبيعي ✅';
         var cat = i.cat === 'generator' ? 'مولدات' : i.cat === 'part' ? 'قطع غيار' : 'زيوت';
-        return [i.code, i.name, cat, i.qty, i.min, i.unit||'وحدة', (i.cost||0).toLocaleString(), (i.price||0).toLocaleString(), status];
+        return [i.code, i.name, cat, i.qty, i.min, i.unit||'وحدة', (i.cost||0).toLocaleString('en-US'), (i.price||0).toLocaleString('en-US'), status];
       });
     }
   },
@@ -9299,7 +9299,7 @@ var REPORT_CONFIGS = {
       return ai.map(function(m){
         var t = m.type === 'corrective' ? 'إصلاح' : m.type === 'preventive' ? 'وقائية' : m.type === 'warranty' ? 'ضمان' : m.type;
         var s = m.status === 'open' ? 'مفتوح 🔴' : m.status === 'in_progress' ? 'جارية 🟡' : 'مكتملة ✅';
-        return [m.id, m.date, m.customer, t, s, (m.cost||0).toLocaleString()];
+        return [m.id, m.date, m.customer, t, s, (m.cost||0).toLocaleString('en-US')];
       });
     }
   },
@@ -9310,7 +9310,7 @@ var REPORT_CONFIGS = {
     headers: ['التاريخ','نوع المصروف','المبلغ (د.ع)'],
     getData: function() {
       var ai = typeof AI_DATA !== 'undefined' ? AI_DATA.expenses : [];
-      return ai.map(function(e){ return [e.date, e.type, e.amount.toLocaleString()]; });
+      return ai.map(function(e){ return [e.date, e.type, e.amount.toLocaleString('en-US')]; });
     }
   },
   hr_report: {
@@ -9399,7 +9399,7 @@ function doExportExcel() {
 function exportToExcel(config, from, to) {
   var data   = config.getData();
   var period = from && to ? 'من ' + from + ' إلى ' + to : 'كل البيانات';
-  var now    = new Date().toLocaleDateString('ar-IQ');
+  var now    = new Date().toLocaleDateString('en-GB');
   var color  = '#' + COMPANY.color;
   var cols   = config.headers.length;
 
@@ -9469,7 +9469,7 @@ function exportToExcel(config, from, to) {
 function exportToPDF(config, from, to) {
   var data   = config.getData();
   var period = from && to ? 'من ' + from + ' إلى ' + to : 'كل البيانات';
-  var now    = new Date().toLocaleDateString('ar-IQ');
+  var now    = new Date().toLocaleDateString('en-GB');
   var color  = '#' + COMPANY.color;
 
   var tableRows = data.map(function(row, i) {
@@ -9600,7 +9600,7 @@ function renderInvoicePreview() {
     '<div><div style="font-size:18px;font-weight:900">'+co.name+'</div><div style="font-size:11px;opacity:.8">'+subtitle+'</div></div>' +
     '<div style="font-size:20px;font-weight:900;background:rgba(255,255,255,.2);padding:8px 16px;border-radius:20px">'+title+'</div></div>' +
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;font-size:12px">' +
-    '<div><strong>رقم الفاتورة:</strong> INV-XXX</div><div><strong>التاريخ:</strong> '+new Date().toLocaleDateString('ar-IQ')+'</div>' +
+    '<div><strong>رقم الفاتورة:</strong> INV-XXX</div><div><strong>التاريخ:</strong> '+new Date().toLocaleDateString('en-GB')+'</div>' +
     '<div><strong>اسم الزبون:</strong> اسم الزبون</div><div><strong>الهاتف:</strong> '+co.phone+'</div></div>' +
     '<table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:16px">' +
     '<thead><tr style="background:'+color+';color:#fff"><th style="padding:8px;text-align:right">الصنف</th><th style="padding:8px">الكمية</th><th style="padding:8px">السعر</th><th style="padding:8px">المجموع</th></tr></thead>' +
@@ -9647,9 +9647,9 @@ function calcWModal() {
   if (dateVal && expEl) {
     var d = new Date(dateVal);
     d.setFullYear(d.getFullYear() + years);
-    expEl.textContent = d.toLocaleDateString('ar-IQ');
+    expEl.textContent = d.toLocaleDateString('en-GB');
   }
-  if (hoursEl) hoursEl.textContent = hours.toLocaleString('ar-IQ') + ' ساعة';
+  if (hoursEl) hoursEl.textContent = hours.toLocaleString('en-US') + ' ساعة';
 }
 
 // ── Filter inventory items ─────────────────────────────────────────
@@ -9933,7 +9933,7 @@ function calcPurLine(idx) {
   var taxAmt  = (sub - discAmt) * tax / 100;
   var total   = sub - discAmt + taxAmt;
   var el = document.getElementById('pl-total-' + idx);
-  if (el) el.value = total.toLocaleString('ar-IQ');
+  if (el) el.value = total.toLocaleString('en-US');
   calcPurTotals();
   updatePurEntryPreview();
 }
@@ -9957,7 +9957,7 @@ function calcPurTotals() {
     totalTax  += taxAmt;
   });
   var grand = subtotal - totalDisc + totalTax;
-  function fmt(n) { return n.toLocaleString('ar-IQ') + ' د.ع'; }
+  function fmt(n) { return n.toLocaleString('en-US') + ' د.ع'; }
   var el;
   el = document.getElementById('pur-subtotal');    if (el) el.textContent = fmt(subtotal);
   el = document.getElementById('pur-total-disc');  if (el) el.textContent = fmt(totalDisc);
@@ -9993,10 +9993,10 @@ function updatePurEntryPreview() {
       drAccs[accCode].amount += lineTotal;
     });
     Object.keys(drAccs).forEach(function(code) {
-      lines += '<div style="display:flex;justify-content:space-between;padding:2px 0"><span>مدين — ح/' + code + ' ' + drAccs[code].name + '</span><span style="color:var(--odoo-blue)">' + drAccs[code].amount.toLocaleString('ar-IQ') + ' د.ع</span></div>';
+      lines += '<div style="display:flex;justify-content:space-between;padding:2px 0"><span>مدين — ح/' + code + ' ' + drAccs[code].name + '</span><span style="color:var(--odoo-blue)">' + drAccs[code].amount.toLocaleString('en-US') + ' د.ع</span></div>';
     });
   }
-  lines += '<div style="display:flex;justify-content:space-between;padding:2px 0;border-top:1px solid #e5e7eb;margin-top:4px"><span>دائن — ح/' + crCode + ' ' + crName + '</span><span style="color:var(--odoo-red)">' + totals.grand.toLocaleString('ar-IQ') + ' د.ع</span></div>';
+  lines += '<div style="display:flex;justify-content:space-between;padding:2px 0;border-top:1px solid #e5e7eb;margin-top:4px"><span>دائن — ح/' + crCode + ' ' + crName + '</span><span style="color:var(--odoo-red)">' + totals.grand.toLocaleString('en-US') + ' د.ع</span></div>';
   var prev = document.getElementById('pur-entry-preview');
   var linesEl = document.getElementById('pur-entry-lines');
   if (prev && linesEl) { linesEl.innerHTML = lines; prev.style.display = 'block'; }
@@ -10083,7 +10083,7 @@ function savePurchase() {
   var btn = document.getElementById('ic-toggle-btn');
   if(btn){ btn.innerHTML='📦 تفعيل تكاليف الاستيراد'; btn.classList.remove('active'); }
   closeM('m-purchase');
-  notify('✅ تم حفظ فاتورة الشراء ' + invNo + (IC_ACTIVE ? ' مع تكاليف استيراد ' + importTotalSaved.toLocaleString('ar-IQ') + ' د.ع' : '') + ' — القيد: ' + jId, 'success');
+  notify('✅ تم حفظ فاتورة الشراء ' + invNo + (IC_ACTIVE ? ' مع تكاليف استيراد ' + importTotalSaved.toLocaleString('en-US') + ' د.ع' : '') + ' — القيد: ' + jId, 'success');
 }
 
 // ============================================================
@@ -10096,8 +10096,8 @@ function previewExpEntry() {
   var method  = (document.getElementById('exp-method') || {}).value || '';
   if (!accCode || !amt || !method) { var p=document.getElementById('exp-entry-preview'); if(p) p.style.display='none'; return; }
   var crName  = method==='1611'?'صندوق الدينار العراقي':method==='1621'?'البنك':method==='1612'?'صندوق دولار':'الصندوق';
-  var html = '<div style="display:flex;justify-content:space-between;padding:2px 0"><span>مدين — ح/' + accCode + ' ' + accName + '</span><span style="color:var(--odoo-blue)">' + amt.toLocaleString('ar-IQ') + ' د.ع</span></div>';
-  html += '<div style="display:flex;justify-content:space-between;padding:2px 0;border-top:1px solid #e5e7eb;margin-top:4px"><span>دائن — ح/' + method + ' ' + crName + '</span><span style="color:var(--odoo-red)">' + amt.toLocaleString('ar-IQ') + ' د.ع</span></div>';
+  var html = '<div style="display:flex;justify-content:space-between;padding:2px 0"><span>مدين — ح/' + accCode + ' ' + accName + '</span><span style="color:var(--odoo-blue)">' + amt.toLocaleString('en-US') + ' د.ع</span></div>';
+  html += '<div style="display:flex;justify-content:space-between;padding:2px 0;border-top:1px solid #e5e7eb;margin-top:4px"><span>دائن — ح/' + method + ' ' + crName + '</span><span style="color:var(--odoo-red)">' + amt.toLocaleString('en-US') + ' د.ع</span></div>';
   var prev = document.getElementById('exp-entry-preview');
   var linesEl = document.getElementById('exp-entry-lines');
   if (prev && linesEl) { linesEl.innerHTML = html; prev.style.display = 'block'; }
@@ -10137,7 +10137,7 @@ function saveExpense() {
       {code: method,  debit: 0,    credit: amt}
     ]
   });
-  if (typeof addAuditLog === 'function') addAuditLog('add', jId, 'مصروف: ' + desc + ' — ' + amt.toLocaleString('ar-IQ') + ' د.ع');
+  if (typeof addAuditLog === 'function') addAuditLog('add', jId, 'مصروف: ' + desc + ' — ' + amt.toLocaleString('en-US') + ' د.ع');
   closeM('m-expense');
   notify('✅ تم تسجيل المصروف وإنشاء القيد ' + jId, 'success');
   if (typeof renderExpensesPage === 'function') renderExpensesPage();
@@ -10153,8 +10153,8 @@ function previewPayEntry() {
   var method  = (document.getElementById('pmnt-method') || {}).value || '';
   if (!accCode || !amt || !method) { var p=document.getElementById('pay-entry-preview'); if(p) p.style.display='none'; return; }
   var crName = method==='1611'?'صندوق الدينار العراقي':method==='1621'?'البنك':'نقداً';
-  var html = '<div style="display:flex;justify-content:space-between;padding:2px 0"><span>مدين — ح/' + accCode + ' ' + accName + '</span><span style="color:var(--odoo-blue)">' + amt.toLocaleString('ar-IQ') + ' د.ع</span></div>';
-  html += '<div style="display:flex;justify-content:space-between;padding:2px 0;border-top:1px solid #e5e7eb;margin-top:4px"><span>دائن — ح/' + method + ' ' + crName + '</span><span style="color:var(--odoo-red)">' + amt.toLocaleString('ar-IQ') + ' د.ع</span></div>';
+  var html = '<div style="display:flex;justify-content:space-between;padding:2px 0"><span>مدين — ح/' + accCode + ' ' + accName + '</span><span style="color:var(--odoo-blue)">' + amt.toLocaleString('en-US') + ' د.ع</span></div>';
+  html += '<div style="display:flex;justify-content:space-between;padding:2px 0;border-top:1px solid #e5e7eb;margin-top:4px"><span>دائن — ح/' + method + ' ' + crName + '</span><span style="color:var(--odoo-red)">' + amt.toLocaleString('en-US') + ' د.ع</span></div>';
   var prev = document.getElementById('pay-entry-preview');
   var linesEl = document.getElementById('pmnt-entry-lines');
   if (prev && linesEl) { linesEl.innerHTML = html; prev.style.display = 'block'; }
@@ -10196,7 +10196,7 @@ function savePayment() {
       {code: method,  debit: 0,   credit: amt}
     ]
   });
-  if (typeof addAuditLog === 'function') addAuditLog('add', jId, 'صرف نقدي: ' + desc + ' إلى ' + benef + ' — ' + amt.toLocaleString('ar-IQ') + ' د.ع');
+  if (typeof addAuditLog === 'function') addAuditLog('add', jId, 'صرف نقدي: ' + desc + ' إلى ' + benef + ' — ' + amt.toLocaleString('en-US') + ' د.ع');
   closeM('m-payment');
   notify('✅ تم حفظ وصل الصرف ' + jId + ' وإنشاء القيد المحاسبي', 'success');
 }
@@ -10368,14 +10368,14 @@ function calcImportCosts() {
     row._calc = amountIQD;
 
     var resEl = document.getElementById(row.id + '-res');
-    if (resEl) resEl.textContent = enabled && amountIQD > 0 ? amountIQD.toLocaleString('ar-IQ') + ' د.ع' : '—';
+    if (resEl) resEl.textContent = enabled && amountIQD > 0 ? amountIQD.toLocaleString('en-US') + ' د.ع' : '—';
     totalImport += amountIQD;
   });
 
   var grandLanded = baseIQD + totalImport;
 
   // Update summary fields
-  var fmt = function(n){ return n.toLocaleString('ar-IQ') + ' د.ع'; };
+  var fmt = function(n){ return n.toLocaleString('en-US') + ' د.ع'; };
   var el;
   el = document.getElementById('import-total-display'); if(el) el.textContent = fmt(totalImport);
   el = document.getElementById('ic-base-display');      if(el) el.value = fmt(baseIQD);
@@ -10438,22 +10438,22 @@ function updateLandedCostSummary(baseAmt, importAmt, grandTotal) {
     html += '<tr style="background:'+bg+'">';
     html += '<td style="padding:6px 9px;font-weight:600">' + line.name + '</td>';
     html += '<td style="padding:6px 9px;text-align:center">' + line.qty + '</td>';
-    html += '<td style="padding:6px 9px;text-align:center;direction:ltr">' + line.unitCostBefore.toLocaleString('ar-IQ') + '</td>';
-    html += '<td style="padding:6px 9px;text-align:center;color:#d97706;direction:ltr">+' + line.importShare.toLocaleString('ar-IQ') + '</td>';
-    html += '<td style="padding:6px 9px;text-align:center;font-weight:800;color:#065f46;background:#d1fae5;font-size:13px;direction:ltr">' + line.landedUnit.toLocaleString('ar-IQ') + '</td>';
-    html += '<td style="padding:6px 9px;text-align:center;direction:ltr">' + line.landedTotal.toLocaleString('ar-IQ') + '</td>';
+    html += '<td style="padding:6px 9px;text-align:center;direction:ltr">' + line.unitCostBefore.toLocaleString('en-US') + '</td>';
+    html += '<td style="padding:6px 9px;text-align:center;color:#d97706;direction:ltr">+' + line.importShare.toLocaleString('en-US') + '</td>';
+    html += '<td style="padding:6px 9px;text-align:center;font-weight:800;color:#065f46;background:#d1fae5;font-size:13px;direction:ltr">' + line.landedUnit.toLocaleString('en-US') + '</td>';
+    html += '<td style="padding:6px 9px;text-align:center;direction:ltr">' + line.landedTotal.toLocaleString('en-US') + '</td>';
     html += '<td style="padding:6px 9px;text-align:center;color:#d97706;font-weight:600">+' + line.pctAdd + '%</td>';
     html += '</tr>';
   });
   html += '<tr style="background:#064e3b;color:#fff;font-weight:700">';
   html += '<td colspan="3" style="padding:8px 9px">الإجمالي الكلي للتكلفة الحقيقية</td>';
-  html += '<td style="padding:8px 9px;text-align:center;direction:ltr">+' + importAmt.toLocaleString('ar-IQ') + '</td>';
-  html += '<td colspan="2" style="padding:8px 9px;text-align:center;color:#86efac;font-size:14px;direction:ltr">' + grandTotal.toLocaleString('ar-IQ') + ' د.ع</td>';
+  html += '<td style="padding:8px 9px;text-align:center;direction:ltr">+' + importAmt.toLocaleString('en-US') + '</td>';
+  html += '<td colspan="2" style="padding:8px 9px;text-align:center;color:#86efac;font-size:14px;direction:ltr">' + grandTotal.toLocaleString('en-US') + ' د.ع</td>';
   var pct = baseAmt > 0 ? (importAmt/baseAmt*100).toFixed(1) : '0';
   html += '<td style="padding:8px 9px;text-align:center;color:#fbbf24">+' + pct + '%</td>';
   html += '</tr></tbody></table></div>';
 
-  html += '<div class="cost-impact-bar">📊 تكاليف الاستيراد تمثل <b>' + pct + '%</b> من قيمة البضاعة — التكلفة الوصول الفعلية: <b>' + grandTotal.toLocaleString('ar-IQ') + ' د.ع</b></div>';
+  html += '<div class="cost-impact-bar">📊 تكاليف الاستيراد تمثل <b>' + pct + '%</b> من قيمة البضاعة — التكلفة الوصول الفعلية: <b>' + grandTotal.toLocaleString('en-US') + ' د.ع</b></div>';
   sumEl.innerHTML = html;
 }
 
@@ -10486,7 +10486,7 @@ function updatePurEntryPreviewFull(baseAmt, importAmt, grandTotal) {
     Object.keys(drAccs).forEach(function(code){
       lines += '<div style="display:flex;justify-content:space-between;padding:2px 0">' +
         '<span>📦 مدين ح/' + code + ' — مخزون (' + drAccs[code].name + ')</span>' +
-        '<span style="color:var(--odoo-blue);direction:ltr">' + drAccs[code].amount.toLocaleString('ar-IQ') + ' د.ع</span></div>';
+        '<span style="color:var(--odoo-blue);direction:ltr">' + drAccs[code].amount.toLocaleString('en-US') + ' د.ع</span></div>';
     });
   }
 
@@ -10499,14 +10499,14 @@ function updatePurEntryPreviewFull(baseAmt, importAmt, grandTotal) {
     Object.keys(grouped).forEach(function(code){
       lines += '<div style="display:flex;justify-content:space-between;padding:2px 0;color:#d97706">' +
         '<span>🚢 مدين ح/' + code + ' — ' + grouped[code].name + '</span>' +
-        '<span style="direction:ltr">' + grouped[code].amount.toLocaleString('ar-IQ') + ' د.ع</span></div>';
+        '<span style="direction:ltr">' + grouped[code].amount.toLocaleString('en-US') + ' د.ع</span></div>';
     });
   }
 
   // Cr
   lines += '<div style="display:flex;justify-content:space-between;padding:4px 0;border-top:2px solid #e5e7eb;margin-top:5px;font-weight:700">' +
     '<span>💳 دائن ح/' + crCode + ' — ' + crName + '</span>' +
-    '<span style="color:var(--odoo-red);direction:ltr">' + grandTotal.toLocaleString('ar-IQ') + ' د.ع</span></div>';
+    '<span style="color:var(--odoo-red);direction:ltr">' + grandTotal.toLocaleString('en-US') + ' د.ع</span></div>';
 
   var prev = document.getElementById('pur-entry-preview');
   var linesEl = document.getElementById('pur-entry-lines');
@@ -10550,9 +10550,9 @@ function renderPurchasesPage() {
     rows += '<td>' + (jv.supplier || '—') + '</td>';
     rows += '<td>' + (jv.ref || '—') + '</td>';
     rows += '<td>' + (jv.date || '—') + '</td>';
-    rows += '<td style="direction:ltr;text-align:center">' + drTotal.toLocaleString('ar-IQ') + ' د.ع</td>';
-    rows += '<td style="direction:ltr;text-align:center;color:#d97706">' + (importAmt > 0 ? '+' + importAmt.toLocaleString('ar-IQ') + ' د.ع' : '—') + '</td>';
-    rows += '<td style="direction:ltr;text-align:center;font-weight:700;color:#065f46">' + landedAmt.toLocaleString('ar-IQ') + ' د.ع</td>';
+    rows += '<td style="direction:ltr;text-align:center">' + drTotal.toLocaleString('en-US') + ' د.ع</td>';
+    rows += '<td style="direction:ltr;text-align:center;color:#d97706">' + (importAmt > 0 ? '+' + importAmt.toLocaleString('en-US') + ' د.ع' : '—') + '</td>';
+    rows += '<td style="direction:ltr;text-align:center;font-weight:700;color:#065f46">' + landedAmt.toLocaleString('en-US') + ' د.ع</td>';
     rows += '<td><span class="status-badge ' + statusClass + '">' + statusLabel + '</span></td>';
     rows += '</tr>';
   });
@@ -10572,7 +10572,7 @@ document.addEventListener('DOMContentLoaded', function(){
 // BALANCE SHEET — dynamic from JOURNAL_ENTRIES_DATA
 // ================================================================
 function renderBalanceSheet() {
-  var fmtN = function(n) { return Math.abs(Math.round(n)).toLocaleString("ar-IQ"); };
+  var fmtN = function(n) { return Math.abs(Math.round(n)).toLocaleString("en-US"); };
 
   function groupBal(codes) {
     return codes.reduce(function(sum, code) {
@@ -10797,7 +10797,7 @@ function renderDashboard() {
   setEl('kpi-pur-sub',     JOURNAL_ENTRIES_DATA.filter(function(e){return e.journal==='purchase';}).length + ' فاتورة شراء');
 
   var dashDate = document.getElementById('dash-date');
-  if (dashDate) dashDate.textContent = 'آخر تحديث: ' + new Date().toLocaleString('ar-IQ');
+  if (dashDate) dashDate.textContent = 'آخر تحديث: ' + new Date().toLocaleString('en-US');
 }
 
 // ============================================================
@@ -10884,7 +10884,7 @@ function renderIncomeStatement() {
   setHtml('income-exp-breakdown', expBreak);
 
   var subEl = document.getElementById('income-subtitle');
-  if (subEl) subEl.textContent = 'للفترة الكاملة — آخر تحديث: ' + new Date().toLocaleString('ar-IQ');
+  if (subEl) subEl.textContent = 'للفترة الكاملة — آخر تحديث: ' + new Date().toLocaleString('en-US');
 }
 
 // ============================================================
@@ -11225,7 +11225,7 @@ function calcSalLine(idx) {
   var taxAmt  = (sub - discAmt) * tax / 100;
   var total   = sub - discAmt + taxAmt;
   var el = document.getElementById('sl-total-' + idx);
-  if (el) el.value = total.toLocaleString('ar-IQ');
+  if (el) el.value = total.toLocaleString('en-US');
   calcSalTotals();
   updateSaleEntryPreview();
 }
@@ -11248,7 +11248,7 @@ function calcSalTotals() {
     totalTax  += taxAmt;
   });
   var grand = subtotal - totalDisc + totalTax;
-  function fmtIQD(n) { return n.toLocaleString('ar-IQ') + ' د.ع'; }
+  function fmtIQD(n) { return n.toLocaleString('en-US') + ' د.ع'; }
   var el;
   el = document.getElementById('sal-subtotal');    if (el) el.textContent = fmtIQD(subtotal);
   el = document.getElementById('sal-total-disc');  if (el) el.textContent = fmtIQD(totalDisc);
@@ -11272,7 +11272,7 @@ function updateSaleEntryPreview() {
 
   var lines = '<div style="display:flex;justify-content:space-between;padding:3px 0">'
     + '<span>مدين — ح/' + drCode + ' ' + drName + '</span>'
-    + '<span style="color:var(--odoo-green)">' + totals.grand.toLocaleString('ar-IQ') + ' د.ع</span></div>';
+    + '<span style="color:var(--odoo-green)">' + totals.grand.toLocaleString('en-US') + ' د.ع</span></div>';
 
   // Cr: revenue
   var totalCr = 0;
@@ -11291,7 +11291,7 @@ function updateSaleEntryPreview() {
   if (totalCr > 0) {
     lines += '<div style="display:flex;justify-content:space-between;padding:3px 0;border-top:1px solid #e5e7eb;margin-top:4px">'
       + '<span>دائن — ح/41111 إيرادات المبيعات</span>'
-      + '<span style="color:var(--odoo-red)">' + totalCr.toLocaleString('ar-IQ') + ' د.ع</span></div>';
+      + '<span style="color:var(--odoo-red)">' + totalCr.toLocaleString('en-US') + ' د.ع</span></div>';
   }
 
   var prev = document.getElementById('sal-entry-preview');
@@ -11442,7 +11442,7 @@ function renderSalesPage() {
     rows += '<td style="font-family:monospace;font-weight:600;color:var(--odoo-green)">' + (jv.ref || jv.id) + '</td>';
     rows += '<td style="font-weight:600">' + (jv.customer || '—') + '</td>';
     rows += '<td>' + (jv.date || '—') + '</td>';
-    rows += '<td style="direction:ltr;text-align:center;font-weight:700;color:var(--odoo-green)">' + crTotal.toLocaleString('ar-IQ') + ' د.ع</td>';
+    rows += '<td style="direction:ltr;text-align:center;font-weight:700;color:var(--odoo-green)">' + crTotal.toLocaleString('en-US') + ' د.ع</td>';
     rows += '<td style="text-align:center">' + (payLabels[jv.payMethod] || jv.payMethod || '—') + '</td>';
     rows += '<td style="text-align:center">' + statusHtml + '</td>';
     rows += '<td style="text-align:center">' + collectBtn + '<button class="btn btn-o btn-xs" onclick="printRcp()">🖨</button></td>';
@@ -11492,7 +11492,7 @@ function printRcp() {
     // Try to fill print modal with sale data
     var printBody = document.getElementById('print-body');
     if (printBody && !printBody.hasChildNodes()) {
-      var now = new Date().toLocaleDateString('ar-IQ');
+      var now = new Date().toLocaleDateString('en-GB');
       printBody.innerHTML = '<div style="text-align:center;padding:8px 0 12px"><div style="font-size:16px;font-weight:900;color:var(--odoo-blue)">' + (typeof COMPANY !== 'undefined' ? COMPANY.name : 'الراية الزرقاء') + '</div><div style="font-size:11px;color:var(--text-s);margin-top:2px">' + now + '</div></div><div class="info-row"><span class="lbl">رقم الوصل</span><span class="val" style="font-family:monospace;font-weight:700">RCP-' + String(Math.floor(Math.random()*900)+100) + '</span></div><div class="info-row"><span class="lbl">التاريخ</span><span class="val">' + now + '</span></div><div class="info-row"><span class="lbl">المبلغ</span><span class="val" style="color:var(--odoo-green);font-weight:800">—</span></div><div class="info-row"><span class="lbl">طريقة الدفع</span><span class="val">نقد</span></div>';
     }
     m.classList.add('open');
@@ -12025,7 +12025,7 @@ function renderExpensesPage() {
   setEl('exp-kpi-salary', fmt(totalSalary) + ' د.ع');
   setEl('exp-kpi-rent',   fmt(totalRent)   + ' د.ع');
   setEl('exp-kpi-other',  fmt(totalOther)  + ' د.ع');
-  if (subtitle) subtitle.textContent = expEntries.length + ' قيد مصروف — آخر تحديث: ' + new Date().toLocaleString('ar-IQ');
+  if (subtitle) subtitle.textContent = expEntries.length + ' قيد مصروف — آخر تحديث: ' + new Date().toLocaleString('en-US');
 }
 
 // ============================================================
@@ -12250,7 +12250,7 @@ function renderWorkflowPage() {
         '</div>' +
         '<div style="font-weight:700;font-size:13px;margin-bottom:2px">' + o.customer + '</div>' +
         '<div style="font-size:10.5px;color:var(--text-m);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + o.product + '</div>' +
-        '<div style="font-size:11.5px;font-weight:800;color:var(--odoo-green)">' + (o.amount||0).toLocaleString('ar-IQ') + ' د.ع</div>' +
+        '<div style="font-size:11.5px;font-weight:800;color:var(--odoo-green)">' + (o.amount||0).toLocaleString('en-US') + ' د.ع</div>' +
         '<div style="margin-top:7px">' +
           '<button class="btn btn-primary" style="padding:3px 10px;font-size:10px;background:' + st.color + ';border-color:' + st.color + ';color:#fff"' +
             ' onclick="event.stopPropagation();' + (st.id==='delivery'?'completeWF':'advanceWF') + '(\'' + o.id + '\'' + (st.id!=='delivery'?',\'' + st.next + '\'':'') + ')">' + st.nextLabel + '</button>' +
@@ -12310,7 +12310,7 @@ function showWFDetail(id) {
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' +
     '<div class="info-row"><span class="lbl">الزبون</span><span class="val">' + o.customer + '</span></div>' +
     '<div class="info-row"><span class="lbl">المنتج</span><span class="val">' + o.product + '</span></div>' +
-    '<div class="info-row"><span class="lbl">المبلغ</span><span class="val" style="color:var(--odoo-green);font-weight:700">' + (o.amount||0).toLocaleString('ar-IQ') + ' د.ع</span></div>' +
+    '<div class="info-row"><span class="lbl">المبلغ</span><span class="val" style="color:var(--odoo-green);font-weight:700">' + (o.amount||0).toLocaleString('en-US') + ' د.ع</span></div>' +
     '<div class="info-row"><span class="lbl">الدفع</span><span class="val">' + (WF_PAY_LABELS[o.payMethod]||o.payMethod||'—') + '</span></div>' +
     '<div class="info-row"><span class="lbl">التاريخ</span><span class="val">' + (o.date||'—') + '</span></div>' +
     '<div class="info-row"><span class="lbl">المرحلة</span><span class="val">' + (sLbls[o.stage]||o.stage) + '</span></div>' +
@@ -12570,7 +12570,7 @@ function printMaintReport() {
       + '<td style="font-size:11px;max-width:180px;overflow:hidden">'+(r.desc||'—')+'</td>'
       + '<td>'+(r.tech||'—')+'</td>'
       + '<td>'+(TYPE_M[r.type]||r.type||'—')+'</td>'
-      + '<td style="font-weight:700;text-align:center">'+(r.cost>0?r.cost.toLocaleString('ar-IQ')+' د.ع':'مجاني')+'</td>'
+      + '<td style="font-weight:700;text-align:center">'+(r.cost>0?r.cost.toLocaleString('en-US')+' د.ع':'مجاني')+'</td>'
       + '<td style="font-weight:700;color:'+clr+'">'+(STATUS_M[r.status]||r.status||'—')+'</td>'
       + '</tr>';
   }).join('');
@@ -12599,7 +12599,7 @@ function printMaintReport() {
     + '<div class="kp"><div class="kv">'+sorted.length+'</div><div class="kl">إجمالي الطلبات</div></div>'
     + '<div class="kp"><div class="kv" style="color:#d97706">'+openCount+'</div><div class="kl">مفتوحة / معالجة</div></div>'
     + '<div class="kp"><div class="kv" style="color:#16a34a">'+doneCount+'</div><div class="kl">مكتملة</div></div>'
-    + '<div class="kp"><div class="kv" style="color:#dc2626">'+totalCost.toLocaleString('ar-IQ')+'</div><div class="kl">إجمالي التكاليف (د.ع)</div></div>'
+    + '<div class="kp"><div class="kv" style="color:#dc2626">'+totalCost.toLocaleString('en-US')+'</div><div class="kl">إجمالي التكاليف (د.ع)</div></div>'
     + '</div>'
     + '<table><thead><tr><th>#</th><th>رقم الطلب</th><th>التاريخ</th><th>الزبون</th><th>المولد</th><th>وصف العطل</th><th>الفني</th><th>النوع</th><th>الكلفة</th><th>الحالة</th></tr></thead>'
     + '<tbody>'+bodyRows+'</tbody></table>'
