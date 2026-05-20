@@ -4831,6 +4831,7 @@ function doLogin(){
   var uRec=db.find(function(u){return u.username===uname&&u.pass===p;});
   if(uRec){
     currentUser={username:uRec.username,name:uRec.name,role:uRec.role,perms:uRec.perms||{}};
+    try{sessionStorage.setItem("raya_sess",JSON.stringify(currentUser));}catch(e){}
     uRec.lastLogin=new Date().toISOString().replace('T',' ').substring(0,16);
     document.getElementById('login-screen').style.display='none';
     document.getElementById('app').style.display='block';
@@ -4847,7 +4848,7 @@ function doLogin(){
     document.getElementById('lp').value='';
   }
 }
-function logout(){if(confirm('هل تريد تسجيل الخروج؟')){location.reload();}}
+function logout(){rayaConfirm('هل تريد تسجيل الخروج؟',function(){try{sessionStorage.removeItem('raya_sess');}catch(e){}location.reload();});}
 
 // ===== NAVIGATION =====
 const PT={
@@ -5377,35 +5378,37 @@ function saveUserForm() {
 }
 
 function deleteUser(id) {
-  if (!confirm("هل تريد حذف هذا المستخدم؟")) return;
+  rayaConfirm("هل تريد حذف هذا المستخدم؟",function(){
   var db = typeof USERS_DB !== "undefined" ? USERS_DB : [];
   var idx = db.findIndex(function(u){ return u.id===id; });
   if (idx >= 0) db.splice(idx, 1);
   saveToStorage(); renderUsersPage();
   notify("تم حذف المستخدم ✓","success");
-}
+},{danger:true});}
 
-function openAddPermModule() {
-  var key = prompt("مفتاح الصلاحية الجديدة (إنجليزي بدون مسافات):");
-  if (!key || !key.trim()) return;
-  key = key.trim().toLowerCase().replace(/\s+/g,"_");
-  var label = prompt("اسم الصلاحية (بالعربي):");
-  if (!label || !label.trim()) return;
-  var mods = typeof PERM_MODULES !== "undefined" ? PERM_MODULES : [];
-  if (mods.find(function(m){ return m.key===key; })) { notify("الصلاحية موجودة مسبقاً","warning"); return; }
-  mods.push({key:key, label:label.trim()});
-  saveToStorage(); renderUsersPage();
-  notify("تمت إضافة الصلاحية ✓","success");
+function openAddPermModule(){
+  rayaPrompt("مفتاح الصلاحية الجديدة (إنجليزي بدون مسافات):",function(key){
+    if(!key||!key.trim())return;
+    key=key.trim().toLowerCase().replace(/\s+/g,"_");
+    rayaPrompt("اسم الصلاحية (بالعربي):",function(label){
+      if(!label||!label.trim())return;
+      var mods=typeof PERM_MODULES!=="undefined"?PERM_MODULES:[];
+      if(mods.find(function(m){return m.key===key;})){notify("الصلاحية موجودة مسبقاً","warning");return;}
+      mods.push({key:key,label:label.trim()});
+      saveToStorage();renderUsersPage();
+      notify("تمت إضافة الصلاحية ✓","success");
+    });
+  });
 }
 
 function deletePermModule(key) {
-  if (!confirm("حذف عمود الصلاحية \""+key+"\"؟")) return;
+  rayaConfirm("حذف عمود الصلاحية \""+key+"\"؟",function(){
   var mods = typeof PERM_MODULES !== "undefined" ? PERM_MODULES : [];
   var idx = mods.findIndex(function(m){ return m.key===key; });
   if (idx >= 0) mods.splice(idx, 1);
   saveToStorage(); renderUsersPage();
   notify("تم الحذف ✓","success");
-}
+},{danger:true});}
 
 function saveNewUser() { saveUserForm(); } // backward compat
 
@@ -5573,10 +5576,9 @@ function payInstallment(contractId, pIdx) {
   if (!c || !c.payments || !c.payments[pIdx]) return;
   var p = c.payments[pIdx];
   if (p.status === "paid") { notify("هذا القسط مدفوع مسبقاً","warning"); return; }
-  if (!confirm("تأكيد تسجيل دفع القسط "+(pIdx+1)+" بمبلغ "+fmt(p.amt)+" د.ع للزبون "+c.custName+"؟")) return;
+  rayaConfirm("تأكيد تسجيل دفع القسط "+(pIdx+1)+" بمبلغ "+fmt(p.amt)+" د.ع للزبون "+c.custName+"؟",function(){
   p.status = "paid";
   p.paidDate = new Date().toISOString().split("T")[0];
-  // قيد محاسبي: مدين الصندوق / دائن حساب الزبون
   var jId = "RCP-"+String(Date.now()).slice(-6);
   p.rcpRef = jId;
   if (typeof JOURNAL_ENTRIES_DATA !== "undefined") {
@@ -5586,7 +5588,6 @@ function payInstallment(contractId, pIdx) {
       lines:[{code:"1611",debit:p.amt},{code:"1511",credit:p.amt}]
     });
   }
-  // تخفيض ذمة الزبون
   if (typeof CUSTOMERS_DB !== "undefined" && c.custId) {
     var cr = CUSTOMERS_DB.find(function(cu){ return cu.id===c.custId||cu.name===c.custName; });
     if (cr) cr.debt = Math.max(0, (cr.debt||0) - p.amt);
@@ -5594,6 +5595,7 @@ function payInstallment(contractId, pIdx) {
   saveToStorage();
   renderInstallmentsPage();
   notify("تم تسجيل دفع القسط "+(pIdx+1)+" ✓","success");
+  });
 }
 
 function calcInstPreview() {
@@ -6018,9 +6020,7 @@ function advanceWF(soId, nextStage) {
     setTimeout(() => openM('m-receipt'), 300);
   } else if (nextStage === 'purchase') {
     setTimeout(() => {
-      if(confirm('هذا الصنف غير متوفر في المخزن. هل تريد إنشاء طلب شراء تلقائياً؟')) {
-        openPurchaseModal();
-      }
+      rayaConfirm('هذا الصنف غير متوفر في المخزن. هل تريد إنشاء طلب شراء تلقائياً؟',function(){openPurchaseModal();});
     }, 300);
   }
 }
@@ -8228,8 +8228,7 @@ function ctxAction(action) {
     // Hard block — NO exceptions, not even for admin
     if (accountHasEntries(code)) {       notify('🚫 الحذف ممنوع نهائياً — الحساب ' + code + ' عليه حركات مالية مسجلة', 'danger');
       return;
-    }     if (confirm('حذف الحساب ' + code + ' — ' + name + '? سيسجل في سجل التدقيق.')) {       if (typeof addAuditLog === 'function') addAuditLog('delete', 'ACC-' + code, 'حذف الحساب ' + code + ' — ' + name);       notify('تم حذف الحساب ' + code, 'success');
-    }
+    }     rayaConfirm('حذف الحساب ' + code + ' — ' + name + '؟ سيسجل في سجل التدقيق.',function(){if(typeof addAuditLog==='function')addAuditLog('delete','ACC-'+code,'حذف الحساب '+code+' — '+name);notify('تم حذف الحساب '+code,'success');},{danger:true});
   }
 }
 document.addEventListener('DOMContentLoaded',function(){
@@ -12155,8 +12154,7 @@ function printRcp() {
 
 // ── convertReservation: تحويل حجز إلى فاتورة مبيعات ────────────────
 function convertReservation(rsvId, genSerial, customerName, totalPrice, depositPaid) {
-  if (!confirm('هل تريد تحويل الحجز ' + rsvId + ' إلى فاتورة مبيعات؟')) return;
-  // Pre-fill sale modal with reservation data
+  rayaConfirm('هل تريد تحويل الحجز ' + rsvId + ' إلى فاتورة مبيعات؟',function(){
   var custInput = document.getElementById('sale-customer');
   if (custInput) custInput.value = customerName;
   var priceInput = document.getElementById('sale-total');
@@ -12174,7 +12172,7 @@ function convertReservation(rsvId, genSerial, customerName, totalPrice, depositP
 
 // ── cancelReservation: إلغاء حجز ────────────────────────────────────
 function cancelReservation(rsvId) {
-  if (!confirm('هل تريد إلغاء الحجز ' + rsvId + '؟ سيتم إعادة المولد إلى المخزون.')) return;
+  rayaConfirm('هل تريد إلغاء الحجز ' + rsvId + '؟ سيتم إعادة المولد إلى المخزون.',function(){
   var row = document.querySelector('[data-rsv="' + rsvId + '"]');
   if (row) {
     row.style.background = 'var(--odoo-red-l)';
@@ -12182,6 +12180,7 @@ function cancelReservation(rsvId) {
     setTimeout(function() { row.style.display = 'none'; }, 500);
   }
   notify('تم إلغاء الحجز ' + rsvId + ' وإعادة المولد للمخزون ✓', 'success');
+  },{danger:true});
 }
 
 // ── selectTemplate: اختيار قالب الفاتورة ──────────────────────────
@@ -12231,7 +12230,25 @@ function printInvoicePreview() {
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">' +
     '<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">' +
     '<style>body{font-family:Cairo,Arial,sans-serif;margin:0;padding:16px;direction:rtl}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style>' +
-    '</head><body>' + previewEl.outerHTML + '</body></html>';
+    '</head><body>' + previewEl.outerHTML + '<div class="modal-overlay" id="raya-dlg-overlay" style="z-index:9999">
+  <div class="modal" style="width:480px;max-width:95%">
+    <div id="raya-dlg-header" class="modal-header" style="padding:16px 20px;background:#f8f9fa;border-radius:var(--r-lg) var(--r-lg) 0 0">
+      <h3 id="raya-dlg-title" style="margin:0;font-size:1rem;font-weight:600;color:var(--text-d)">تأكيد</h3>
+    </div>
+    <div class="modal-body" style="padding:20px 24px 24px">
+      <p id="raya-dlg-msg" style="margin:0 0 18px;line-height:1.9;font-size:.95rem;color:var(--text-d)"></p>
+      <div id="raya-dlg-inp-wrap" style="display:none;margin-bottom:16px">
+        <input id="raya-dlg-inp" type="text" class="form-control" dir="rtl" style="text-align:right"
+          onkeydown="if(event.key==='Enter')_rayaDlgYes()">
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-start">
+        <button id="raya-dlg-yes" class="btn btn-primary" onclick="_rayaDlgYes()">نعم</button>
+        <button id="raya-dlg-no" class="btn btn-secondary" onclick="_rayaDlgNo()">إلغاء</button>
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>';
   var w = window.open('', '_blank', 'width=900,height=650');
   if (w) { w.document.write(html); w.document.close(); setTimeout(function() { w.print(); }, 600); }
 }
@@ -12328,11 +12345,12 @@ function deleteCustomer(id) {
     notify('لا يمكن حذف الزبون — يوجد له قيود محاسبية مسجلة ✕', 'danger');
     return;
   }
-  if (!confirm('هل تريد حذف الزبون ' + c.name + '؟')) return;
+  rayaConfirm('هل تريد حذف الزبون ' + c.name + '؟',function(){
   var idx = CUSTOMERS_DB.findIndex(function(x){ return x.id === id; });
   CUSTOMERS_DB.splice(idx, 1);
   notify('تم حذف الزبون ✓', 'success');
   renderCustomersPage();
+  },{danger:true});
 }
 
 // ============================================================
@@ -12409,11 +12427,12 @@ function deleteSupplier(id) {
     notify('لا يمكن حذف المجهز — يوجد له قيود محاسبية مسجلة ✕', 'danger');
     return;
   }
-  if (!confirm('هل تريد حذف المجهز ' + s.name + '؟')) return;
+  rayaConfirm('هل تريد حذف المجهز ' + s.name + '؟',function(){
   var idx = SUPPLIERS_DB.findIndex(function(x){ return x.id === id; });
   SUPPLIERS_DB.splice(idx, 1);
   notify('تم حذف المجهز ✓', 'success');
   renderSuppliersPage();
+  },{danger:true});
 }
 
 // ============================================================
@@ -12787,10 +12806,11 @@ function completeMaint(id) {
 function deleteMaint(id) {
   var idx = MAINT_DB.findIndex(function(x){ return x.id === id; });
   if (idx < 0) return;
-  if (!confirm('هل تريد حذف طلب الصيانة ' + id + '؟')) return;
+  rayaConfirm('هل تريد حذف طلب الصيانة ' + id + '؟',function(){
   MAINT_DB.splice(idx, 1);
   renderMaintenancePage();
   notify('تم حذف الطلب ✓', 'success');
+  },{danger:true});
 }
 
 function saveMaintenance() {
@@ -13254,10 +13274,10 @@ var _RAYA_KEY = 'raya_blue_v10';
 // ============================================================
 // resetAllData() — إعادة تهيئة كاملة (استخدم من console أو زر الإعدادات)
 // ============================================================
-function resetAllData() {
-  var pw = prompt("أدخل كلمة المرور الخاصة بالحذف الكامل:");
-  if (pw !== "DELETE-RAYA-2026") { alert("كلمة المرور خاطئة — لم يتم حذف أي شيء"); return; }
-  if (!confirm("تحذير أخير: سيتم حذف جميع البيانات نهائياً بدون رجعة. هل أنت متأكد 100%؟")) return;
+function resetAllData(){
+  rayaPrompt("أدخل كلمة المرور الخاصة بالحذف الكامل:",function(pw){
+    if(pw!=="DELETE-RAYA-2026"){rayaAlert("كلمة المرور خاطئة — لم يتم حذف أي شيء");return;}
+    rayaConfirm("تحذير أخير: سيتم حذف جميع البيانات نهائياً بدون رجعة. هل أنت متأكد 100%؟",function(){
   JOURNAL_ENTRIES_DATA.splice(0);
   CUSTOMERS_DB.splice(0);
   SUPPLIERS_DB.splice(0);
@@ -13279,6 +13299,8 @@ function resetAllData() {
   if (typeof _syncToServer === "function") _syncToServer();
   notify("تم تفريغ جميع البيانات ✔", "success");
   setTimeout(function(){ location.reload(); }, 1500);
+    },{danger:true,yesLabel:"احذف كل شيء"});
+  });
 }
 function saveToStorage() {
   try {
@@ -13339,6 +13361,29 @@ function loadFromStorage() {
       _cleaned.forEach(function(m){ MAINT_DB.push(m); });
       try { var _s=JSON.parse(localStorage.getItem(_RAYA_KEY)||'{}'||'{'); _s.maint=MAINT_DB; localStorage.setItem(_RAYA_KEY,JSON.stringify(_s)); } catch(e){}
     }
+    // مهاجرة v23: حذف القيود المحاسبية التجريبية
+    var _demoJvIds = ['JV-001','JV-002','JV-003','JV-004','JV-005','JV-006','JV-007'];
+    if (typeof JOURNAL_ENTRIES_DATA !== 'undefined' && JOURNAL_ENTRIES_DATA.some(function(j){ return _demoJvIds.indexOf(j.id) >= 0; })) {
+      var _cleanJv = JOURNAL_ENTRIES_DATA.filter(function(j){ return _demoJvIds.indexOf(j.id) < 0; });
+      JOURNAL_ENTRIES_DATA.splice(0, JOURNAL_ENTRIES_DATA.length);
+      _cleanJv.forEach(function(j){ JOURNAL_ENTRIES_DATA.push(j); });
+      try { var _sj=JSON.parse(localStorage.getItem(_RAYA_KEY)||'{}'); _sj.journal=JOURNAL_ENTRIES_DATA; localStorage.setItem(_RAYA_KEY,JSON.stringify(_sj)); } catch(e){}
+    }
+    // مهاجرة v23: حذف طلبات المبيعات التجريبية
+    var _demoSoIds = ['SO-001','SO-002','SO-003','SO-004','SO-005','SO-006','SO-007','SO-008','SO-009'];
+    if (typeof WF_ORDERS !== 'undefined' && WF_ORDERS.some(function(o){ return _demoSoIds.indexOf(o.id) >= 0; })) {
+      var _cleanSo = WF_ORDERS.filter(function(o){ return _demoSoIds.indexOf(o.id) < 0; });
+      WF_ORDERS.splice(0, WF_ORDERS.length);
+      _cleanSo.forEach(function(o){ WF_ORDERS.push(o); });
+      try { var _sw=JSON.parse(localStorage.getItem(_RAYA_KEY)||'{}'); _sw.wfOrders=WF_ORDERS; localStorage.setItem(_RAYA_KEY,JSON.stringify(_sw)); } catch(e){}
+    }
+    // مهاجرة v23: حذف الزبائن التجريبيين (بدون accountCode)
+    if (typeof CUSTOMERS_DB !== 'undefined' && CUSTOMERS_DB.some(function(c){ return !c.accountCode; })) {
+      var _cleanCust = CUSTOMERS_DB.filter(function(c){ return !!c.accountCode; });
+      CUSTOMERS_DB.splice(0, CUSTOMERS_DB.length);
+      _cleanCust.forEach(function(c){ CUSTOMERS_DB.push(c); });
+      try { var _sc=JSON.parse(localStorage.getItem(_RAYA_KEY)||'{}'); _sc.customers=CUSTOMERS_DB; localStorage.setItem(_RAYA_KEY,JSON.stringify(_sc)); } catch(e){}
+    }
     return true;
   } catch(e) { return false; }
 }
@@ -13374,7 +13419,7 @@ function restoreDataJSON(input) {
     try {
       var d = JSON.parse(ev.target.result);
       if (!d || !d.journal) { notify('ملف غير صالح ✕', 'danger'); return; }
-      if (!confirm('هل تريد استعادة البيانات؟ سيتم استبدال البيانات الحالية.')) return;
+      rayaConfirm('هل تريد استعادة البيانات؟ سيتم استبدال البيانات الحالية.',function(){
       function merge(target, src) {
         if (!src) return;
         target.splice(0, target.length);
@@ -13388,6 +13433,7 @@ function restoreDataJSON(input) {
       saveToStorage();
       notify('تمت الاستعادة — جاري إعادة التحميل... ✔', 'success');
       setTimeout(function(){ location.reload(); }, 1500);
+      });
     } catch(err) { notify('خطأ في قراءة الملف ✕', 'danger'); }
   };
   reader.readAsText(file);
@@ -13567,6 +13613,7 @@ window.addEventListener('unhandledrejection', function(ev) {
   var loaded = loadFromStorage();
   if (loaded) console.info('[Raya v10] تم تحميل البيانات من localStorage ✔');
   else        console.info('[Raya v10] بيانات افتراضية (لا يوجد حفظ سابق)');
+  _tryRestoreSession();
   // تحميل من السيرفر عند البداية + اتصال SSE للتحديث الفوري
   setTimeout(function() {
     if (typeof _loadFromServer === 'function') {
@@ -13580,6 +13627,74 @@ window.addEventListener('unhandledrejection', function(ev) {
     if (typeof _connectSSE === 'function') _connectSSE();
   }, 800);
 })();
+
+// ===== RAYA CUSTOM DIALOGS =====
+var _rayaDlgCb=null,_rayaDlgMode="confirm";
+function rayaConfirm(msg,onYes,opts){
+  opts=opts||{};
+  _rayaDlgCb=onYes;_rayaDlgMode="confirm";
+  document.getElementById("raya-dlg-msg").textContent=msg;
+  document.getElementById("raya-dlg-inp-wrap").style.display="none";
+  document.getElementById("raya-dlg-header").style.background=opts.danger?"#fee2e2":"#f8f9fa";
+  var yBtn=document.getElementById("raya-dlg-yes");
+  yBtn.textContent=opts.yesLabel||"نعم";
+  yBtn.style.cssText=opts.danger?"background:#dc3545;border-color:#dc3545;color:#fff":"";
+  document.getElementById("raya-dlg-no").style.display="";
+  document.getElementById("raya-dlg-overlay").classList.add("open");
+}
+function rayaAlert(msg){
+  _rayaDlgCb=null;_rayaDlgMode="alert";
+  document.getElementById("raya-dlg-msg").textContent=msg;
+  document.getElementById("raya-dlg-inp-wrap").style.display="none";
+  document.getElementById("raya-dlg-header").style.background="#fff3cd";
+  document.getElementById("raya-dlg-yes").textContent="حسناً";
+  document.getElementById("raya-dlg-yes").style.cssText="";
+  document.getElementById("raya-dlg-no").style.display="none";
+  document.getElementById("raya-dlg-overlay").classList.add("open");
+}
+function rayaPrompt(msg,onValue,isPassword){
+  _rayaDlgCb=onValue;_rayaDlgMode="prompt";
+  document.getElementById("raya-dlg-msg").textContent=msg;
+  document.getElementById("raya-dlg-inp-wrap").style.display="";
+  document.getElementById("raya-dlg-inp").value="";
+  document.getElementById("raya-dlg-inp").type=isPassword?"password":"text";
+  document.getElementById("raya-dlg-header").style.background="#f8f9fa";
+  document.getElementById("raya-dlg-yes").textContent="تأكيد";
+  document.getElementById("raya-dlg-yes").style.cssText="";
+  document.getElementById("raya-dlg-no").style.display="";
+  document.getElementById("raya-dlg-overlay").classList.add("open");
+  setTimeout(function(){document.getElementById("raya-dlg-inp").focus();},80);
+}
+function _rayaDlgYes(){
+  document.getElementById("raya-dlg-overlay").classList.remove("open");
+  var cb=_rayaDlgCb;_rayaDlgCb=null;
+  if(typeof cb!=="function")return;
+  if(_rayaDlgMode==="prompt"){cb(document.getElementById("raya-dlg-inp").value);}
+  else{cb();}
+}
+function _rayaDlgNo(){
+  document.getElementById("raya-dlg-overlay").classList.remove("open");
+  _rayaDlgCb=null;
+}
+// ===== SESSION RESTORE =====
+function _tryRestoreSession(){
+  try{
+    var _sess=sessionStorage.getItem("raya_sess");
+    if(!_sess)return;
+    var _su=JSON.parse(_sess);
+    if(!_su||!_su.username)return;
+    var db=typeof USERS_DB!=="undefined"?USERS_DB:[];
+    var uRec=db.find(function(u){return u.username===_su.username;});
+    if(!uRec){sessionStorage.removeItem("raya_sess");return;}
+    currentUser={username:uRec.username,name:uRec.name,role:uRec.role,perms:uRec.perms||{}};
+    document.getElementById("login-screen").style.display="none";
+    document.getElementById("app").style.display="block";
+    document.getElementById("user-name-display").textContent=currentUser.name;
+    document.getElementById("topbar-bc").textContent="مرحباً، "+currentUser.name;
+    if(typeof applyPermissionsUI==="function")applyPermissionsUI();
+    if(typeof renderTree==="function")renderTree();
+  }catch(e){}
+}
 
 </script>
 
