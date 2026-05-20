@@ -12385,6 +12385,88 @@ function confirmQuickCustomer() {
 // ============================================================
 // PERSISTENCE ENGINE — localStorage v10
 // ============================================================
+// ============================================================
+// SERVER SYNC — تزامن الداتا مع السيرفر المحلي
+// ============================================================
+function _syncToServer() {
+  try {
+    if (window.location.protocol === 'file:') return;
+    var payload = JSON.stringify({
+      v: 10, ts: Date.now(),
+      journal:   JOURNAL_ENTRIES_DATA,
+      customers: CUSTOMERS_DB,
+      suppliers: SUPPLIERS_DB,
+      maint:     MAINT_DB,
+      payroll:   PAYROLL_RECORDS,
+      wfOrders:  (typeof WF_ORDERS !== 'undefined' ? WF_ORDERS : [])
+    });
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/data', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function() {
+      if (xhr.status === 200) console.info('[Raya] تم حفظ الداتا على السيرفر D: ✔');
+    };
+    xhr.onerror = function() { console.warn('[Raya] السيرفر غير متاح — تم الحفظ محلياً فقط'); };
+    xhr.send(payload);
+  } catch(e) { /* offline */ }
+}
+
+function _loadFromServer(callback) {
+  try {
+    if (window.location.protocol === 'file:') { if(callback) callback(false); return; }
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/api/data', true);
+    xhr.onload = function() {
+      if (xhr.status !== 200) { if(callback) callback(false); return; }
+      try {
+        var d = JSON.parse(xhr.responseText);
+        if (!d || !d.ts) { if(callback) callback(false); return; }
+        var localRaw = '';
+        try { localRaw = localStorage.getItem('raya_blue_v10') || ''; } catch(e){}
+        var localTs = 0;
+        if (localRaw) { try { localTs = JSON.parse(localRaw).ts || 0; } catch(e){} }
+        if (d.ts >= localTs) {
+          function _srv_merge(target, src) {
+            if (!src || !src.length) return;
+            target.splice(0, target.length);
+            src.forEach(function(x){ target.push(x); });
+          }
+          _srv_merge(JOURNAL_ENTRIES_DATA, d.journal);
+          _srv_merge(CUSTOMERS_DB, d.customers);
+          _srv_merge(SUPPLIERS_DB, d.suppliers);
+          _srv_merge(MAINT_DB, d.maint);
+          _srv_merge(PAYROLL_RECORDS, d.payroll);
+          if (d.wfOrders && typeof WF_ORDERS !== 'undefined') _srv_merge(WF_ORDERS, d.wfOrders);
+          try { localStorage.setItem('raya_blue_v10', JSON.stringify(d)); } catch(e){}
+          console.info('[Raya] تم تحميل الداتا من السيرفر D: ✔ (' + new Date(d.ts).toLocaleString('en-US') + ')');
+          if(callback) callback(true);
+        } else {
+          console.info('[Raya] localStorage أحدث من السيرفر — تم رفع الداتا للسيرفر');
+          if (typeof _syncToServer === 'function') _syncToServer();
+          if(callback) callback(false);
+        }
+      } catch(e) { console.warn('[Raya] خطأ في تحليل بيانات السيرفر', e); if(callback) callback(false); }
+    };
+    xhr.onerror = function() {
+      console.info('[Raya] السيرفر غير متاح — استخدام localStorage');
+      if(callback) callback(false);
+    };
+    xhr.send();
+  } catch(e) { if(callback) callback(false); }
+}
+
+// تحديث تلقائي كل 30 ثانية (يلتقط تغييرات بقية الموظفين)
+setInterval(function() {
+  if (window.location.protocol !== 'file:') {
+    _loadFromServer(function(updated) {
+      if (updated) {
+        var ap = document.querySelector('.page.active');
+        if (ap) { var pgId = ap.id.replace('page-',''); if(typeof go==='function') go(pgId, null); }
+      }
+    });
+  }
+}, 30000);
+
 var _RAYA_KEY = 'raya_blue_v10';
 
 function saveToStorage() {
@@ -12400,6 +12482,7 @@ function saveToStorage() {
       wfOrders:  (typeof WF_ORDERS !== 'undefined' ? WF_ORDERS : [])
     }));
   } catch(e) { /* quota/private */ }
+  if (typeof _syncToServer === 'function') _syncToServer();
 }
 
 function loadFromStorage() {
@@ -12647,6 +12730,17 @@ window.addEventListener('unhandledrejection', function(ev) {
   var loaded = loadFromStorage();
   if (loaded) console.info('[Raya v10] تم تحميل البيانات من localStorage ✔');
   else        console.info('[Raya v10] بيانات افتراضية (لا يوجد حفظ سابق)');
+  // تحميل من السيرفر عند البداية
+  setTimeout(function() {
+    if (typeof _loadFromServer === 'function') {
+      _loadFromServer(function(updated) {
+        if (updated && typeof go === 'function') {
+          var ap = document.querySelector('.page.active');
+          if (ap) go(ap.id.replace('page-',''), null);
+        }
+      });
+    }
+  }, 800);
 })();
 
 </script>
