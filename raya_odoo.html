@@ -785,7 +785,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:14px 0}
       <div class="lf"><label>اسم المستخدم</label><input type="text" id="lu" value="admin" placeholder="admin" autocomplete="username"></div>
       <div class="lf"><label>كلمة المرور</label><input type="password" id="lp" value="123456" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
       <button class="btn-login" onclick="doLogin()">دخول النظام ←</button>
-      <p class="login-hint">بيانات التجربة: admin / 123456</p>
+      <p class="login-hint" style="color:var(--text-s)">للدخول: تواصل مع مدير النظام للحصول على بيانات الدخول</p>
     </div>
   </div>
 </div>
@@ -1868,44 +1868,33 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:14px 0}
   </div>
 </div></div>
 <div class="page" id="page-receipts">
-<div class="ph"><div class="phi"><h2>💵 وصولات القبض</h2><p>كل المبالغ المستلمة موثقة</p></div><div class="pha"><button class="btn btn-p" onclick="openM('m-receipt')">＋ وصل قبض</button></div></div>
-<div class="card"><div class="tw"><table>
-<thead><tr><th>رقم الوصل</th><th>التاريخ</th><th>المستلم من</th><th>المبلغ</th><th>نوع القبض</th><th>مقابل</th><th>طريقة الاستلام</th><th>إجراء</th></tr></thead>
-<tbody>
-<tr><td class="code-cell">RCP-045</td><td>14/05/2026</td><td>أحمد السعدي</td><td style="color:#198754;font-weight:800">18,500,000</td><td>فاتورة INV-089 — GEN-0045</td><td><span class="badge badge-green">نقد</span></td><td><button class="btn btn-o btn-xs" onclick="printRcp()">🖨</button></td></tr>
-<tr><td class="code-cell">RCP-044</td><td>13/05/2026</td><td>سامي الجبوري</td><td style="color:#198754;font-weight:800">10,000,000</td><td>مقدمة INV-088 — INST-015</td><td><span class="badge badge-blue">حوالة</span></td><td><button class="btn btn-o btn-xs" onclick="printRcp()">🖨</button></td></tr>
-</tbody></table></div></div></div>
-<div class="page" id="page-payments">
-<div class="ph"><div class="phi"><h2>💳 وصولات الصرف</h2><p>كل المدفوعات موثقة</p></div><div class="pha"><button class="btn btn-p" onclick="openPaymentModal()">＋ وصل صرف</button></div></div>
-<div class="card"><div class="tw"><table>
-<thead><tr><th>رقم الوصل</th><th>التاريخ</th><th>المدفوع إلى</th><th>المبلغ</th><th>الغرض</th><th>موافقة</th><th>إجراء</th></tr></thead>
-<tbody>
-<tr><td class="code-cell">PAY-032</td><td>11/05/2026</td><td>رواتب الموظفين</td><td style="color:#dc3545;font-weight:800">7,500,000</td><td>رواتب مايو 2026</td><td><span class="badge badge-green">المدير</span></td><td><button class="btn btn-o btn-xs" onclick="printRcp()">🖨</button></td></tr>
-<tr><td class="code-cell">PAY-031</td><td>10/05/2026</td><td>صاحب المقر</td><td style="color:#dc3545;font-weight:800">2,000,000</td><td>إيجار مايو</td><td><span class="badge badge-green">المدير</span></td><td><button class="btn btn-o btn-xs" onclick="printRcp()">🖨</button></td></tr>
-</tbody></table></div></div></div>
-<div class="page" id="page-installments">
-<div class="ph"><div class="phi"><h2>💳 إدارة الأقساط</h2><p>12 عقد — 3 أقساط متأخرة</p></div><div class="pha"><button class="btn btn-p" onclick="openM('m-installment')">＋ عقد تقسيط</button></div></div>
-<div class="alert alert-danger"><span>⚠️</span><div><strong>أقساط متأخرة (3):</strong> تجاوزت تاريخ الاستحقاق — تحتاج متابعة فورية</div></div>
-<div class="card" style="border-color:#fecdd3"><div class="ch"><h3 style="color:#dc3545">⚠️ أقساط متأخرة</h3><span class="badge badge-red">3</span></div>
-<div class="tw"><table><thead><tr><th>الزبون</th><th>العقد</th><th>القسط</th><th>تاريخ الاستحقاق</th><th>المبلغ</th><th>أيام التأخير</th><th>إجراء</th></tr></thead><tbody>
-<tr><td style="font-weight:700">أحمد السعدي</td><td class="code-cell">INST-012</td><td>3 من 6</td><td>30/04/2026</td><td style="color:#dc3545;font-weight:800">750,000</td><td><span class="badge badge-red">14 يوم</span></td><td><button class="btn btn-s btn-xs" onclick="notify('تم تسجيل القبض ✓','success')">✅ تسجيل دفع</button></td></tr>
-<tr><td style="font-weight:700">خالد الربيعي</td><td class="code-cell">INST-009</td><td>2 من 4</td><td>01/05/2026</td><td style="color:#dc3545;font-weight:800">500,000</td><td><span class="badge badge-red">13 يوم</span></td><td><button class="btn btn-s btn-xs" onclick="notify('تم تسجيل القبض ✓','success')">✅ تسجيل دفع</button></td></tr>
-</tbody></table></div></div>
-<div class="card"><div class="ch"><h3>عقد سامي الجبوري — GEN-0062 فولفو 100KVA — INST-015</h3><span class="badge badge-yellow">جارية</span></div><div class="cb">
-<div class="fr4" style="margin-bottom:14px">
-<div><div style="font-size:10px;color:var(--txm)">المبلغ الكلي</div><div style="font-weight:800">32,000,000</div></div>
-<div><div style="font-size:10px;color:var(--txm)">المقدمة</div><div style="font-weight:800;color:#198754">10,000,000</div></div>
-<div><div style="font-size:10px;color:var(--txm)">المتبقي</div><div style="font-weight:800;color:#dc3545">22,000,000</div></div>
-<div><div style="font-size:10px;color:var(--txm)">كل قسط</div><div style="font-weight:800;color:#0d6efd">3,666,667</div></div>
+<div class="ph">
+  <div class="phi"><h2>💵 وصولات القبض</h2><p id="rcp-page-subtitle">جاري التحميل...</p></div>
+  <div class="pha">
+    <input type="date" class="form-control" id="rcp-filter-from" style="width:140px" onchange="renderReceiptsPage()">
+    <span style="font-size:12px;color:var(--text-m)">إلى</span>
+    <input type="date" class="form-control" id="rcp-filter-to" style="width:140px" onchange="renderReceiptsPage()">
+    <button class="btn btn-secondary btn-sm" onclick="(function(){document.getElementById('rcp-filter-from').value='';document.getElementById('rcp-filter-to').value='';renderReceiptsPage();})()">كل الفترات</button>
+    <button class="btn btn-p" onclick="openM('m-receipt')" data-need-create="customers">＋ وصل قبض جديد</button>
+  </div>
 </div>
-<div class="ig">
-<div class="ic pd"><div class="in2">القسط 1</div><div class="ia" style="color:#198754">3,666,667</div><div class="idate">13/06/2026</div><div class="ist" style="color:#198754">✅ مدفوع</div></div>
-<div class="ic pe"><div class="in2">القسط 2</div><div class="ia">3,666,667</div><div class="idate">13/07/2026</div><div class="ist" style="color:#94a3b8">⏳ غير مستحق</div></div>
-<div class="ic pe"><div class="in2">القسط 3</div><div class="ia">3,666,667</div><div class="idate">13/08/2026</div><div class="ist" style="color:#94a3b8">⏳ غير مستحق</div></div>
-<div class="ic pe"><div class="in2">القسط 4</div><div class="ia">3,666,667</div><div class="idate">13/09/2026</div><div class="ist" style="color:#94a3b8">⏳ غير مستحق</div></div>
-<div class="ic pe"><div class="in2">القسط 5</div><div class="ia">3,666,667</div><div class="idate">13/10/2026</div><div class="ist" style="color:#94a3b8">⏳ غير مستحق</div></div>
-<div class="ic pe"><div class="in2">القسط 6</div><div class="ia">3,666,666</div><div class="idate">13/11/2026</div><div class="ist" style="color:#94a3b8">⏳ غير مستحق</div></div>
-</div></div></div></div>
+<div id="rcp-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px"></div>
+<div class="card"><div id="rcp-table-wrap" style="overflow-x:auto;min-height:100px"></div></div>
+</div>
+<div class="page" id="page-installments">
+<div class="ph">
+  <div class="phi"><h2>💳 إدارة الأقساط</h2><p id="inst-subtitle">جاري التحميل...</p></div>
+  <div class="pha">
+    <button class="btn btn-secondary btn-sm" id="btn-inst-filter-overdue" onclick="renderInstallmentsPage('overdue')" style="border-color:var(--odoo-red);color:var(--odoo-red)">⚠️ المتأخرة</button>
+    <button class="btn btn-secondary btn-sm" onclick="renderInstallmentsPage('all')">📋 الكل</button>
+    <button class="btn btn-p" onclick="openM('m-installment')" data-need-create="installments">＋ عقد تقسيط</button>
+  </div>
+</div>
+<div id="inst-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px"></div>
+<div id="inst-overdue-wrap"></div>
+<div id="inst-contracts-wrap"></div>
+</div>
+
 <div class="page" id="page-reservations">
 <div class="ph"><div class="phi"><h2>🔖 فواتير الحجز</h2><p>حجز مولد مع عربون — يحول إلى فاتورة بيع عند التسليم</p></div>
 <div class="pha"><button class="btn btn-p" onclick="openM('m-reservation')">＋ حجز مولد جديد</button></div></div>
@@ -4188,20 +4177,45 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:14px 0}
 </div></div>
 
 <!-- INSTALLMENT MODAL -->
-<div class="modal-overlay" id="m-installment"><div class="modal lg">
-<div class="modal-header"><h3>💳 إنشاء عقد تقسيط جديد</h3><button class="modal-close" onclick="closeM('m-installment')">✕</button></div>
+<div class="modal-overlay" id="m-installment">
+<div class="modal lg">
+<div class="modal-header"><h3>💳 عقد تقسيط جديد</h3><button class="modal-close" onclick="closeM('m-installment')">✕</button></div>
 <div class="modal-body">
   <div class="form-row">
-    <div class="form-group"><label>الفاتورة المرتبطة</label><select class="form-control"><option>INV-090 — زبون جديد — 25,000,000</option><option>INV-089 — أحمد السعدي</option></select></div>
-    <div class="form-group"><label>مبلغ المقدمة</label><input type="number" class="form-control" placeholder="5,000,000"></div>
+    <div class="form-group" style="flex:2"><label>الزبون <span class="req">*</span></label>
+      <div class="sb-wrap" id="sb-inst-cus-wrap" data-sb-type="customer">
+        <input type="text" class="form-control sb-text" id="sb-inst-cus-text" placeholder="ابحث باسم الزبون..." autocomplete="off">
+        <input type="hidden" id="sb-inst-cus-val">
+        <div class="sb-dropdown" id="sb-inst-cus-list"></div>
+      </div>
+    </div>
+    <div class="form-group"><label>رقم الفاتورة المرجعية</label><input type="text" class="form-control" id="inst-inv-ref" placeholder="INV-XXX" dir="ltr"></div>
   </div>
   <div class="form-row">
-    <div class="form-group"><label>عدد الأقساط <span class="req">*</span></label><input type="number" class="form-control" value="6" min="1" max="60"></div>
-    <div class="form-group"><label>تاريخ أول قسط</label><input type="date" class="form-control"></div>
+    <div class="form-group"><label>المبلغ الكلي (د.ع) <span class="req">*</span></label><input type="number" class="form-control" id="inst-total-amt" placeholder="0" oninput="calcInstPreview()"></div>
+    <div class="form-group"><label>المقدمة / العربون (د.ع)</label><input type="number" class="form-control" id="inst-down-amt" placeholder="0" value="0" oninput="calcInstPreview()"></div>
   </div>
   <div class="form-row">
-    <div class="form-group"><label>الفترة بين الأقساط</label><select class="form-control"><option>شهري</option><option>كل شهرين</option><option>ربع سنوي</option><option>نصف سنوي</option></select></div>
-    <div class="form-group"><label>نسبة فائدة التقسيط (%)</label><input type="number" class="form-control" value="0" min="0" step="0.5"><div class="form-hint">اترك 0 للتقسيط بدون فائدة</div></div>
+    <div class="form-group"><label>عدد الأقساط <span class="req">*</span></label>
+      <select class="form-control" id="inst-num" onchange="calcInstPreview()">
+        <option value="3">3 أقساط</option><option value="4">4 أقساط</option>
+        <option value="6" selected>6 أقساط</option><option value="9">9 أقساط</option>
+        <option value="12">12 قسط</option><option value="18">18 قسط</option>
+        <option value="24">24 قسط</option>
+      </select>
+    </div>
+    <div class="form-group"><label>تاريخ أول قسط</label><input type="date" class="form-control" id="inst-start-date"></div>
+  </div>
+  <div id="inst-preview" style="display:none;padding:12px;background:var(--odoo-blue-l);border-radius:var(--r);border:1px solid var(--odoo-blue);margin-top:8px">
+    <div style="font-weight:700;color:var(--odoo-blue);margin-bottom:6px">📋 معاينة الأقساط</div>
+    <div id="inst-preview-content"></div>
+  </div>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-secondary" onclick="closeM('m-installment')">إلغاء</button>
+  <button class="btn btn-primary" onclick="saveInstallmentContract()">💾 إنشاء العقد</button>
+</div>
+</div></div>
   </div>
 </div>
 <div class="modal-footer"><button class="btn btn-secondary" onclick="closeM('m-installment')">إلغاء</button><button class="btn btn-primary" onclick="closeM('m-installment');notify('تم إنشاء عقد التقسيط ✓','success')">💾 إنشاء العقد</button></div>
@@ -4826,6 +4840,7 @@ function doLogin(){
     document.getElementById('dash-date').textContent='آخر تحديث: '+n.toLocaleString('en-US');
     e.style.display='none';
     renderTree();
+    if(typeof applyPermissionsUI==='function')applyPermissionsUI();
     setTimeout(function(){if(typeof saveToStorage==='function')saveToStorage();},500);
   } else {
     e.style.display='block';
@@ -4850,7 +4865,29 @@ const PT={
   users:'المستخدمون',settings:'إعدادات النظام',
   generators:'المولدات',hr:'الإجازات والزمنيات','invoice-designer':'مصمم الفواتير','excel-reports':'تصدير التقارير — Excel'
 };
+var _PG_MOD={dashboard:"dashboard",workflow:"dashboard",ai:"dashboard",
+  accounts:"accounting",journal:"accounting",ledger:"accounting",trial:"accounting",
+  income:"accounting","balance-sheet":"accounting",
+  customers:"customers",receipts:"customers",reservations:"sales",
+  sales:"sales",installments:"installments",
+  inventory:"inventory",
+  suppliers:"purchases",purchases:"purchases",
+  maintenance:"maintenance",warranties:"maintenance",
+  hr:"employees",payroll:"employees",
+  users:"settings",settings:"settings",log:"settings"
+};
 function go(pg,el){
+  // ========= تحقق من صلاحية العرض =========
+  if(currentUser && typeof normPerm==="function"){
+    var _m=_PG_MOD[pg];
+    if(_m){
+      var _p=normPerm((currentUser.perms||{})[_m]);
+      if(!_p.view){
+        notify("🔒 ليس لديك صلاحية الوصول لهذه الصفحة","danger");
+        return;
+      }
+    }
+  }
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   const target=document.getElementById('page-'+pg);
   if(target)target.classList.add('active');
@@ -4874,6 +4911,8 @@ function go(pg,el){
   if(pg==='maintenance')  setTimeout(()=>{if(typeof renderMaintenancePage==='function')renderMaintenancePage();},100);
   if(pg==='workflow')      setTimeout(function(){if(typeof renderWorkflowPage==='function')renderWorkflowPage();},100);
   if(pg==='users')         setTimeout(function(){if(typeof renderUsersPage==='function')renderUsersPage();},100);
+  if(pg==='receipts')      setTimeout(function(){if(typeof renderReceiptsPage==='function')renderReceiptsPage();},100);
+  if(pg==='installments')  setTimeout(function(){if(typeof renderInstallmentsPage==='function')renderInstallmentsPage();},100);
 }
 
 // ===== MODALS =====
@@ -5369,6 +5408,277 @@ function deletePermModule(key) {
 }
 
 function saveNewUser() { saveUserForm(); } // backward compat
+
+// ============================================================
+// RECEIPTS PAGE — صفحة وصولات القبض الديناميكية
+// ============================================================
+function renderReceiptsPage() {
+  var wrap = document.getElementById("rcp-table-wrap");
+  var statsDiv = document.getElementById("rcp-stats");
+  var sub = document.getElementById("rcp-page-subtitle");
+  if (!wrap) return;
+  var today = new Date();
+  var from = document.getElementById("rcp-filter-from"); var fromDate = from ? from.value : "";
+  var to   = document.getElementById("rcp-filter-to");   var toDate   = to   ? to.value   : "";
+  var entries = typeof JOURNAL_ENTRIES_DATA !== "undefined" ? JOURNAL_ENTRIES_DATA : [];
+  var rcps = entries.filter(function(e){ return e.journal==="receipt"; });
+  if (fromDate) rcps = rcps.filter(function(e){ return e.date >= fromDate; });
+  if (toDate)   rcps = rcps.filter(function(e){ return e.date <= toDate; });
+  rcps = rcps.slice().sort(function(a,b){ return (b.date||"").localeCompare(a.date||""); });
+  var total = rcps.reduce(function(s,e){ return s + ((e.lines||[]).find(function(l){return l.debit>0;})||{}).debit||0; },0);
+  var cashTotal = rcps.filter(function(e){return e.method==="cash";}).reduce(function(s,e){return s+((e.lines||[]).find(function(l){return l.debit>0;})||{}).debit||0;},0);
+  var bankTotal = rcps.filter(function(e){return e.method==="electronic";}).reduce(function(s,e){return s+((e.lines||[]).find(function(l){return l.debit>0;})||{}).debit||0;},0);
+  if (sub) sub.textContent = rcps.length + " وصل قبض";
+  if (statsDiv) statsDiv.innerHTML = [
+    {label:"إجمالي المقبوضات",val:fmt(total)+" د.ع",color:"var(--odoo-green)",icon:"💵"},
+    {label:"نقد",             val:fmt(cashTotal)+" د.ع",color:"var(--odoo-green)",icon:"💴"},
+    {label:"حوالة مصرفية",   val:fmt(bankTotal)+" د.ع",color:"var(--odoo-blue)", icon:"🏦"},
+    {label:"عدد الوصولات",   val:rcps.length,           color:"var(--odoo-purple)",icon:"📋"}
+  ].map(function(s){
+    return '<div class="card" style="border-right:4px solid '+s.color+';padding:14px">' +
+      '<div style="font-size:20px">'+s.icon+'</div>' +
+      '<div style="font-size:11px;color:var(--text-m);margin-top:4px">'+s.label+'</div>' +
+      '<div style="font-size:18px;font-weight:800;color:'+s.color+'">'+s.val+'</div></div>';
+  }).join("");
+  if (!rcps.length) {
+    wrap.innerHTML = '<div style="padding:40px;text-align:center;color:#9ca3af">لا توجد وصولات قبض في هذه الفترة</div>';
+    return;
+  }
+  var typeLabel={arboon:"💛 عربون",takmila:"🔵 تكملة",tasdeed:"🟢 تسديد",aqsat:"💜 قسط"};
+  var rows = rcps.map(function(e) {
+    var amt = ((e.lines||[]).find(function(l){return l.debit>0;})||{}).debit||0;
+    return '<tr>' +
+      '<td class="code-cell">'+e.id+'</td>' +
+      '<td>'+e.date+'</td>' +
+      '<td style="font-weight:700">'+( e.customer||"—" )+'</td>' +
+      '<td style="font-weight:800;color:var(--odoo-green)">'+fmt(amt)+' د.ع</td>' +
+      '<td>'+( typeLabel[e.type]||e.type||"—" )+'</td>' +
+      '<td>'+( e.ref||"—" )+'</td>' +
+      '<td><span class="badge '+( e.method==="cash"?"badge-green":"badge-blue" )+'">'+( e.method==="cash"?"💵 نقد":"🏦 حوالة" )+'</span></td>' +
+      '<td><button class="btn btn-secondary btn-xs" onclick="printRcp()">🖨</button></td></tr>';
+  }).join("");
+  wrap.innerHTML = '<table class="o-table"><thead><tr><th>رقم الوصل</th><th>التاريخ</th><th>الزبون</th><th>المبلغ</th><th>النوع</th><th>المرجع</th><th>طريقة الدفع</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+
+// ============================================================
+// INSTALLMENTS PAGE — صفحة إدارة الأقساط الديناميكية
+// ============================================================
+function renderInstallmentsPage(filter) {
+  filter = filter || "all";
+  var db = typeof INSTALLMENTS_DB !== "undefined" ? INSTALLMENTS_DB : [];
+  var today = new Date(); today.setHours(0,0,0,0);
+  // تحديث حالة الأقساط تلقائياً
+  db.forEach(function(c) {
+    if (!c.payments) return;
+    var allPaid = true;
+    c.payments.forEach(function(p) {
+      if (p.status === "paid") return;
+      var due = new Date(p.dueDate); due.setHours(0,0,0,0);
+      if (due < today) p.status = "overdue"; else p.status = "pending";
+      allPaid = false;
+    });
+    if (allPaid) c.status = "complete";
+  });
+  var sub = document.getElementById("inst-subtitle");
+  var statsDiv = document.getElementById("inst-stats");
+  var overdueWrap = document.getElementById("inst-overdue-wrap");
+  var contractsWrap = document.getElementById("inst-contracts-wrap");
+  var totalContracts = db.length;
+  var activeContracts = db.filter(function(c){return c.status==="active";}).length;
+  var overduePayments = [];
+  db.forEach(function(c){
+    (c.payments||[]).forEach(function(p,i){
+      if(p.status==="overdue") overduePayments.push({contract:c, pIdx:i, p:p});
+    });
+  });
+  var totalCollected = 0;
+  db.forEach(function(c){ (c.payments||[]).forEach(function(p){ if(p.status==="paid") totalCollected+=p.amt||0; }); totalCollected+=(c.downAmt||0); });
+  if (sub) sub.textContent = totalContracts+" عقد — "+overduePayments.length+" قسط متأخر";
+  if (statsDiv) statsDiv.innerHTML = [
+    {label:"إجمالي العقود",  val:totalContracts,              color:"var(--odoo-purple)",icon:"📋"},
+    {label:"عقود نشطة",      val:activeContracts,             color:"var(--odoo-blue)", icon:"💳"},
+    {label:"أقساط متأخرة",   val:overduePayments.length,     color:"var(--odoo-red)",  icon:"⚠️"},
+    {label:"إجمالي المحصل",  val:fmt(totalCollected)+" د.ع", color:"var(--odoo-green)", icon:"💰"}
+  ].map(function(s){
+    return '<div class="card" style="border-right:4px solid '+s.color+';padding:14px">' +
+      '<div style="font-size:20px">'+s.icon+'</div>' +
+      '<div style="font-size:11px;color:var(--text-m);margin-top:4px">'+s.label+'</div>' +
+      '<div style="font-size:18px;font-weight:800;color:'+s.color+'">'+s.val+'</div></div>';
+  }).join("");
+  // الأقساط المتأخرة
+  if (overduePayments.length > 0 && overdueWrap) {
+    var days = function(d){var dd=Math.floor((today-new Date(d))/(1000*60*60*24));return dd;};
+    var overdueRows = overduePayments.map(function(r){
+      var daysLate = days(r.p.dueDate);
+      return '<tr>' +
+        '<td style="font-weight:700">'+r.contract.custName+'</td>' +
+        '<td class="code-cell">'+r.contract.id+'</td>' +
+        '<td style="text-align:center">قسط '+(r.pIdx+1)+' من '+r.contract.payments.length+'</td>' +
+        '<td>'+r.p.dueDate+'</td>' +
+        '<td style="font-weight:800;color:var(--odoo-red)">'+ fmt(r.p.amt)+' د.ع</td>' +
+        '<td><span class="badge badge-red">'+ daysLate +' يوم</span></td>' +
+        '<td><button class="btn btn-success btn-xs" onclick="payInstallment(\''+ r.contract.id +'\','+ r.pIdx +')">✅ تسجيل دفع</button></td></tr>';
+    }).join("");
+    overdueWrap.innerHTML = '<div class="card" style="border-color:var(--odoo-red);margin-bottom:16px">' +
+      '<div class="card-header" style="background:var(--odoo-red-l)"><h3 style="color:var(--odoo-red)">⚠️ أقساط متأخرة ('+ overduePayments.length +')</h3></div>' +
+      '<div class="o-table-wrap"><table class="o-table"><thead><tr>' +
+      '<th>الزبون</th><th>العقد</th><th>القسط</th><th>تاريخ الاستحقاق</th><th>المبلغ</th><th>أيام التأخير</th><th>إجراء</th>' +
+      '</tr></thead><tbody>'+ overdueRows +'</tbody></table></div></div>';
+  } else if (overdueWrap) {
+    overdueWrap.innerHTML = "";
+  }
+  // العقود
+  if (!db.length) {
+    if (contractsWrap) contractsWrap.innerHTML = '<div class="card"><div style="padding:40px;text-align:center;color:#9ca3af">لا توجد عقود تقسيط بعد — اضغط "＋ عقد تقسيط" لإضافة عقد جديد</div></div>';
+    return;
+  }
+  var list = filter==="overdue" ? db.filter(function(c){return (c.payments||[]).some(function(p){return p.status==="overdue";});}) : db;
+  if (contractsWrap) {
+    contractsWrap.innerHTML = list.map(function(c) {
+      var paid = (c.payments||[]).filter(function(p){return p.status==="paid";}).length;
+      var total = (c.payments||[]).length;
+      var pct = total ? Math.round(paid/total*100) : 0;
+      var stBadge = c.status==="complete" ? '<span class="badge badge-green">✅ مكتمل</span>' : '<span class="badge badge-yellow">🔄 جارية</span>';
+      var instRows = (c.payments||[]).map(function(p,i){
+        var stIcon = p.status==="paid"?"✅":p.status==="overdue"?"⚠️":"⏳";
+        var stColor = p.status==="paid"?"var(--odoo-green)":p.status==="overdue"?"var(--odoo-red)":"#94a3b8";
+        return '<div style="display:grid;grid-template-columns:80px 1fr 120px 90px 80px;gap:8px;align-items:center;padding:5px 10px;border-bottom:1px solid var(--border)">' +
+          '<div style="font-size:12px;font-weight:600">قسط '+(i+1)+'</div>' +
+          '<div style="font-size:12px;font-weight:700;color:var(--odoo-blue)">'+ fmt(p.amt) +' د.ع</div>' +
+          '<div style="font-size:11px;color:var(--text-m)">'+p.dueDate+'</div>' +
+          '<div style="color:'+stColor+';font-size:12px">'+ stIcon +' '+ (p.status==="paid"?"مدفوع":p.status==="overdue"?"متأخر":"غير مستحق") +'</div>' +
+          '<div>'+ (p.status!=="paid"?'<button class="btn btn-success btn-xs" onclick="payInstallment(\''+ c.id +'\','+ i +')">✅ دفع</button>':'') +'</div>' +
+        '</div>';
+      }).join("");
+      return '<div class="card" style="margin-bottom:14px">' +
+        '<div class="card-header" style="display:flex;justify-content:space-between;align-items:center">' +
+          '<h3>'+c.id+' — '+c.custName+'</h3>' + stBadge + '</div>' +
+        '<div class="card-body">' +
+          '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:12px">' +
+            '<div><div style="font-size:10px;color:var(--text-m)">المبلغ الكلي</div><div style="font-weight:800">'+ fmt(c.totalAmt) +' د.ع</div></div>' +
+            '<div><div style="font-size:10px;color:var(--text-m)">المقدمة</div><div style="font-weight:800;color:var(--odoo-green)">'+ fmt(c.downAmt) +' د.ع</div></div>' +
+            '<div><div style="font-size:10px;color:var(--text-m)">كل قسط</div><div style="font-weight:800;color:var(--odoo-blue)">'+ fmt(c.instAmt) +' د.ع</div></div>' +
+            '<div><div style="font-size:10px;color:var(--text-m)">مدفوع</div><div style="font-weight:800;color:var(--odoo-green)">'+ paid +'/'+ total +'</div></div>' +
+            '<div><div style="font-size:10px;color:var(--text-m)">التقدم</div><div style="height:8px;background:var(--border);border-radius:4px;margin-top:6px"><div style="width:'+ pct +'%;height:100%;background:var(--odoo-green);border-radius:4px"></div></div></div>' +
+          '</div>' +
+          '<div style="border:1px solid var(--border);border-radius:var(--r);overflow:hidden">'+ instRows +'</div>' +
+        '</div></div>';
+    }).join("");
+  }
+}
+
+function payInstallment(contractId, pIdx) {
+  var db = typeof INSTALLMENTS_DB !== "undefined" ? INSTALLMENTS_DB : [];
+  var c = db.find(function(c){ return c.id===contractId; });
+  if (!c || !c.payments || !c.payments[pIdx]) return;
+  var p = c.payments[pIdx];
+  if (p.status === "paid") { notify("هذا القسط مدفوع مسبقاً","warning"); return; }
+  if (!confirm("تأكيد تسجيل دفع القسط "+(pIdx+1)+" بمبلغ "+fmt(p.amt)+" د.ع للزبون "+c.custName+"؟")) return;
+  p.status = "paid";
+  p.paidDate = new Date().toISOString().split("T")[0];
+  // قيد محاسبي: مدين الصندوق / دائن حساب الزبون
+  var jId = "RCP-"+String(Date.now()).slice(-6);
+  p.rcpRef = jId;
+  if (typeof JOURNAL_ENTRIES_DATA !== "undefined") {
+    JOURNAL_ENTRIES_DATA.push({id:jId, date:p.paidDate, journal:"receipt",
+      ref:contractId, customer:c.custName, customerId:c.custId,
+      type:"aqsat", method:"cash",
+      lines:[{code:"1611",debit:p.amt},{code:"1511",credit:p.amt}]
+    });
+  }
+  // تخفيض ذمة الزبون
+  if (typeof CUSTOMERS_DB !== "undefined" && c.custId) {
+    var cr = CUSTOMERS_DB.find(function(cu){ return cu.id===c.custId||cu.name===c.custName; });
+    if (cr) cr.debt = Math.max(0, (cr.debt||0) - p.amt);
+  }
+  saveToStorage();
+  renderInstallmentsPage();
+  notify("تم تسجيل دفع القسط "+(pIdx+1)+" ✓","success");
+}
+
+function calcInstPreview() {
+  var total = parseFloat((document.getElementById("inst-total-amt")||{}).value)||0;
+  var down  = parseFloat((document.getElementById("inst-down-amt")||{}).value)||0;
+  var num   = parseInt((document.getElementById("inst-num")||{}).value)||6;
+  var prev  = document.getElementById("inst-preview");
+  var cont  = document.getElementById("inst-preview-content");
+  if (!total || !prev || !cont) return;
+  var rem   = total - down;
+  var inst  = rem > 0 ? Math.round(rem / num) : 0;
+  prev.style.display = "";
+  cont.innerHTML = '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:13px">' +
+    '<div><div style="font-size:10px;color:var(--text-m)">المتبقي بعد المقدمة</div><div style="font-weight:800">'+ fmt(rem) +' د.ع</div></div>' +
+    '<div><div style="font-size:10px;color:var(--text-m)">كل قسط</div><div style="font-weight:800;color:var(--odoo-blue)">'+ fmt(inst) +' د.ع</div></div>' +
+    '<div><div style="font-size:10px;color:var(--text-m)">عدد الأقساط</div><div style="font-weight:800">'+ num +'</div></div></div>';
+}
+
+function saveInstallmentContract() {
+  var custId   = (document.getElementById("sb-inst-cus-val")||{}).value||"";
+  var custName = (document.getElementById("sb-inst-cus-text")||{}).value||"";
+  var invRef   = (document.getElementById("inst-inv-ref")||{}).value||"";
+  var totalAmt = parseFloat((document.getElementById("inst-total-amt")||{}).value)||0;
+  var downAmt  = parseFloat((document.getElementById("inst-down-amt")||{}).value)||0;
+  var numInst  = parseInt((document.getElementById("inst-num")||{}).value)||6;
+  var startDate= (document.getElementById("inst-start-date")||{}).value||new Date().toISOString().split("T")[0];
+  if (!custName) { notify("يجب اختيار الزبون ✕","danger"); return; }
+  if (totalAmt <= 0) { notify("يجب إدخال المبلغ الكلي ✕","danger"); return; }
+  if (downAmt >= totalAmt) { notify("المقدمة يجب أن تكون أقل من المبلغ الكلي ✕","danger"); return; }
+  var remaining = totalAmt - downAmt;
+  var instAmt   = Math.round(remaining / numInst);
+  var payments  = [];
+  for (var i=0; i<numInst; i++) {
+    var d = new Date(startDate);
+    d.setMonth(d.getMonth() + i + 1);
+    payments.push({n:i+1, dueDate:d.toISOString().split("T")[0], amt: i===numInst-1 ? remaining-(instAmt*(numInst-1)) : instAmt, status:"pending", rcpRef:"", paidDate:""});
+  }
+  var db = typeof INSTALLMENTS_DB !== "undefined" ? INSTALLMENTS_DB : [];
+  var newId = "INST-"+String(Date.now()).slice(-5);
+  db.push({id:newId, date:new Date().toISOString().split("T")[0], custId:custId, custName:custName, invRef:invRef, totalAmt:totalAmt, downAmt:downAmt, numInst:numInst, instAmt:instAmt, startDate:startDate, status:"active", payments:payments});
+  // تحديث ذمة الزبون بالمبلغ المتبقي
+  if (typeof CUSTOMERS_DB !== "undefined" && (custId||custName)) {
+    var cr = CUSTOMERS_DB.find(function(c){ return c.id===custId||c.name===custName; });
+    if (cr) cr.debt = (cr.debt||0) + remaining;
+  }
+  saveToStorage();
+  closeM("m-installment");
+  renderInstallmentsPage();
+  notify("تم إنشاء عقد التقسيط "+newId+" ✓","success");
+}
+
+// ============================================================
+// PERMISSIONS UI — إخفاء عناصر التنقل بدون صلاحية — إخفاء عناصر التنقل بدون صلاحية
+// ============================================================
+function hasPerm(mod, action) {
+  if (!currentUser) return false;
+  if (currentUser.role === "admin") return true;
+  var p = typeof normPerm === "function" ? normPerm((currentUser.perms || {})[mod]) : {view:true,create:true,edit:true,del:true};
+  return p[action === "del" ? "del" : action] === true;
+}
+
+function applyPermissionsUI() {
+  if (!currentUser) return;
+  var perms = currentUser.perms || {};
+  var isAdmin = currentUser.role === "admin";
+  // إخفاء عناصر القائمة الجانبية التي لا يملك المستخدم إذن عرضها
+  document.querySelectorAll(".nav-item[onclick]").forEach(function(el) {
+    if (isAdmin) { el.style.display = ""; return; }
+    var m = el.getAttribute("onclick").match(/go\('([^']+)'/);
+    if (!m) return;
+    var mod = _PG_MOD[m[1]];
+    if (!mod) return;
+    var p = typeof normPerm === "function" ? normPerm(perms[mod]) : {view:true};
+    el.style.display = p.view ? "" : "none";
+  });
+  // إظهار/إخفاء أزرار الإنشاء حسب صلاحية create
+  document.querySelectorAll("[data-need-create]").forEach(function(el) {
+    var mod = el.getAttribute("data-need-create");
+    el.style.display = hasPerm(mod, "create") ? "" : "none";
+  });
+  // عرض دور المستخدم في الشريط العلوي
+  var rnames = {admin:"مدير عام",accountant:"محاسب",supervisor:"مشرف",sales:"مسؤول مبيعات",warehouse:"أمين مخزن",technician:"فني صيانة",collector:"محصل",clerk:"موظف إداري"};
+  var bc = document.getElementById("topbar-bc");
+  if (bc) bc.textContent = "مرحباً، " + currentUser.name + " — " + (rnames[currentUser.role] || currentUser.role);
+}
 
 function confirmNewCustomer() {
   var name=(document.getElementById('nc-name')?.value||'').trim();
@@ -6245,9 +6555,16 @@ saveReceipt = function() {
     if (linked) { linked.paid = true; linked.rcpRef = jId; }
   }
 
-  closeM('m-receipt');
-  if (typeof renderSalesPage === 'function') renderSalesPage();
-  if (typeof renderDashboard === 'function') renderDashboard();
+  // ===== تخفيض ذمة الزبون =====
+  if (typeof CUSTOMERS_DB !== "undefined" && custId) {
+    var _cr = CUSTOMERS_DB.find(function(c){ return c.id===custId||c.name===custName; });
+    if (_cr) _cr.debt = Math.max(0, (_cr.debt||0) - amount);
+  }
+  saveToStorage();
+  closeM("m-receipt");
+  if (typeof renderSalesPage === "function") renderSalesPage();
+  if (typeof renderCustomersPage === "function") renderCustomersPage();
+  if (typeof renderDashboard === "function") renderDashboard();
 
   var msg = method === 'electronic'
     ? 'تم تسجيل القبض الإلكتروني وإنشاء القيد — ح/' + drCode + ' مدين / ح/' + crCode + ' دائن ✓'
@@ -12519,6 +12836,8 @@ function saveMaintenance() {
 // ============================================================
 var SERIALS_DB = []; // {sn, itemCode, itemName, status:stock|sold|reserved, dateIn, poRef, dateOut, invRef, customer, notes}
 
+var INSTALLMENTS_DB = []; // {id,date,custId,custName,invRef,totalAmt,downAmt,numInst,instAmt,frequency:"monthly",startDate,status:"active"|"complete",payments:[{n,dueDate,amt,status:"pending"|"paid"|"overdue",rcpRef,paidDate}]}
+
 var WF_ORDERS = [];
 
 var WF_STAGES = [
@@ -12839,7 +13158,8 @@ function _syncToServer() {
       wfOrders:  (typeof WF_ORDERS !== 'undefined' ? WF_ORDERS : []),
       serials:   (typeof SERIALS_DB !== 'undefined' ? SERIALS_DB : []),
       usersDb:   (typeof USERS_DB !== 'undefined' ? USERS_DB : []),
-      permMods:  (typeof PERM_MODULES !== 'undefined' ? PERM_MODULES : [])
+      permMods:  (typeof PERM_MODULES !== 'undefined' ? PERM_MODULES : []),
+      instDb:    (typeof INSTALLMENTS_DB !== 'undefined' ? INSTALLMENTS_DB : [])
     });
     var xhr = new XMLHttpRequest();
     xhr.open('POST', '/api/data?client=' + _RAYA_CLIENT_ID, true);
@@ -12973,7 +13293,8 @@ function saveToStorage() {
       wfOrders:  (typeof WF_ORDERS !== 'undefined' ? WF_ORDERS : []),
       serials:   (typeof SERIALS_DB !== 'undefined' ? SERIALS_DB : []),
       usersDb:   (typeof USERS_DB !== 'undefined' ? USERS_DB : []),
-      permMods:  (typeof PERM_MODULES !== 'undefined' ? PERM_MODULES : [])
+      permMods:  (typeof PERM_MODULES !== 'undefined' ? PERM_MODULES : []),
+      instDb:    (typeof INSTALLMENTS_DB !== 'undefined' ? INSTALLMENTS_DB : [])
     }));
   } catch(e) { /* quota/private */ }
   if (typeof _syncToServer === 'function') _syncToServer();
@@ -13008,6 +13329,7 @@ function loadFromStorage() {
         if(!PERM_MODULES.find(function(m){return m.key===nm.key;})) PERM_MODULES.push(nm);
       });
     }
+    if (d.instDb && typeof INSTALLMENTS_DB !== 'undefined') merge(INSTALLMENTS_DB, d.instDb);
     return true;
   } catch(e) { return false; }
 }
