@@ -7283,7 +7283,8 @@ function renderInvItems(){
   }).join('');
 }
 function showInvTab(tab,btn){
-  ['overview','items','movements','balance','low'].forEach(function(t){
+  if (tab === 'serials') setTimeout(renderSerialsTab, 50);
+  ['overview','items','movements','balance','low','serials'].forEach(function(t){
     var el=document.getElementById('inv-tab-'+t);if(el)el.style.display=t===tab?'block':'none';
   });
   document.querySelectorAll('#inv-tabs button').forEach(function(b){b.classList.remove('active');});
