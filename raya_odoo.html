@@ -5210,6 +5210,49 @@ function showAccDet(code){
       <button class="btn btn-secondary btn-sm" onclick="openM(\'m-journal\')">＋ قيد يومي</button>
       ${n.lv>=4?'<button class="btn btn-secondary btn-sm" onclick="openM(\'m-account\')">✏️ تعديل</button>':''}
     </div>`;
+  // ===== قائمة الزبائن المرتبطين بالحساب =====
+  var _cusDB = typeof CUSTOMERS_DB !== 'undefined' ? CUSTOMERS_DB : [];
+  var _relCus = _cusDB.filter(function(c){
+    return c.accountCode && String(c.accountCode).startsWith(String(code));
+  });
+  if (_relCus.length > 0) {
+    var _totalDebt = _relCus.reduce(function(s,c){ return s + (c.debt||0); }, 0);
+    var _rows = _relCus.map(function(c, i) {
+      var debtTxt = c.debt > 0 ? fmt(c.debt) + ' د.ع' : '—';
+      var debtColor = c.debt > 0 ? 'color:var(--odoo-red);font-weight:700' : 'color:var(--text-s)';
+      var bg = i % 2 === 0 ? 'var(--bg)' : '#f9fafb';
+      return '<tr style="background:' + bg + ';cursor:pointer" onclick="go(\'customers\',null)" title="فتح صفحة الزبائن">' +
+        '<td style="padding:5px 8px;font-weight:600">' + c.name + '</td>' +
+        '<td style="padding:5px 8px;text-align:center;font-family:monospace;font-size:11px;color:var(--odoo-blue)">' + (c.phone || '—') + '</td>' +
+        '<td style="padding:5px 8px;text-align:center;color:var(--text-m)">' + (c.city || '—') + '</td>' +
+        '<td style="padding:5px 8px;text-align:center;' + debtColor + '">' + debtTxt + '</td>' +
+        '</tr>';
+    }).join('');
+    var _foot = _totalDebt > 0
+      ? '<tfoot><tr style="background:var(--odoo-red-l);font-weight:700"><td colspan="3" style="padding:6px 8px;color:var(--odoo-red)">إجمالي الذمم المدينة</td><td style="padding:6px 8px;text-align:center;color:var(--odoo-red)">' + fmt(_totalDebt) + ' د.ع</td></tr></tfoot>'
+      : '';
+    var _cusHtml =
+      '<div style="margin-top:18px;border-top:2px solid var(--odoo-purple);padding-top:14px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">' +
+          '<div style="font-weight:700;color:var(--odoo-purple);font-size:14px">👥 الزبائن المرتبطون بهذا الحساب</div>' +
+          '<span class="badge badge-purple">' + _relCus.length + ' زبون</span>' +
+        '</div>' +
+        '<div style="max-height:400px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--r)">' +
+          '<table style="width:100%;border-collapse:collapse;font-size:12px">' +
+            '<thead><tr style="background:var(--odoo-purple-l);position:sticky;top:0">' +
+              '<th style="padding:7px 8px;text-align:right;border-bottom:1px solid var(--border)">الاسم</th>' +
+              '<th style="padding:7px 8px;text-align:center;border-bottom:1px solid var(--border)">الهاتف</th>' +
+              '<th style="padding:7px 8px;text-align:center;border-bottom:1px solid var(--border)">المدينة</th>' +
+              '<th style="padding:7px 8px;text-align:center;border-bottom:1px solid var(--border)">الذمة</th>' +
+            '</tr></thead>' +
+            '<tbody>' + _rows + '</tbody>' +
+            _foot +
+          '</table>' +
+        '</div>' +
+      '</div>';
+    var _detBody = document.getElementById('acc-det-body');
+    if (_detBody) _detBody.innerHTML += _cusHtml;
+  }
 }
 function expandAll(){document.querySelectorAll('.tree-children').forEach(c=>c.style.display='block');document.querySelectorAll('.tree-toggle').forEach(t=>t.classList.add('open'));}
 function collapseAll(){document.querySelectorAll('.tree-children').forEach(c=>c.style.display='none');document.querySelectorAll('.tree-toggle').forEach(t=>t.classList.remove('open'));}
