@@ -1,0 +1,17 @@
+﻿# Claude Code internals
+.claude/
+
+# Patch & temp scripts
+_patch_*.js
+_fix_*.js
+_temp_*.js
+_verify.js
+patch_*.js
+fix_*.js
+test_*.html
+test_*.js
+*.log
+
+# OS
+Thumbs.db
+desktop.ini
