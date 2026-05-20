@@ -2270,230 +2270,30 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:14px 0}
 <div class="page-header">
   <div class="page-header-top">
     <div>
-      <div class="page-title">🔄 تدفق العمل المتكامل</div>
-      <div class="page-subtitle">من البيع → القبض → المخزن → التجهيز → التسليم</div>
+      <div class="page-title">🔄 لوحة تدفق العمل</div>
+      <div class="page-subtitle" id="wf-subtitle">Pipeline المبيعات — من الفاتورة إلى التسليم</div>
     </div>
     <div class="page-actions">
-      <button class="btn btn-primary btn-sm" onclick="openM('m-new-order')">＋ طلب بيع جديد</button>
-      <button class="btn btn-secondary btn-sm" onclick="filterWF('all',this)">كل الطلبات</button>
+      <button class="btn btn-secondary btn-sm" id="wf-btn-all" onclick="filterWFBoard('all',this)">🔵 الكل</button>
+      <button class="btn btn-primary btn-sm" onclick="openM('m-new-order')">＋ طلب جديد</button>
     </div>
   </div>
 </div>
-
-<!-- WORKFLOW PIPELINE -->
-<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px">
-
-  <!-- STEP 1: SALES -->
-  <div style="background:#fff;border-radius:var(--r-lg);border:1.5px solid var(--odoo-purple);overflow:hidden">
-    <div style="background:var(--odoo-purple);padding:10px 14px;display:flex;align-items:center;gap:8px">
-      <span style="font-size:16px">🧾</span>
-      <div style="color:#fff">
-        <div style="font-size:11px;font-weight:800;letter-spacing:.5px">المرحلة 1</div>
-        <div style="font-size:12px;font-weight:600">إصدار فاتورة البيع</div>
-      </div>
-      <span style="margin-right:auto;background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px">3</span>
+<!-- KPI BAR -->
+<div id="wf-kpi-bar" style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:16px"></div>
+<!-- KANBAN BOARD -->
+<div id="wf-kanban-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;min-height:350px;align-items:start"></div>
+<!-- DETAIL PANEL -->
+<div id="wf-detail-panel" style="display:none;margin-top:16px">
+  <div class="card" style="border-right:4px solid var(--odoo-purple)">
+    <div class="card-header">
+      <h3 id="wf-detail-title">📋 تفاصيل الطلب</h3>
+      <button class="btn btn-secondary btn-sm" onclick="document.getElementById('wf-detail-panel').style.display='none'">✕ إغلاق</button>
     </div>
-    <div style="padding:10px;display:flex;flex-direction:column;gap:6px" id="wf-col-sales">
-      <div class="wf-card" data-status="sales" data-id="SO-001" onclick="showWFDetail('SO-001')" style="background:#f8f0ff;border:1px solid var(--odoo-purple);border-radius:var(--r);padding:10px;cursor:pointer">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;color:var(--odoo-purple)">SO-001</span>
-          <span class="badge badge-purple" style="font-size:9px">جديد</span>
-        </div>
-        <div style="font-weight:700;font-size:12px;margin-bottom:2px">أحمد السعدي</div>
-        <div style="font-size:10.5px;color:var(--text-m)">GEN-0045 بيركنز 50KVA</div>
-        <div style="font-size:11px;font-weight:700;color:var(--odoo-green);margin-top:4px">18,500,000 د.ع</div>
-        <div style="margin-top:6px;display:flex;gap:4px">
-          <button class="btn btn-primary" style="padding:3px 8px;font-size:10px" onclick="event.stopPropagation();advanceWF('SO-001','payment')">← قبض</button>
-        </div>
-      </div>
-      <div class="wf-card" data-status="sales" data-id="SO-002" onclick="showWFDetail('SO-002')" style="background:#f8f0ff;border:1px solid var(--odoo-purple);border-radius:var(--r);padding:10px;cursor:pointer">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;color:var(--odoo-purple)">SO-002</span>
-          <span class="badge badge-yellow" style="font-size:9px">أقساط</span>
-        </div>
-        <div style="font-weight:700;font-size:12px;margin-bottom:2px">سامي الجبوري</div>
-        <div style="font-size:10.5px;color:var(--text-m)">GEN-0080 بادوين 150KVA</div>
-        <div style="font-size:11px;font-weight:700;color:var(--odoo-green);margin-top:4px">55,000,000 د.ع</div>
-        <div style="margin-top:6px"><button class="btn btn-primary" style="padding:3px 8px;font-size:10px" onclick="event.stopPropagation();advanceWF('SO-002','payment')">← قبض</button></div>
-      </div>
-      <div class="wf-card" data-status="sales" data-id="SO-003" onclick="showWFDetail('SO-003')" style="background:#f8f0ff;border:1px solid var(--odoo-purple);border-radius:var(--r);padding:10px;cursor:pointer">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;color:var(--odoo-purple)">SO-003</span>
-          <span class="badge badge-blue" style="font-size:9px">عربون</span>
-        </div>
-        <div style="font-weight:700;font-size:12px;margin-bottom:2px">خالد الربيعي</div>
-        <div style="font-size:10.5px;color:var(--text-m)">GEN-0090 إيسوزو 30KVA</div>
-        <div style="font-size:11px;font-weight:700;color:var(--odoo-green);margin-top:4px">9,500,000 د.ع</div>
-        <div style="margin-top:6px"><button class="btn btn-primary" style="padding:3px 8px;font-size:10px" onclick="event.stopPropagation();advanceWF('SO-003','payment')">← قبض</button></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- STEP 2: PAYMENT -->
-  <div style="background:#fff;border-radius:var(--r-lg);border:1.5px solid var(--odoo-blue);overflow:hidden">
-    <div style="background:var(--odoo-blue);padding:10px 14px;display:flex;align-items:center;gap:8px">
-      <span style="font-size:16px">💵</span>
-      <div style="color:#fff">
-        <div style="font-size:11px;font-weight:800;letter-spacing:.5px">المرحلة 2</div>
-        <div style="font-size:12px;font-weight:600">قبض المبلغ / العربون</div>
-      </div>
-      <span style="margin-right:auto;background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px" id="wf-pay-count">1</span>
-    </div>
-    <div style="padding:10px;display:flex;flex-direction:column;gap:6px" id="wf-col-payment">
-      <div class="wf-card" data-status="payment" data-id="SO-004" onclick="showWFDetail('SO-004')" style="background:#e8f5f6;border:1px solid var(--odoo-blue);border-radius:var(--r);padding:10px;cursor:pointer">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;color:var(--odoo-blue)">SO-004</span>
-          <span class="badge badge-green" style="font-size:9px">مدفوع كامل</span>
-        </div>
-        <div style="font-weight:700;font-size:12px;margin-bottom:2px">محمد الدليمي</div>
-        <div style="font-size:10.5px;color:var(--text-m)">GEN-0071 بيركنز 100KVA</div>
-        <div style="font-size:10.5px;margin-top:4px">
-          <span style="color:var(--odoo-green);font-weight:700">مقبوض: 36,000,000</span>
-        </div>
-        <div style="font-size:10px;color:var(--text-m)">RCP-046 — نقد — تام</div>
-        <div style="margin-top:6px"><button class="btn btn-info" style="padding:3px 8px;font-size:10px;background:var(--odoo-blue);color:#fff;border:none;border-radius:4px;cursor:pointer" onclick="event.stopPropagation();advanceWF('SO-004','warehouse')">← مخزن</button></div>
-      </div>
-    </div>
-    <div style="padding:10px;border-top:1px solid var(--border)">
-      <div style="font-size:10.5px;color:var(--text-m);margin-bottom:6px;font-weight:600">أنواع القبض المقبول:</div>
-      <div style="display:flex;flex-direction:column;gap:3px">
-        <div style="display:flex;align-items:center;gap:6px;font-size:10.5px"><span style="width:8px;height:8px;border-radius:50%;background:#198754;flex-shrink:0"></span>تسديد حساب كامل</div>
-        <div style="display:flex;align-items:center;gap:6px;font-size:10.5px"><span style="width:8px;height:8px;border-radius:50%;background:#f59e0b;flex-shrink:0"></span>عربون (دفعة أولى)</div>
-        <div style="display:flex;align-items:center;gap:6px;font-size:10.5px"><span style="width:8px;height:8px;border-radius:50%;background:#0d6efd;flex-shrink:0"></span>تكملة حساب</div>
-        <div style="display:flex;align-items:center;gap:6px;font-size:10.5px"><span style="width:8px;height:8px;border-radius:50%;background:#6f42c1;flex-shrink:0"></span>قسط دوري</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- STEP 3: WAREHOUSE CHECK -->
-  <div style="background:#fff;border-radius:var(--r-lg);border:1.5px solid #f59e0b;overflow:hidden">
-    <div style="background:#f59e0b;padding:10px 14px;display:flex;align-items:center;gap:8px">
-      <span style="font-size:16px">📦</span>
-      <div style="color:#fff">
-        <div style="font-size:11px;font-weight:800;letter-spacing:.5px">المرحلة 3</div>
-        <div style="font-size:12px;font-weight:600">فحص المخزن</div>
-      </div>
-      <span style="margin-right:auto;background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px" id="wf-wh-count">2</span>
-    </div>
-    <div style="padding:10px;display:flex;flex-direction:column;gap:6px" id="wf-col-warehouse">
-      <!-- متوفر -->
-      <div class="wf-card" data-status="warehouse" data-id="SO-005" onclick="showWFDetail('SO-005')" style="background:#f0fdf4;border:1px solid #198754;border-radius:var(--r);padding:10px;cursor:pointer">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;color:#198754">SO-005</span>
-          <span class="badge badge-green" style="font-size:9px">✅ متوفر</span>
-        </div>
-        <div style="font-weight:700;font-size:12px;margin-bottom:2px">ناصر العبيدي</div>
-        <div style="font-size:10.5px;color:var(--text-m)">GEN-0091 إيسوزو 62.5KVA</div>
-        <div style="font-size:10.5px;margin-top:4px;color:#198754;font-weight:600">موجود في المستودع رف C-3</div>
-        <div style="margin-top:6px"><button class="btn btn-success" style="padding:3px 8px;font-size:10px" onclick="event.stopPropagation();advanceWF('SO-005','delivery')">← تجهيز</button></div>
-      </div>
-      <!-- غير متوفر -->
-      <div class="wf-card" data-status="warehouse" data-id="SO-006" onclick="showWFDetail('SO-006')" style="background:#fff1f2;border:1px solid #dc3545;border-radius:var(--r);padding:10px;cursor:pointer">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;color:#dc3545">SO-006</span>
-          <span class="badge badge-red" style="font-size:9px">⚠️ غير متوفر</span>
-        </div>
-        <div style="font-weight:700;font-size:12px;margin-bottom:2px">علي الحسني</div>
-        <div style="font-size:10.5px;color:var(--text-m)">بادوين 350KVA — GEN-0081</div>
-        <div style="font-size:10.5px;margin-top:4px;color:#dc3545;font-weight:600">⚠️ غير موجود في المستودع</div>
-        <div style="margin-top:6px"><button class="btn btn-danger" style="padding:3px 8px;font-size:10px" onclick="event.stopPropagation();advanceWF('SO-006','purchase')">← طلب شراء</button></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- STEP 4: PURCHASE / PREPARE -->
-  <div style="background:#fff;border-radius:var(--r-lg);border:1.5px solid #dc3545;overflow:hidden">
-    <div style="background:#dc3545;padding:10px 14px;display:flex;align-items:center;gap:8px">
-      <span style="font-size:16px">🛒</span>
-      <div style="color:#fff">
-        <div style="font-size:11px;font-weight:800;letter-spacing:.5px">المرحلة 4</div>
-        <div style="font-size:12px;font-weight:600">شراء / تجهيز</div>
-      </div>
-      <span style="margin-right:auto;background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px" id="wf-pr-count">1</span>
-    </div>
-    <div style="padding:10px;display:flex;flex-direction:column;gap:6px" id="wf-col-purchase">
-      <div class="wf-card" data-status="purchase" data-id="SO-007" onclick="showWFDetail('SO-007')" style="background:#fff8f8;border:1px solid #dc3545;border-radius:var(--r);padding:10px;cursor:pointer">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;color:#dc3545">SO-007</span>
-          <span class="badge badge-red" style="font-size:9px">قيد الشراء</span>
-        </div>
-        <div style="font-weight:700;font-size:12px;margin-bottom:2px">حيدر الموسوي</div>
-        <div style="font-size:10.5px;color:var(--text-m)">بيركنز 200KVA — طلب لدى المجهز</div>
-        <div style="font-size:10px;color:#dc3545;margin-top:4px">PO-046 — شركة الخليج</div>
-        <div style="font-size:10px;color:var(--text-m)">متوقع الوصول: 25/05/2026</div>
-        <div style="margin-top:6px"><button class="btn btn-warning" style="padding:3px 8px;font-size:10px;color:#fff;background:#f59e0b;border:none;border-radius:4px;cursor:pointer" onclick="event.stopPropagation();advanceWF('SO-007','delivery')">← وصل الشراء</button></div>
-      </div>
-    </div>
-    <div style="padding:10px;border-top:1px solid var(--border)">
-      <div style="font-size:10.5px;color:var(--text-m);font-weight:600;margin-bottom:6px">إجراء الشراء:</div>
-      <div style="font-size:10.5px;color:var(--text-m);line-height:1.6">
-        1. إنشاء طلب شراء PO<br>
-        2. إرساله للمجهز<br>
-        3. استلام المولد بالسيريل<br>
-        4. إدخاله للمستودع<br>
-        5. نقله لمرحلة التسليم
-      </div>
-    </div>
-  </div>
-
-  <!-- STEP 5: DELIVERY -->
-  <div style="background:#fff;border-radius:var(--r-lg);border:1.5px solid #198754;overflow:hidden">
-    <div style="background:#198754;padding:10px 14px;display:flex;align-items:center;gap:8px">
-      <span style="font-size:16px">✅</span>
-      <div style="color:#fff">
-        <div style="font-size:11px;font-weight:800;letter-spacing:.5px">المرحلة 5</div>
-        <div style="font-size:12px;font-weight:600">تسليم وإغلاق</div>
-      </div>
-      <span style="margin-right:auto;background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px" id="wf-dl-count">2</span>
-    </div>
-    <div style="padding:10px;display:flex;flex-direction:column;gap:6px" id="wf-col-delivery">
-      <div class="wf-card" data-status="delivery" data-id="SO-008" onclick="showWFDetail('SO-008')" style="background:#f0fdf4;border:1px solid #198754;border-radius:var(--r);padding:10px;cursor:pointer">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;color:#198754">SO-008</span>
-          <span class="badge badge-green" style="font-size:9px">جاهز للتسليم</span>
-        </div>
-        <div style="font-weight:700;font-size:12px;margin-bottom:2px">كريم الشمري</div>
-        <div style="font-size:10.5px;color:var(--text-m)">GEN-0045 بيركنز 50KVA</div>
-        <div style="font-size:10.5px;color:#198754;font-weight:600;margin-top:4px">جاهز — بانتظار التسليم</div>
-        <div style="margin-top:6px;display:flex;gap:4px">
-          <button class="btn btn-success" style="padding:3px 8px;font-size:10px" onclick="event.stopPropagation();completeWF('SO-008')">✅ تأكيد التسليم</button>
-        </div>
-      </div>
-      <div class="wf-card" data-status="delivered" data-id="SO-009" style="background:#f8f9fa;border:1px solid #adb5bd;border-radius:var(--r);padding:10px;opacity:.7">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;color:#6c757d">SO-009</span>
-          <span class="badge badge-gray" style="font-size:9px">✅ مكتمل</span>
-        </div>
-        <div style="font-weight:700;font-size:12px;margin-bottom:2px">زيد العامري</div>
-        <div style="font-size:10.5px;color:var(--text-m)">GEN-0062 بادوين 150KVA</div>
-        <div style="font-size:10px;color:#6c757d;margin-top:4px">سُلِّم 10/05/2026</div>
-      </div>
-    </div>
+    <div class="card-body" id="wf-detail-body"></div>
   </div>
 </div>
-
-<!-- WORKFLOW DETAIL PANEL -->
-<div id="wf-detail-panel" style="display:none">
-<div class="card" style="border-right:4px solid var(--odoo-purple)">
-  <div class="card-header">
-    <h3 id="wf-detail-title">📋 تفاصيل الطلب</h3>
-    <button class="btn btn-secondary btn-sm" onclick="document.getElementById('wf-detail-panel').style.display='none'">✕ إغلاق</button>
-  </div>
-  <div class="card-body" id="wf-detail-body"></div>
 </div>
-</div>
-
-<!-- WORKFLOW STATS -->
-<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px">
-  <div class="stat-card purple"><div class="stat-top"><div class="stat-icon purple">🧾</div></div><div class="stat-label">طلبات البيع (الشهر)</div><div class="stat-value">24</div><div class="stat-sub">إجمالي 187,000,000</div></div>
-  <div class="stat-card blue"><div class="stat-top"><div class="stat-icon blue">💵</div></div><div class="stat-label">مبالغ مقبوضة</div><div class="stat-value">142,500,000</div><div class="stat-sub">76.2% من الإجمالي</div></div>
-  <div class="stat-card green"><div class="stat-top"><div class="stat-icon green">📦</div></div><div class="stat-label">جاهز من المخزن</div><div class="stat-value">18</div><div class="stat-sub">75% تم التجهيز</div></div>
-  <div class="stat-card red"><div class="stat-top"><div class="stat-icon red">🛒</div></div><div class="stat-label">قيد الشراء</div><div class="stat-value">4</div><div class="stat-sub">طلبات للمجهزين</div></div>
-  <div class="stat-card green"><div class="stat-top"><div class="stat-icon green">✅</div></div><div class="stat-label">تم التسليم</div><div class="stat-value">20</div><div class="stat-sub">هذا الشهر</div></div>
-</div>
-</div>
-
-
 <!-- ===== INVOICE DESIGNER PAGE ===== -->
 <div class="page" id="page-invoice-designer">
 <div class="page-header">
@@ -4973,6 +4773,7 @@ function go(pg,el){
   if(pg==='purchases')    setTimeout(()=>{if(typeof renderPurchasesPage==='function')renderPurchasesPage();},100);
   if(pg==='expenses')     setTimeout(()=>{if(typeof renderExpensesPage==='function')renderExpensesPage();},100);
   if(pg==='maintenance')  setTimeout(()=>{if(typeof renderMaintenancePage==='function')renderMaintenancePage();},100);
+  if(pg==='workflow')      setTimeout(function(){if(typeof renderWorkflowPage==='function')renderWorkflowPage();},100);
 }
 
 // ===== MODALS =====
@@ -9911,7 +9712,14 @@ function filterInvItems() {
     var results = q ? db.filter(function(d){ return matches(type, d, q); }) : db;
     results = results.slice(0, 25);
     if (!results.length) {
-      list.innerHTML = '<div class="sb-opt" style="color:#9ca3af;cursor:default">لا توجد نتائج مطابقة</div>';
+      if (type === 'customer') {
+        var _qc = text.value.trim().replace(/['"<>]/g, '');
+        list.innerHTML = '<div class="sb-opt" style="color:#9ca3af;font-size:11.5px;cursor:default">لا يوجد زبون بهذا الاسم</div>' +
+          '<div class="sb-opt" style="color:var(--odoo-blue);font-weight:700;cursor:pointer;background:var(--odoo-blue-l);border-top:1px solid var(--odoo-blue)" ' +
+          'onmousedown="event.preventDefault();quickAddCustomerFromSB(\'' + _qc + '\'">＋ إضافة زبون جديد: "' + _qc + '"</div>';
+      } else {
+        list.innerHTML = '<div class="sb-opt" style="color:#9ca3af;cursor:default">لا توجد نتائج مطابقة</div>';
+      }
       list.classList.add('open'); return;
     }
     var hi = 0;
@@ -11339,6 +11147,7 @@ function openSalesModal() {
   if (numEl) numEl.textContent = 'SAL-' + String(SAL_INV_COUNTER).padStart(4, '0');
 
   clearSB('sb-cust');
+  var _qf = document.getElementById('sb-qac-form'); if (_qf) _qf.remove();
   var pm = document.getElementById('sal-pay-method'); if (pm) pm.value = '';
   var notes = document.getElementById('sal-notes'); if (notes) notes.value = '';
 
@@ -11540,9 +11349,52 @@ function saveSaleInv() {
   }
 
   if (typeof addAuditLog === 'function') addAuditLog('add', jId, 'فاتورة مبيعات: ' + invNum + ' — ' + (cust ? cust.name : custId));
+
+  // تحديث كميات المخزون تلقائياً
+  tbody.querySelectorAll('tr').forEach(function(tr) {
+    var lid   = tr.id.replace('sal-line-', '');
+    var iCode = getSBVal('sb-sitem-' + lid);
+    var qty   = parseFloat((document.getElementById('sl-qty-' + lid) || {}).value) || 0;
+    if (iCode && qty > 0 && typeof INV_ITEMS !== 'undefined') {
+      var inv = INV_ITEMS.find(function(i){ return i.code === iCode; });
+      if (inv && inv.qty !== undefined) inv.qty = Math.max(0, inv.qty - qty);
+    }
+  });
+
+  // تحديث ذمة الزبون (آجل)
+  if (payMeth === 'deferred' && custId && typeof CUSTOMERS_DB !== 'undefined') {
+    var custRec = CUSTOMERS_DB.find(function(c){ return c.id === custId; });
+    if (custRec) custRec.debt = (custRec.debt || 0) + totals.grand;
+  }
+
+  // إضافة بطاقة للوحة تدفق العمل
+  if (typeof WF_ORDERS !== 'undefined') {
+    var _items = [];
+    tbody.querySelectorAll('tr').forEach(function(tr) {
+      var lid = tr.id.replace('sal-line-', '');
+      var tt    = document.getElementById('sb-sitem-' + lid + '-text');
+      var iCode2 = (typeof getSBVal === 'function') ? getSBVal('sb-sitem-' + lid) : '';
+      var invLook = iCode2 && typeof INV_ITEMS !== 'undefined' ? INV_ITEMS.find(function(x){ return x.code===iCode2; }) : null;
+      var pName   = invLook ? invLook.name : (tt && tt.value ? (tt.value.indexOf(' — ')>=0 ? tt.value.split(' — ').slice(1).join(' — ') : tt.value) : '');
+      if (pName) _items.push(pName);
+    });
+    WF_ORDERS.push({
+      id: invNum || jId,
+      customer:   cust ? cust.name : custId,
+      customerId: custId,
+      product:    _items.slice(0, 2).join(', ') || '—',
+      amount:     totals.grand,
+      payMethod:  payMeth,
+      stage:      'sales',
+      date:       date,
+      journalId:  jId
+    });
+  }
+
   if (typeof renderSalesPage === 'function') renderSalesPage();
   closeM('m-sale');
   notify('✅ تم حفظ فاتورة المبيعات ' + invNum + ' — القيد: ' + jId, 'success');
+  setTimeout(function(){ if(typeof go==='function') go('workflow', null); }, 500);
 }
 
 // ==============================================================
@@ -12333,6 +12185,203 @@ function saveMaintenance() {
   renderMaintenancePage();
 }
 
+
+// ============================================================
+// WF_ORDERS — بيانات تدفق العمل (v11)
+// ============================================================
+var WF_ORDERS = [
+  {id:'SO-001',customer:'أحمد السعدي',customerId:'CUS-001',product:'GEN-0045 بيركنز 50KVA',amount:18500000,payMethod:'deferred',stage:'sales',date:'2026-05-15',journalId:''},
+  {id:'SO-002',customer:'سامي الجبوري',customerId:'CUS-002',product:'GEN-0080 بادوين 150KVA',amount:55000000,payMethod:'installment',stage:'sales',date:'2026-05-14',journalId:''},
+  {id:'SO-003',customer:'خالد الربيعي',customerId:'CUS-003',product:'GEN-0090 إيسوزو 30KVA',amount:9500000,payMethod:'deposit',stage:'sales',date:'2026-05-13',journalId:''},
+  {id:'SO-004',customer:'محمد الدليمي',customerId:'CUS-004',product:'GEN-0071 بيركنز 100KVA',amount:36000000,payMethod:'cash',stage:'payment',date:'2026-05-12',journalId:''},
+  {id:'SO-005',customer:'ناصر العبيدي',customerId:'CUS-005',product:'GEN-0091 إيسوزو 62.5KVA',amount:22000000,payMethod:'cash',stage:'warehouse',date:'2026-05-11',journalId:''},
+  {id:'SO-006',customer:'علي الحسني',customerId:'CUS-006',product:'بادوين 350KVA',amount:110000000,payMethod:'deferred',stage:'purchase',date:'2026-05-10',journalId:''},
+  {id:'SO-007',customer:'حيدر الموسوي',customerId:'CUS-007',product:'بيركنز 200KVA',amount:72000000,payMethod:'deferred',stage:'purchase',date:'2026-05-09',journalId:''},
+  {id:'SO-008',customer:'كريم الشمري',customerId:'CUS-008',product:'GEN-0045 بيركنز 50KVA',amount:18500000,payMethod:'cash',stage:'delivery',date:'2026-05-08',journalId:''},
+  {id:'SO-009',customer:'زيد العامري',customerId:'CUS-009',product:'GEN-0062 بادوين 150KVA',amount:55000000,payMethod:'cash',stage:'completed',date:'2026-05-07',journalId:''}
+];
+
+var WF_STAGES = [
+  {id:'sales',    label:'إصدار الفاتورة', icon:'🧾', color:'var(--odoo-purple)', bg:'#f8f0ff', border:'var(--odoo-purple)', next:'payment',  nextLabel:'← قبض'},
+  {id:'payment',  label:'قبض المبلغ',     icon:'💵', color:'var(--odoo-blue)',   bg:'#e8f5f6', border:'var(--odoo-blue)',   next:'warehouse',nextLabel:'← مخزن'},
+  {id:'warehouse',label:'فحص المخزن',     icon:'📦', color:'#f59e0b',           bg:'#fffbeb', border:'#f59e0b',           next:'delivery', nextLabel:'← تجهيز'},
+  {id:'purchase', label:'شراء / تجهيز',  icon:'🛒', color:'#dc3545',           bg:'#fff8f8', border:'#dc3545',           next:'delivery', nextLabel:'← وصل'},
+  {id:'delivery', label:'تسليم وإغلاق',  icon:'🚚', color:'#198754',           bg:'#f0fdf4', border:'#198754',           next:'completed',nextLabel:'✅ تأكيد التسليم'}
+];
+
+var WF_PAY_LABELS = {cash:'💵 نقد', transfer:'🏦 حوالة', deferred:'📋 آجل', installment:'💳 أقساط', deposit:'📛 عربون'};
+
+function renderWorkflowPage() {
+  var kpiBar     = document.getElementById('wf-kpi-bar');
+  var kanbanGrid = document.getElementById('wf-kanban-grid');
+  if (!kpiBar || !kanbanGrid) return;
+  var allOrders = typeof WF_ORDERS !== "undefined" ? WF_ORDERS : [];
+  var counts = {sales:0,payment:0,warehouse:0,purchase:0,delivery:0,completed:0};
+  var totals  = {sales:0,payment:0,warehouse:0,purchase:0,delivery:0,completed:0};
+  allOrders.forEach(function(o) {
+    if (counts[o.stage] !== undefined) { counts[o.stage]++; totals[o.stage] += (o.amount||0); }
+  });
+  // KPI Bar
+  var kpiStages = WF_STAGES.concat([{id:'completed',label:'مكتمل',icon:'✅',color:'#6c757d'}]);
+  kpiBar.innerHTML = kpiStages.map(function(st) {
+    var amt = totals[st.id] > 0 ? (totals[st.id]/1000000).toFixed(1) + 'M د.ع' : '—';
+    return '<div class="stat-card" style="border-top:3px solid ' + st.color + ';padding:12px 14px;min-height:90px">' +
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">' +
+        '<span style="font-size:18px">' + st.icon + '</span>' +
+        '<div style="font-size:11px;font-weight:700;color:' + st.color + '">' + st.label + '</div>' +
+      '</div>' +
+      '<div style="font-size:24px;font-weight:800;color:var(--text-h)">' + counts[st.id] + '</div>' +
+      '<div style="font-size:10.5px;color:var(--text-m);margin-top:2px">' + amt + '</div>' +
+    '</div>';
+  }).join("");
+  // Kanban Columns
+  kanbanGrid.innerHTML = WF_STAGES.map(function(st) {
+    var stageOrders = allOrders.filter(function(o){ return o.stage === st.id; });
+    var cards = stageOrders.map(function(o) {
+      var pl = WF_PAY_LABELS[o.payMethod] || o.payMethod || '';
+      return '<div class="wf-card" data-status="' + st.id + '" data-id="' + o.id + '"' +
+        ' onclick="showWFDetail(\'' + o.id + '\')"' +
+        ' style="background:' + st.bg + ';border:1px solid ' + st.border + ';border-radius:var(--r);padding:10px;cursor:pointer;margin-bottom:6px;transition:box-shadow .15s"' +
+        ' onmouseover="this.style.boxShadow=\'0 2px 8px rgba(0,0,0,.12)\'"' +
+        ' onmouseout="this.style.boxShadow=\'\'">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">' +
+          '<span style="font-family:monospace;font-size:10.5px;font-weight:700;color:' + st.color + '">' + o.id + '</span>' +
+          '<span style="font-size:9px;padding:2px 8px;border-radius:10px;background:' + st.color + ';color:#fff;white-space:nowrap">' + pl + '</span>' +
+        '</div>' +
+        '<div style="font-weight:700;font-size:13px;margin-bottom:2px">' + o.customer + '</div>' +
+        '<div style="font-size:10.5px;color:var(--text-m);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + o.product + '</div>' +
+        '<div style="font-size:11.5px;font-weight:800;color:var(--odoo-green)">' + (o.amount||0).toLocaleString('ar-IQ') + ' د.ع</div>' +
+        '<div style="margin-top:7px">' +
+          '<button class="btn btn-primary" style="padding:3px 10px;font-size:10px;background:' + st.color + ';border-color:' + st.color + ';color:#fff"' +
+            ' onclick="event.stopPropagation();' + (st.id==='delivery'?'completeWF':'advanceWF') + '(\'' + o.id + '\'' + (st.id!=='delivery'?',\'' + st.next + '\'':'') + ')">' + st.nextLabel + '</button>' +
+        '</div>' +
+      '</div>';
+    }).join("");
+    var colStyle = 'background:#fff;border-radius:var(--r-lg);border:1.5px solid ' + st.border + ';overflow:hidden;display:flex;flex-direction:column';
+    var hdrStyle = 'background:' + st.color + ';padding:10px 14px;display:flex;align-items:center;gap:8px';
+    var empty    = '<div style="padding:14px;text-align:center;color:#9ca3af;font-size:11px">لا توجد طلبات</div>';
+    return '<div style="' + colStyle + '">' +
+      '<div style="' + hdrStyle + '">' +
+        '<span style="font-size:16px">' + st.icon + '</span>' +
+        '<div style="color:#fff;flex:1">' +
+          '<div style="font-size:10px;font-weight:800;letter-spacing:.5px;opacity:.85">المرحلة ' + (WF_STAGES.indexOf(st)+1) + '</div>' +
+          '<div style="font-size:12px;font-weight:700">' + st.label + '</div>' +
+        '</div>' +
+        '<span style="background:rgba(255,255,255,.25);color:#fff;font-size:10.5px;font-weight:700;padding:2px 9px;border-radius:10px">' + stageOrders.length + '</span>' +
+      '</div>' +
+      '<div style="padding:10px;flex:1;overflow-y:auto;max-height:60vh">' + (cards || empty) + '</div>' +
+    '</div>';
+  }).join("");
+  var sub = document.getElementById("wf-subtitle");
+  var total = allOrders.reduce(function(s,o){ return s+(o.amount||0); },0);
+  if (sub) sub.textContent = allOrders.length + ' طلب — إجمالي ' + (total/1000000).toFixed(1) + 'M د.ع';
+}
+
+function advanceWF(id, nextStage) {
+  if (typeof WF_ORDERS === "undefined") return;
+  var o = WF_ORDERS.find(function(x){ return x.id===id; });
+  if (!o) return;
+  o.stage = nextStage;
+  renderWorkflowPage();
+  if (typeof saveToStorage === 'function') saveToStorage();
+  notify('تم نقل ' + id + ' إلى المرحلة التالية ✔', 'success');
+}
+
+function completeWF(id) {
+  if (typeof WF_ORDERS === "undefined") return;
+  var o = WF_ORDERS.find(function(x){ return x.id===id; });
+  if (!o) return;
+  o.stage = 'completed';
+  renderWorkflowPage();
+  if (typeof saveToStorage === 'function') saveToStorage();
+  notify('✅ تم إغلاق الطلب ' + id + ' — تسليم مكتمل', 'success');
+}
+
+function showWFDetail(id) {
+  if (typeof WF_ORDERS === "undefined") return;
+  var o      = WF_ORDERS.find(function(x){ return x.id===id; });
+  var panel  = document.getElementById("wf-detail-panel");
+  var title  = document.getElementById("wf-detail-title");
+  var body   = document.getElementById("wf-detail-body");
+  if (!panel || !body || !o) return;
+  var sLbls  = {sales:'إصدار فاتورة',payment:'قبض مبلغ',warehouse:'فحص مخزن',purchase:'شراء/تجهيز',delivery:'تسليم',completed:'مكتمل ✅'};
+  if (title) title.textContent = '📋 تفاصيل — ' + o.id;
+  body.innerHTML =
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' +
+    '<div class="info-row"><span class="lbl">الزبون</span><span class="val">' + o.customer + '</span></div>' +
+    '<div class="info-row"><span class="lbl">المنتج</span><span class="val">' + o.product + '</span></div>' +
+    '<div class="info-row"><span class="lbl">المبلغ</span><span class="val" style="color:var(--odoo-green);font-weight:700">' + (o.amount||0).toLocaleString('ar-IQ') + ' د.ع</span></div>' +
+    '<div class="info-row"><span class="lbl">الدفع</span><span class="val">' + (WF_PAY_LABELS[o.payMethod]||o.payMethod||'—') + '</span></div>' +
+    '<div class="info-row"><span class="lbl">التاريخ</span><span class="val">' + (o.date||'—') + '</span></div>' +
+    '<div class="info-row"><span class="lbl">المرحلة</span><span class="val">' + (sLbls[o.stage]||o.stage) + '</span></div>' +
+    (o.journalId ? '<div class="info-row" style="grid-column:1/-1"><span class="lbl">القيد</span><span class="val" style="font-family:monospace;color:var(--odoo-blue)">' + o.journalId + '</span></div>' : '') +
+    '</div>';
+  panel.style.display = 'block';
+  panel.scrollIntoView({behavior:'smooth'});
+}
+
+function filterWFBoard(status, btn) {
+  document.querySelectorAll('.wf-card').forEach(function(c) {
+    c.style.display = (status==='all'||c.dataset.status===status) ? '' : 'none';
+  });
+  document.querySelectorAll('#wf-btn-all,.wf-filter-btn').forEach(function(b){ b.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+}
+
+// ── Quick Add Customer from SmartBox ─────────────────────────────
+function quickAddCustomerFromSB(name) {
+  var wrap = document.getElementById('sb-cust-wrap');
+  var list = wrap ? wrap.querySelector(".sb-dropdown") : null;
+  if (list) list.classList.remove('open');
+  var old = document.getElementById('sb-qac-form'); if (old) old.remove();
+  var form = document.createElement("div");
+  form.id = "sb-qac-form";
+  form.style.cssText = "background:#fff;border:2px solid var(--odoo-blue);border-radius:8px;padding:14px;margin-top:8px;box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:100";
+  var safeName = (name || "").replace(/"/g, "");
+  form.innerHTML = '<div style="font-weight:700;font-size:13px;color:var(--odoo-blue);margin-bottom:12px">👤 إضافة زبون جديد</div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">' +
+      '<div><div style="font-size:11px;font-weight:600;margin-bottom:4px">الاسم الكامل <span style="color:red">*</span></div>' +
+        '<input type="text" id="qac-name" class="form-control" value="' + safeName + '" placeholder="اسم الزبون..." style="font-size:12.5px"></div>' +
+      '<div><div style="font-size:11px;font-weight:600;margin-bottom:4px">رقم الهاتف <span style="color:red">*</span></div>' +
+        '<input type="text" id="qac-phone" class="form-control" placeholder="07xxxxxxxxx" style="font-size:12.5px"></div>' +
+      '<div><div style="font-size:11px;font-weight:600;margin-bottom:4px">المدينة</div>' +
+        '<input type="text" id="qac-city" class="form-control" placeholder="بغداد..." style="font-size:12.5px"></div>' +
+      '<div><div style="font-size:11px;font-weight:600;margin-bottom:4px">العنوان</div>' +
+        '<input type="text" id="qac-address" class="form-control" placeholder="العنوان التفصيلي..." style="font-size:12.5px"></div>' +
+    '</div>' +
+    '<div style="display:flex;gap:8px;justify-content:flex-end">' +
+      '<button class="btn btn-secondary btn-sm" onclick="document.getElementById(\'sb-qac-form\').remove()">إلغاء</button>' +
+      '<button class="btn btn-primary btn-sm" onclick="confirmQuickCustomer()">✔ حفظ الزبون</button>' +
+    '</div>';
+  if (wrap && wrap.parentNode) {
+    wrap.parentNode.insertBefore(form, wrap.nextSibling);
+    setTimeout(function(){ var e=document.getElementById('qac-name');if(e){e.focus();e.select();} },50);
+  }
+}
+
+function confirmQuickCustomer() {
+  var name    = ((document.getElementById('qac-name')   ||{}).value||'').trim();
+  var phone   = ((document.getElementById('qac-phone')  ||{}).value||'').trim();
+  var city    = ((document.getElementById('qac-city')   ||{}).value||'غير محدد').trim();
+  var address = ((document.getElementById('qac-address')||{}).value||'').trim();
+  if (!name)  { notify('يجب إدخال اسم الزبون ✕', 'danger'); return; }
+  if (!phone) { notify('يجب إدخال رقم الهاتف ✕', 'danger'); return; }
+  var newId   = 'CUS-' + String(Date.now()).slice(-5);
+  var newCust = {id:newId, name:name, phone:phone, city:city||'غير محدد', address:address, debt:0};
+  if (typeof CUSTOMERS_DB !== 'undefined') CUSTOMERS_DB.push(newCust);
+  if (typeof AI_DATA !== 'undefined' && AI_DATA.customers) AI_DATA.customers.push({id:newId,name:name,phone:phone,city:city||'غير محدد',debt:0});
+  var sbText = document.getElementById('sb-cust-text');
+  var sbVal  = document.getElementById('sb-cust-val');
+  if (sbText) sbText.value = name;
+  if (sbVal)  sbVal.value  = newId;
+  var wrap = document.getElementById('sb-cust-wrap');
+  if (wrap) wrap.classList.remove('sb-invalid');
+  var form = document.getElementById('sb-qac-form'); if (form) form.remove();
+  if (typeof saveToStorage === 'function') saveToStorage();
+  if (typeof updateSaleEntryPreview === 'function') updateSaleEntryPreview();
+  notify('✅ تم إضافة الزبون "' + name + '" (' + newId + ') بنجاح', 'success');
+}
+
 // ============================================================
 // PERSISTENCE ENGINE — localStorage v10
 // ============================================================
@@ -12347,7 +12396,8 @@ function saveToStorage() {
       customers: CUSTOMERS_DB,
       suppliers: SUPPLIERS_DB,
       maint:     MAINT_DB,
-      payroll:   PAYROLL_RECORDS
+      payroll:   PAYROLL_RECORDS,
+      wfOrders:  (typeof WF_ORDERS !== 'undefined' ? WF_ORDERS : [])
     }));
   } catch(e) { /* quota/private */ }
 }
@@ -12368,6 +12418,7 @@ function loadFromStorage() {
     merge(SUPPLIERS_DB, d.suppliers);
     merge(MAINT_DB, d.maint);
     merge(PAYROLL_RECORDS, d.payroll);
+    if (d.wfOrders && typeof WF_ORDERS !== 'undefined') merge(WF_ORDERS, d.wfOrders);
     return true;
   } catch(e) { return false; }
 }
