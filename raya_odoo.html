@@ -13330,6 +13330,15 @@ function loadFromStorage() {
       });
     }
     if (d.instDb && typeof INSTALLMENTS_DB !== 'undefined') merge(INSTALLMENTS_DB, d.instDb);
+    // مهاجرة تلقائية: حذف سجلات الصيانة التجريبية من البيانات القديمة
+    var _demoMaintIds = ['MNT-043','MNT-044','MNT-045','MNT-046','MNT-047','MNT-048'];
+    var _hadDemo = MAINT_DB.some(function(m){ return _demoMaintIds.indexOf(m.id) >= 0; });
+    if (_hadDemo) {
+      var _cleaned = MAINT_DB.filter(function(m){ return _demoMaintIds.indexOf(m.id) < 0; });
+      MAINT_DB.splice(0, MAINT_DB.length);
+      _cleaned.forEach(function(m){ MAINT_DB.push(m); });
+      try { var _s=JSON.parse(localStorage.getItem(_RAYA_KEY)||'{}'||'{'); _s.maint=MAINT_DB; localStorage.setItem(_RAYA_KEY,JSON.stringify(_s)); } catch(e){}
+    }
     return true;
   } catch(e) { return false; }
 }
