@@ -3053,6 +3053,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:14px 0}
         <button onclick="showInvTab('movements',this)">🔄 الحركات</button>
         <button onclick="showInvTab('balance',this)">⚖️ كشف الرصيد</button>
         <button onclick="showInvTab('low',this)">⚠️ المنخفض</button>
+        <button onclick="showInvTab('serials',this)">🔢 السيريل</button>
       </div>
       <button class="btn btn-success btn-sm" onclick="openM('m-stock-in')">📥 وارد</button>
       <button class="btn btn-danger btn-sm" onclick="openM('m-warehouse-out')">📤 صادر</button>
@@ -3295,7 +3296,62 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:14px 0}
     </div>
   </div>
 </div>
+
+<!-- SERIAL TAB -->
+<div id="inv-tab-serials" style="display:none">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+    <div style="font-weight:700;font-size:16px;color:var(--odoo-purple)">🔢 سجل أرقام السيريل نمبر</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <select class="filter-select" id="srl-filter-item" onchange="renderSerialsTab()" style="min-width:200px"><option value="">كل الأصناف</option></select>
+      <select class="filter-select" id="srl-filter-status" onchange="renderSerialsTab()">
+        <option value="">كل الحالات</option>
+        <option value="stock">✅ متاح</option>
+        <option value="sold">🔴 مباع</option>
+        <option value="reserved">🟡 محجوز</option>
+      </select>
+      <button class="btn btn-success btn-sm" onclick="openAddSerialModal()">＋ إدخال سيريل</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="o-table-wrap">
+      <table class="o-table" id="serials-table">
+        <thead><tr>
+          <th>السيريل نمبر</th><th>الصنف</th><th>الحالة</th>
+          <th>تاريخ الدخول</th><th>مرجع الشراء</th>
+          <th>تاريخ الخروج</th><th>فاتورة البيع</th><th>الزبون</th>
+        </tr></thead>
+        <tbody id="serials-table-body"></tbody>
+      </table>
+    </div>
+    <div id="serials-empty" style="text-align:center;padding:40px;color:#9ca3af;display:none">لا توجد أرقام سيريل مضافة بعد</div>
+  </div>
 </div>
+
+</div>
+
+<!-- ADD SERIAL MODAL -->
+<div class="modal-overlay" id="m-add-serial">
+<div class="modal lg">
+<div class="modal-header"><h3>🔢 إدخال سيريل نمبر للمخزون</h3><button class="modal-close" onclick="closeM('m-add-serial')">✕</button></div>
+<div class="modal-body">
+  <div class="form-row">
+    <div class="form-group" style="flex:2"><label>الصنف <span class="req">*</span></label>
+      <select class="form-control" id="serial-in-item" onchange="updateSerialPreview()"></select></div>
+    <div class="form-group"><label>تاريخ الاستلام</label>
+      <input type="date" class="form-control" id="serial-in-date"></div>
+    <div class="form-group"><label>مرجع أمر الشراء</label>
+      <input type="text" class="form-control" id="serial-in-po" placeholder="PO-001"></div>
+  </div>
+  <div style="margin-bottom:6px;font-weight:600;color:var(--odoo-blue)">أرقام السيريل — أدخل كل رقم في سطر منفصل:</div>
+  <textarea class="form-control" id="serial-in-list" rows="8" oninput="updateSerialPreview()"
+    placeholder="مثال:&#10;SN-2024-001&#10;SN-2024-002&#10;SN-2024-003" style="font-family:monospace;direction:ltr;font-size:13px"></textarea>
+  <div id="serial-in-preview" style="margin-top:8px;padding:8px;background:#f0fdf4;border-radius:6px;font-size:12px;color:#166534;display:none"></div>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-success" onclick="saveSerialIn()">✔ حفظ وإضافة للمخزون</button>
+  <button class="btn btn-secondary" onclick="closeM('m-add-serial')">إلغاء</button>
+</div>
+</div></div>
 
 <!-- INVENTORY ADJUST MODAL -->
 <div class="modal-overlay" id="m-inventory-adjust">
@@ -7237,7 +7293,36 @@ function switchChartPeriod(period, btn) {
   var label = period === 'monthly' ? 'عرض شهري' : period === 'quarterly' ? 'عرض ربعي' : 'عرض سنوي';
   notify(label + ' — ' + vals.filter(function(v){return v>0;}).length + ' فترة', 'info');
 }
-var INV_ITEMS=[];
+var INV_ITEMS=[
+{code:'GEN-BRK-22',  name:'مولد كهربائية بيركنز كاتم سعة 20-22 KVA',  cat:'generator', qty:0, min:0, unit:'وحدة', cost:0, price:0, trackSerial:true},
+{code:'GEN-BRK-33',  name:'مولد كهربائية بيركنز كاتم سعة 30-33 KVA',  cat:'generator', qty:0, min:0, unit:'وحدة', cost:0, price:0, trackSerial:true},
+{code:'GEN-BRK-50',  name:'مولد كهربائية بيركنز كاتم سعة 45-50 KVA',  cat:'generator', qty:0, min:0, unit:'وحدة', cost:0, price:0, trackSerial:true},
+{code:'GEN-BRK-66',  name:'مولد كهربائية بيركنز كاتم سعة 60-66 KVA',  cat:'generator', qty:0, min:0, unit:'وحدة', cost:0, price:0, trackSerial:true},
+{code:'GEN-BRK-88',  name:'مولد كهربائية بيركنز كاتم سعة 80-88 KVA',  cat:'generator', qty:0, min:0, unit:'وحدة', cost:0, price:0, trackSerial:true},
+{code:'GEN-BRK-110', name:'مولد كهربائية بيركنز كاتم سعة 100-110 KVA',cat:'generator', qty:0, min:0, unit:'وحدة', cost:0, price:0, trackSerial:true},
+{code:'GEN-BRK-150', name:'مولد كهربائية بيركنز كاتم سعة 135-150 KVA',cat:'generator', qty:0, min:0, unit:'وحدة', cost:0, price:0, trackSerial:true},
+{code:'GEN-BRK-165', name:'مولد كهربائية بيركنز كاتم سعة 150-165 KVA',cat:'generator', qty:0, min:0, unit:'وحدة', cost:0, price:0, trackSerial:true},
+{code:'GEN-BRK-220', name:'مولد كهربائية بيركنز كاتم سعة 200-220 KVA',cat:'generator', qty:0, min:0, unit:'وحدة', cost:0, price:0, trackSerial:true},
+{code:'GEN-BRK-265', name:'مولد كهربائية بيركنز كاتم سعة 250-265 KVA',cat:'generator', qty:0, min:0, unit:'وحدة', cost:0, price:0, trackSerial:true},
+{code:'GEN-BRK-325', name:'مولد كهربائية بيركنز كاتم سعة 300-325 KVA',cat:'generator', qty:0, min:0, unit:'وحدة', cost:0, price:0, trackSerial:true},
+{code:'GEN-BRK-400', name:'مولد كهربائية بيركنز كاتم سعة 350-400 KVA',cat:'generator', qty:0, min:0, unit:'وحدة', cost:0, price:0, trackSerial:true},
+{code:'GEN-BRK-450', name:'مولد كهربائية بيركنز كاتم سعة 400-450 KVA',cat:'generator', qty:0, min:0, unit:'وحدة', cost:0, price:0, trackSerial:true},
+{code:'GEN-BRK-500', name:'مولد كهربائية بيركنز كاتم سعة 450-500 KVA',cat:'generator', qty:0, min:0, unit:'وحدة', cost:0, price:0, trackSerial:true},
+{code:'GEN-BRK-550', name:'مولد كهربائية بيركنز كاتم سعة 500-550 KVA',cat:'generator', qty:0, min:0, unit:'وحدة', cost:0, price:0, trackSerial:true},
+{code:'GEN-BRK-650', name:'مولد كهربائية بيركنز كاتم سعة 600-650 KVA',cat:'generator', qty:0, min:0, unit:'وحدة', cost:0, price:0, trackSerial:true},
+{code:'GEN-BRK-770', name:'مولد كهربائية بيركنز كاتم سعة 700-770 KVA',cat:'generator', qty:0, min:0, unit:'وحدة', cost:0, price:0, trackSerial:true},
+{code:'GEN-BDW-22',  name:'مولد كهربائية بادوين كاتم سعة 20-22 KVA',  cat:'generator', qty:0, min:0, unit:'وحدة', cost:0, price:0, trackSerial:true},
+{code:'GEN-BDW-33',  name:'مولد كهربائية بادوين كاتم سعة 30-33 KVA',  cat:'generator', qty:0, min:0, unit:'وحدة', cost:0, price:0, trackSerial:true},
+{code:'GEN-BDW-50',  name:'مولد كهربائية بادوين كاتم سعة 45-50 KVA',  cat:'generator', qty:0, min:0, unit:'وحدة', cost:0, price:0, trackSerial:true},
+{code:'GEN-BDW-66',  name:'مولد كهربائية بادوين كاتم سعة 60-66 KVA',  cat:'generator', qty:0, min:0, unit:'وحدة', cost:0, price:0, trackSerial:true},
+{code:'GEN-BDW-88',  name:'مولد كهربائية بادوين كاتم سعة 80-88 KVA',  cat:'generator', qty:0, min:0, unit:'وحدة', cost:0, price:0, trackSerial:true},
+{code:'GEN-BDW-110', name:'مولد كهربائية بادوين كاتم سعة 100-110 KVA',cat:'generator', qty:0, min:0, unit:'وحدة', cost:0, price:0, trackSerial:true},
+{code:'GEN-BDW-150', name:'مولد كهربائية بادوين كاتم سعة 135-150 KVA',cat:'generator', qty:0, min:0, unit:'وحدة', cost:0, price:0, trackSerial:true},
+{code:'GEN-ISZ-22',  name:'مولد كهربائية ايسوزو كاتم سعة 20-22 KVA',  cat:'generator', qty:0, min:0, unit:'وحدة', cost:0, price:0, trackSerial:true},
+{code:'GEN-ISZ-33',  name:'مولد كهربائية ايسوزو كاتم سعة 30-33 KVA',  cat:'generator', qty:0, min:0, unit:'وحدة', cost:0, price:0, trackSerial:true},
+{code:'GEN-ISZ-50',  name:'مولد كهربائية ايسوزو كاتم سعة 45-50 KVA',  cat:'generator', qty:0, min:0, unit:'وحدة', cost:0, price:0, trackSerial:true},
+{code:'GEN-ISZ-66',  name:'مولد كهربائية ايسوزو كاتم سعة 60-66 KVA',  cat:'generator', qty:0, min:0, unit:'وحدة', cost:0, price:0, trackSerial:true}
+];
 var INV_MOVEMENTS=[];
 var selectedTrackItem=null;
 
@@ -7753,7 +7838,36 @@ function trackItem(code) {
 // SALE MODAL — ITEMS SEARCH (Phase 1 fix)
 // ================================================================
 
-var SALE_ITEMS_DB = [];
+var SALE_ITEMS_DB = [
+{code:'GEN-BRK-22',  name:'مولد كهربائية بيركنز كاتم سعة 20-22 KVA',  cat:'generator', price:0, unit:'وحدة', stock:0, trackSerial:true},
+{code:'GEN-BRK-33',  name:'مولد كهربائية بيركنز كاتم سعة 30-33 KVA',  cat:'generator', price:0, unit:'وحدة', stock:0, trackSerial:true},
+{code:'GEN-BRK-50',  name:'مولد كهربائية بيركنز كاتم سعة 45-50 KVA',  cat:'generator', price:0, unit:'وحدة', stock:0, trackSerial:true},
+{code:'GEN-BRK-66',  name:'مولد كهربائية بيركنز كاتم سعة 60-66 KVA',  cat:'generator', price:0, unit:'وحدة', stock:0, trackSerial:true},
+{code:'GEN-BRK-88',  name:'مولد كهربائية بيركنز كاتم سعة 80-88 KVA',  cat:'generator', price:0, unit:'وحدة', stock:0, trackSerial:true},
+{code:'GEN-BRK-110', name:'مولد كهربائية بيركنز كاتم سعة 100-110 KVA',cat:'generator', price:0, unit:'وحدة', stock:0, trackSerial:true},
+{code:'GEN-BRK-150', name:'مولد كهربائية بيركنز كاتم سعة 135-150 KVA',cat:'generator', price:0, unit:'وحدة', stock:0, trackSerial:true},
+{code:'GEN-BRK-165', name:'مولد كهربائية بيركنز كاتم سعة 150-165 KVA',cat:'generator', price:0, unit:'وحدة', stock:0, trackSerial:true},
+{code:'GEN-BRK-220', name:'مولد كهربائية بيركنز كاتم سعة 200-220 KVA',cat:'generator', price:0, unit:'وحدة', stock:0, trackSerial:true},
+{code:'GEN-BRK-265', name:'مولد كهربائية بيركنز كاتم سعة 250-265 KVA',cat:'generator', price:0, unit:'وحدة', stock:0, trackSerial:true},
+{code:'GEN-BRK-325', name:'مولد كهربائية بيركنز كاتم سعة 300-325 KVA',cat:'generator', price:0, unit:'وحدة', stock:0, trackSerial:true},
+{code:'GEN-BRK-400', name:'مولد كهربائية بيركنز كاتم سعة 350-400 KVA',cat:'generator', price:0, unit:'وحدة', stock:0, trackSerial:true},
+{code:'GEN-BRK-450', name:'مولد كهربائية بيركنز كاتم سعة 400-450 KVA',cat:'generator', price:0, unit:'وحدة', stock:0, trackSerial:true},
+{code:'GEN-BRK-500', name:'مولد كهربائية بيركنز كاتم سعة 450-500 KVA',cat:'generator', price:0, unit:'وحدة', stock:0, trackSerial:true},
+{code:'GEN-BRK-550', name:'مولد كهربائية بيركنز كاتم سعة 500-550 KVA',cat:'generator', price:0, unit:'وحدة', stock:0, trackSerial:true},
+{code:'GEN-BRK-650', name:'مولد كهربائية بيركنز كاتم سعة 600-650 KVA',cat:'generator', price:0, unit:'وحدة', stock:0, trackSerial:true},
+{code:'GEN-BRK-770', name:'مولد كهربائية بيركنز كاتم سعة 700-770 KVA',cat:'generator', price:0, unit:'وحدة', stock:0, trackSerial:true},
+{code:'GEN-BDW-22',  name:'مولد كهربائية بادوين كاتم سعة 20-22 KVA',  cat:'generator', price:0, unit:'وحدة', stock:0, trackSerial:true},
+{code:'GEN-BDW-33',  name:'مولد كهربائية بادوين كاتم سعة 30-33 KVA',  cat:'generator', price:0, unit:'وحدة', stock:0, trackSerial:true},
+{code:'GEN-BDW-50',  name:'مولد كهربائية بادوين كاتم سعة 45-50 KVA',  cat:'generator', price:0, unit:'وحدة', stock:0, trackSerial:true},
+{code:'GEN-BDW-66',  name:'مولد كهربائية بادوين كاتم سعة 60-66 KVA',  cat:'generator', price:0, unit:'وحدة', stock:0, trackSerial:true},
+{code:'GEN-BDW-88',  name:'مولد كهربائية بادوين كاتم سعة 80-88 KVA',  cat:'generator', price:0, unit:'وحدة', stock:0, trackSerial:true},
+{code:'GEN-BDW-110', name:'مولد كهربائية بادوين كاتم سعة 100-110 KVA',cat:'generator', price:0, unit:'وحدة', stock:0, trackSerial:true},
+{code:'GEN-BDW-150', name:'مولد كهربائية بادوين كاتم سعة 135-150 KVA',cat:'generator', price:0, unit:'وحدة', stock:0, trackSerial:true},
+{code:'GEN-ISZ-22',  name:'مولد كهربائية ايسوزو كاتم سعة 20-22 KVA',  cat:'generator', price:0, unit:'وحدة', stock:0, trackSerial:true},
+{code:'GEN-ISZ-33',  name:'مولد كهربائية ايسوزو كاتم سعة 30-33 KVA',  cat:'generator', price:0, unit:'وحدة', stock:0, trackSerial:true},
+{code:'GEN-ISZ-50',  name:'مولد كهربائية ايسوزو كاتم سعة 45-50 KVA',  cat:'generator', price:0, unit:'وحدة', stock:0, trackSerial:true},
+{code:'GEN-ISZ-66',  name:'مولد كهربائية ايسوزو كاتم سعة 60-66 KVA',  cat:'generator', price:0, unit:'وحدة', stock:0, trackSerial:true}
+];
 
 var saleLineCounter = 0;
 window.selectedCustomer = window.selectedCustomer || null;
@@ -11056,7 +11170,10 @@ function addSalLine() {
       '<input type="hidden" id="sb-sitem-' + idx + '-val">' +
       '<div class="sb-dropdown" id="sb-sitem-' + idx + '-list"></div>' +
     '</div></td>' +
-    '<td><input type="text" class="form-control" id="sl-desc-'   + idx + '" placeholder="وصف" style="min-width:100px"></td>' +
+    '<td><input type="text" class="form-control" id="sl-desc-' + idx + '" placeholder="وصف" style="min-width:100px">' +
+    '<div id="sl-serial-div-' + idx + '" style="display:none;margin-top:4px">' +
+    '<select class="form-control" id="sl-serial-' + idx + '" style="font-size:11px;min-width:130px"><option value="">🔢 السيريل نمبر</option></select>' +
+    '</div></td>' +
     '<td><input type="text" class="form-control" id="sl-unit-'   + idx + '" readonly style="width:55px;background:#f9fafb;text-align:center"></td>' +
     '<td><input type="number" class="form-control" id="sl-qty-'  + idx + '" value="1" min="0.001" style="width:65px;text-align:center" oninput="calcSalLine(' + idx + ')"></td>' +
     '<td><input type="number" class="form-control" id="sl-price-'+ idx + '" value="0" min="0" style="width:110px;text-align:center" oninput="calcSalLine(' + idx + ')"></td>' +
@@ -11072,8 +11189,23 @@ function addSalLine() {
     var priceEl = document.getElementById('sl-price-' + idx);
     var descEl  = document.getElementById('sl-desc-'  + idx);
     if (unitEl)  unitEl.value  = item.unit || '';
-    if (priceEl) priceEl.value = item.salePrice || item.defaultPrice || 0;
+    if (priceEl) priceEl.value = item.salePrice || item.defaultPrice || item.price || 0;
     if (descEl && !descEl.value) descEl.value = item.name;
+    // سيريل نمبر
+    var srlDiv = document.getElementById('sl-serial-div-' + idx);
+    var srlSel = document.getElementById('sl-serial-' + idx);
+    if (item.trackSerial && srlDiv && srlSel) {
+      var avail = (typeof getAvailableSerials==='function') ? getAvailableSerials(item.code) : [];
+      srlSel.innerHTML = '<option value="">🔢 اختر السيريل نمبر</option>' +
+        avail.map(function(s){return '<option value="'+s.sn+'">'+s.sn+'</option>';}).join('');
+      srlDiv.style.display = '';
+      var qEl = document.getElementById('sl-qty-' + idx);
+      if (qEl) { qEl.value = 1; qEl.readOnly = true; }
+    } else if (srlDiv) {
+      srlDiv.style.display = 'none';
+      var qEl2 = document.getElementById('sl-qty-' + idx);
+      if (qEl2) qEl2.readOnly = false;
+    }
     calcSalLine(idx);
   });
   setTimeout(initAllSB, 30);
@@ -11236,7 +11368,18 @@ function saveSaleInv() {
     var qty   = parseFloat((document.getElementById('sl-qty-' + lid) || {}).value) || 0;
     if (iCode && qty > 0 && typeof INV_ITEMS !== 'undefined') {
       var inv = INV_ITEMS.find(function(i){ return i.code === iCode; });
-      if (inv && inv.qty !== undefined) inv.qty = Math.max(0, inv.qty - qty);
+      if (inv) {
+        if (inv.trackSerial) {
+          // تسجيل السيريل كمباع
+          var srlEl = document.getElementById('sl-serial-' + lid);
+          var sn = srlEl ? srlEl.value.trim() : '';
+          if (sn && typeof markSerialSold === 'function') markSerialSold(sn, invNum || jId, cust ? cust.name : custId, date);
+          // تحديث الكمية من SERIALS_DB
+          if (typeof SERIALS_DB !== 'undefined') inv.qty = SERIALS_DB.filter(function(s){return s.itemCode===iCode && s.status==='stock';}).length;
+        } else {
+          if (inv.qty !== undefined) inv.qty = Math.max(0, inv.qty - qty);
+        }
+      }
     }
   });
 
@@ -12061,6 +12204,8 @@ function saveMaintenance() {
 // ============================================================
 // WF_ORDERS — بيانات تدفق العمل (v11)
 // ============================================================
+var SERIALS_DB = []; // {sn, itemCode, itemName, status:stock|sold|reserved, dateIn, poRef, dateOut, invRef, customer, notes}
+
 var WF_ORDERS = [];
 
 var WF_STAGES = [
@@ -12245,6 +12390,122 @@ function confirmQuickCustomer() {
 }
 
 // ============================================================
+// ============================================================
+// SERIAL TRACKING — نظام تتبع السيريل نمبر
+// ============================================================
+function getAvailableSerials(itemCode) {
+  return (typeof SERIALS_DB !== "undefined" ? SERIALS_DB : [])
+    .filter(function(s){ return s.itemCode === itemCode && s.status === "stock"; });
+}
+
+function addSerialToStock(sn, itemCode, dateIn, poRef, notes) {
+  if (!sn || !itemCode) return false;
+  if (typeof SERIALS_DB === "undefined") return false;
+  if (SERIALS_DB.find(function(s){ return s.sn === sn; })) {
+    notify("السيريل " + sn + " موجود مسبقاً", "warning"); return false;
+  }
+  var item = typeof INV_ITEMS !== "undefined" ? INV_ITEMS.find(function(i){ return i.code === itemCode; }) : null;
+  SERIALS_DB.push({ sn: sn, itemCode: itemCode,
+    itemName: item ? item.name : itemCode,
+    status: "stock", dateIn: dateIn || new Date().toISOString().slice(0,10),
+    poRef: poRef || "", dateOut: "", invRef: "", customer: "", notes: notes || "" });
+  // تحديث الكمية في INV_ITEMS
+  if (item) item.qty = getAvailableSerials(itemCode).length;
+  return true;
+}
+
+function markSerialSold(sn, invRef, customer, dateOut) {
+  if (!sn || typeof SERIALS_DB === "undefined") return;
+  var rec = SERIALS_DB.find(function(s){ return s.sn === sn; });
+  if (rec) { rec.status = "sold"; rec.invRef = invRef || ""; rec.customer = customer || ""; rec.dateOut = dateOut || new Date().toISOString().slice(0,10); }
+}
+
+function openAddSerialModal() {
+  var sel = document.getElementById("serial-in-item");
+  if (sel && typeof INV_ITEMS !== "undefined") {
+    var trackItems = INV_ITEMS.filter(function(i){ return i.trackSerial; });
+    sel.innerHTML = '<option value="">-- اختر الصنف --</option>' +
+      trackItems.map(function(i){ return '<option value="' + i.code + '">' + i.name + '</option>'; }).join("");
+  }
+  var dateEl = document.getElementById("serial-in-date");
+  if (dateEl) dateEl.value = new Date().toISOString().slice(0,10);
+  var ta = document.getElementById("serial-in-list");
+  if (ta) ta.value = "";
+  var prev = document.getElementById("serial-in-preview");
+  if (prev) prev.style.display = "none";
+  openM("m-add-serial");
+}
+
+function updateSerialPreview() {
+  var ta   = document.getElementById("serial-in-list");
+  var prev = document.getElementById("serial-in-preview");
+  if (!ta || !prev) return;
+  var lines = ta.value.split("\n").map(function(l){ return l.trim(); }).filter(function(l){ return l; });
+  if (!lines.length) { prev.style.display = "none"; return; }
+  prev.style.display = "";
+  prev.textContent = "سيتم إضافة " + lines.length + " سيريل نمبر: " + lines.slice(0,3).join(", ") + (lines.length > 3 ? " ..." : "");
+}
+
+function saveSerialIn() {
+  var itemCode = (document.getElementById("serial-in-item") || {}).value;
+  var dateIn   = (document.getElementById("serial-in-date") || {}).value;
+  var poRef    = (document.getElementById("serial-in-po") || {}).value;
+  var ta       = document.getElementById("serial-in-list");
+  if (!itemCode) { notify("اختر الصنف أولاً", "warning"); return; }
+  if (!ta || !ta.value.trim()) { notify("أدخل رقم سيريل واحد على الأقل", "warning"); return; }
+  var sns = ta.value.split("\n").map(function(l){ return l.trim(); }).filter(function(l){ return l; });
+  var added = 0;
+  sns.forEach(function(sn) { if (addSerialToStock(sn, itemCode, dateIn, poRef, "")) added++; });
+  saveToStorage();
+  notify("تم إضافة " + added + " سيريل نمبر للمخزون ✔", "success");
+  closeM("m-add-serial");
+  renderSerialsTab();
+}
+
+function renderSerialsTab() {
+  // تحديث قائمة الأصناف في الفلتر
+  var filterItem = document.getElementById("srl-filter-item");
+  if (filterItem && typeof INV_ITEMS !== "undefined") {
+    var cur = filterItem.value;
+    filterItem.innerHTML = '<option value="">كل الأصناف</option>' +
+      INV_ITEMS.filter(function(i){ return i.trackSerial; })
+        .map(function(i){ return '<option value="' + i.code + '" ' + (cur===i.code?"selected":"") + '>' + i.name + '</option>'; }).join("");
+  }
+  var tbody = document.getElementById("serials-table-body");
+  var emptyDiv = document.getElementById("serials-empty");
+  if (!tbody) return;
+  var filterStatus = (document.getElementById("srl-filter-status") || {}).value || "";
+  var filterItemV  = (document.getElementById("srl-filter-item")   || {}).value || "";
+  var data = typeof SERIALS_DB !== "undefined" ? SERIALS_DB : [];
+  if (filterStatus) data = data.filter(function(s){ return s.status === filterStatus; });
+  if (filterItemV)  data = data.filter(function(s){ return s.itemCode === filterItemV; });
+  if (!data.length) {
+    tbody.innerHTML = ""; if (emptyDiv) emptyDiv.style.display = "";
+    var tbl = document.getElementById("serials-table"); if(tbl) tbl.style.display="none"; return;
+  }
+  if (emptyDiv) emptyDiv.style.display = "none";
+  var tbl2 = document.getElementById("serials-table"); if(tbl2) tbl2.style.display="";
+  var statusBadge = { stock: '<span class="badge badge-green">✅ متاح</span>',
+    sold: '<span class="badge badge-red">🔴 مباع</span>',
+    reserved: '<span class="badge badge-yellow">🟡 محجوز</span>' };
+  tbody.innerHTML = data.map(function(s) {
+    return '<tr>' +
+      '<td style="font-family:monospace;font-weight:700;color:var(--odoo-blue)">' + s.sn + '</td>' +
+      '<td style="font-size:12px">' + (s.itemName || s.itemCode) + '</td>' +
+      '<td>' + (statusBadge[s.status] || s.status) + '</td>' +
+      '<td>' + (s.dateIn || "—") + '</td>' +
+      '<td class="code-cell">' + (s.poRef || "—") + '</td>' +
+      '<td>' + (s.dateOut || "—") + '</td>' +
+      '<td class="code-cell">' + (s.invRef || "—") + '</td>' +
+      '<td style="font-size:12px">' + (s.customer || "—") + '</td>' +
+      '</tr>';
+  }).join("");
+}
+
+// استدعاء renderSerialsTab عند فتح التبويب
+var _origShowInvTab = typeof showInvTab === "function" ? showInvTab : null;
+
+// ============================================================
 // PERSISTENCE ENGINE — localStorage v10
 // ============================================================
 // ============================================================
@@ -12262,7 +12523,8 @@ function _syncToServer() {
       suppliers: SUPPLIERS_DB,
       maint:     MAINT_DB,
       payroll:   PAYROLL_RECORDS,
-      wfOrders:  (typeof WF_ORDERS !== 'undefined' ? WF_ORDERS : [])
+      wfOrders:  (typeof WF_ORDERS !== 'undefined' ? WF_ORDERS : []),
+      serials:   (typeof SERIALS_DB !== 'undefined' ? SERIALS_DB : [])
     });
     var xhr = new XMLHttpRequest();
     xhr.open('POST', '/api/data?client=' + _RAYA_CLIENT_ID, true);
@@ -12371,6 +12633,7 @@ function resetAllData() {
   SALE_ITEMS_DB.splice(0);
   ITEMS_DB.splice(0);
   WF_ORDERS.splice(0);
+  if (typeof SERIALS_DB !== 'undefined') SERIALS_DB.splice(0);
   AI_DATA.sales.splice(0);
   AI_DATA.inventory.splice(0);
   AI_DATA.customers.splice(0);
@@ -12392,7 +12655,8 @@ function saveToStorage() {
       suppliers: SUPPLIERS_DB,
       maint:     MAINT_DB,
       payroll:   PAYROLL_RECORDS,
-      wfOrders:  (typeof WF_ORDERS !== 'undefined' ? WF_ORDERS : [])
+      wfOrders:  (typeof WF_ORDERS !== 'undefined' ? WF_ORDERS : []),
+      serials:   (typeof SERIALS_DB !== 'undefined' ? SERIALS_DB : [])
     }));
   } catch(e) { /* quota/private */ }
   if (typeof _syncToServer === 'function') _syncToServer();
@@ -12415,6 +12679,7 @@ function loadFromStorage() {
     merge(MAINT_DB, d.maint);
     merge(PAYROLL_RECORDS, d.payroll);
     if (d.wfOrders && typeof WF_ORDERS !== 'undefined') merge(WF_ORDERS, d.wfOrders);
+    if (d.serials && typeof SERIALS_DB !== 'undefined') merge(SERIALS_DB, d.serials);
     return true;
   } catch(e) { return false; }
 }
