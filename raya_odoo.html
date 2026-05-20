@@ -3137,6 +3137,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:14px 0}
           <th style="text-align:center">التكلفة</th>
           <th style="text-align:center">سعر البيع</th>
           <th>الحالة</th>
+          <th style="text-align:center">طريقة التكلفة</th>
           <th>إجراء</th>
         </tr></thead>
         <tbody id="inv-items-body"><!-- filled by JS --></tbody>
@@ -5166,8 +5167,11 @@ function saveInventoryItem() {
   var price=parseFloat(document.getElementById('inv-price')?.value)||0;
   var cat=document.getElementById('inv-cat')?.value||'part';
   var unit=document.getElementById('inv-unit')?.value||'قطعة';
-  if(typeof INV_ITEMS!=='undefined') INV_ITEMS.push({code:code,name:name,cat:cat,qty:qty,min:min,cost:cost,price:price,unit:unit});
+  var costMethod=(document.querySelector('input[name="inv-cost-method"]:checked')||{}).value||'average';
+  var trackSerial=document.getElementById('inv-track-serial')?.checked||false;
+  if(typeof INV_ITEMS!=='undefined') INV_ITEMS.push({code:code,name:name,cat:cat,qty:qty,min:min,cost:cost,price:price,unit:unit,costMethod:costMethod,trackSerial:trackSerial});
   if(typeof AI_DATA!=='undefined'&&AI_DATA.inventory) AI_DATA.inventory.push({code:code,name:name,cat:cat,qty:qty,min:min,cost:cost,price:price});
+  saveToStorage();
   closeM('m-inventory');
   notify('تم إضافة الصنف "'+name+'" بنجاح ✓','success');
 }
@@ -7986,7 +7990,13 @@ function renderInvItems(){
   var tbody=document.getElementById('inv-items-body');if(!tbody)return;
   tbody.innerHTML=INV_ITEMS.map(function(it){
     var st=it.qty===0?'badge-red':it.qty<it.min?'badge-yellow':'badge-green';
-    return'<tr style="'+(it.qty===0?'background:#fff1f2':it.qty<it.min?'background:#fffbeb':'')+'">'+
+    var cmLabel = it.costMethod==='fifo'?'FIFO':it.costMethod==='batch'?'دفعة':'وسطي';
+    var cmBg    = it.costMethod==='fifo'?'#dbeafe':it.costMethod==='batch'?'#fef3c7':'#e8f5f6';
+    var cmColor = it.costMethod==='fifo'?'#1d4ed8':it.costMethod==='batch'?'#92400e':'var(--odoo-blue)';
+    var serialBtn = it.trackSerial
+      ? '<button class="btn btn-primary btn-xs" onclick="openSerialOps(\''+it.code+'\',\''+it.name.replace(/\x27/g,'')+'\')">سيريل</button>'
+      : '<button class="btn btn-secondary btn-xs" onclick="selectTrackItem(\''+it.code+'\')">🔄</button>';
+    return '<tr style="'+(it.qty===0?'background:#fff1f2':it.qty<it.min?'background:#fffbeb':'')+'">'+
     '<td class="code-cell">'+it.code+'</td><td style="font-weight:700">'+it.name+'</td>'+
     '<td><span class="badge badge-gray">'+it.cat+'</span></td>'+
     '<td style="text-align:center;font-weight:800">'+it.qty+'</td>'+
@@ -7994,7 +8004,8 @@ function renderInvItems(){
     '<td style="text-align:center;font-family:monospace">'+fmt(it.cost)+'</td>'+
     '<td style="text-align:center;font-family:monospace;color:var(--odoo-green)">'+fmt(it.price)+'</td>'+
     '<td><span class="badge '+st+'">'+it.qty+'</span></td>'+
-    '<td><button class="btn btn-secondary btn-xs" onclick="selectTrackItem(\''+it.code+'\')">🔄</button></td></tr>';
+    '<td style="text-align:center"><span style="font-size:10px;padding:2px 8px;border-radius:4px;font-weight:600;background:'+cmBg+';color:'+cmColor+'">'+cmLabel+'</span></td>'+
+    '<td>'+serialBtn+'</td></tr>';
   }).join('');
 }
 function showInvTab(tab,btn){
@@ -13179,7 +13190,8 @@ function _syncToServer() {
       serials:   (typeof SERIALS_DB !== 'undefined' ? SERIALS_DB : []),
       usersDb:   (typeof USERS_DB !== 'undefined' ? USERS_DB : []),
       permMods:  (typeof PERM_MODULES !== 'undefined' ? PERM_MODULES : []),
-      instDb:    (typeof INSTALLMENTS_DB !== 'undefined' ? INSTALLMENTS_DB : [])
+      instDb:    (typeof INSTALLMENTS_DB !== 'undefined' ? INSTALLMENTS_DB : []),
+      invItems:  (typeof INV_ITEMS !== 'undefined' ? INV_ITEMS : [])
     });
     var xhr = new XMLHttpRequest();
     xhr.open('POST', '/api/data?client=' + _RAYA_CLIENT_ID, true);
@@ -13218,6 +13230,12 @@ function _loadFromServer(callback) {
           _srv_merge(MAINT_DB, d.maint);
           _srv_merge(PAYROLL_RECORDS, d.payroll);
           if (d.wfOrders && typeof WF_ORDERS !== 'undefined') _srv_merge(WF_ORDERS, d.wfOrders);
+          if (d.invItems && d.invItems.length && typeof INV_ITEMS !== 'undefined') {
+            d.invItems.forEach(function(si){
+              var li=INV_ITEMS.find(function(ii){return ii.code===si.code;});
+              if(li){li.costMethod=si.costMethod||'average';li.trackSerial=!!si.trackSerial;}
+            });
+          }
           try { localStorage.setItem('raya_blue_v10', JSON.stringify(d)); } catch(e){}
           console.info('[Raya] تم تحميل الداتا من السيرفر D: ✔ (' + new Date(d.ts).toLocaleString('en-US') + ')');
           if(callback) callback(true);
@@ -13614,6 +13632,7 @@ window.addEventListener('unhandledrejection', function(ev) {
   if (loaded) console.info('[Raya v10] تم تحميل البيانات من localStorage ✔');
   else        console.info('[Raya v10] بيانات افتراضية (لا يوجد حفظ سابق)');
   _tryRestoreSession();
+  if(typeof INV_ITEMS!=='undefined'){INV_ITEMS.forEach(function(item){if(!item.costMethod)item.costMethod='average';});}
   // تحميل من السيرفر عند البداية + اتصال SSE للتحديث الفوري
   setTimeout(function() {
     if (typeof _loadFromServer === 'function') {
@@ -13627,6 +13646,84 @@ window.addEventListener('unhandledrejection', function(ev) {
     if (typeof _connectSSE === 'function') _connectSSE();
   }, 800);
 })();
+
+// ===== SERIAL OPS (per-item serial management) =====
+var _sopCode=null, _sopName=null;
+function openSerialOps(code,name){
+  _sopCode=code; _sopName=name||code;
+  document.getElementById("sop-title").textContent="عمليات السيريل — "+_sopName;
+  var today=new Date().toISOString().split("T")[0];
+  var d1=document.getElementById("sop-in-date");if(d1)d1.value=today;
+  var d2=document.getElementById("sop-out-date");if(d2)d2.value=today;
+  document.getElementById("sop-in-sn").value="";
+  document.getElementById("sop-in-poref").value="";
+  document.getElementById("sop-in-notes").value="";
+  document.getElementById("sop-out-cust").value="";
+  sopShowTab("list");
+  openM("m-serial-ops");
+}
+function sopShowTab(tab){
+  ["list","in","out"].forEach(function(t){
+    var b=document.getElementById("sop-btn-"+t);
+    var d=document.getElementById("sop-body-"+t);
+    if(b){b.style.background=t===tab?"var(--odoo-blue)":"transparent";b.style.color=t===tab?"#fff":"";}
+    if(d)d.style.display=t===tab?"":"none";
+  });
+  if(tab==="list")sopRenderList();
+  if(tab==="out")sopFillOutSel();
+}
+function sopRenderList(){
+  var el=document.getElementById("sop-serial-list");if(!el)return;
+  var db=typeof SERIALS_DB!=="undefined"?SERIALS_DB:[];
+  var rows=db.filter(function(s){return s.itemCode===_sopCode;});
+  if(!rows.length){el.innerHTML='<p style="text-align:center;color:var(--text-m);padding:20px">لا توجد سيريلات مسجلة</p>';return;}
+  var sLbl={stock:"في المخزون",sold:"مُباع",reserved:"محجوز",scrapped:"ملغى"};
+  var sCls={stock:"badge-green",sold:"badge-gray",reserved:"badge-yellow",scrapped:"badge-red"};
+  el.innerHTML='<table class="data-table"><thead><tr><th>السيريل</th><th>الحالة</th><th>تاريخ الإدخال</th><th>الزبون/المرجع</th></tr></thead><tbody>'
+    +rows.map(function(s){return'<tr><td style="font-family:monospace;font-weight:600">'+s.sn+'</td><td><span class="badge '+(sCls[s.status]||"badge-gray")+'">'+( sLbl[s.status]||s.status)+'</span></td><td>'+(s.dateIn||"—")+'</td><td>'+(s.customer||s.poRef||"—")+'</td></tr>';}).join("")
+    +'</tbody></table>';
+}
+function sopFillOutSel(){
+  var sel=document.getElementById("sop-out-sn-sel");if(!sel)return;
+  var db=typeof SERIALS_DB!=="undefined"?SERIALS_DB:[];
+  var avail=db.filter(function(s){return s.itemCode===_sopCode&&s.status==="stock";});
+  sel.innerHTML=avail.length
+    ?avail.map(function(s){return'<option value="'+s.sn+'">'+s.sn+'</option>';}).join("")
+    :'<option value="">لا يوجد سيريل في المخزون</option>';
+}
+function sopSaveIn(){
+  var sn=(document.getElementById("sop-in-sn").value||"").trim();
+  var dt=document.getElementById("sop-in-date").value;
+  var ref=(document.getElementById("sop-in-poref").value||"").trim();
+  var notes=(document.getElementById("sop-in-notes").value||"").trim();
+  if(!sn){notify("يجب إدخال رقم السيريل ✕","danger");return;}
+  var db=typeof SERIALS_DB!=="undefined"?SERIALS_DB:[];
+  if(db.find(function(s){return s.sn===sn;})){notify("هذا السيريل مسجل مسبقاً ✕","danger");return;}
+  db.push({sn:sn,itemCode:_sopCode,itemName:_sopName,status:"stock",dateIn:dt,poRef:ref,notes:notes});
+  var item=(typeof INV_ITEMS!=="undefined"?INV_ITEMS:[]).find(function(i){return i.code===_sopCode;});
+  if(item)item.qty=(item.qty||0)+1;
+  saveToStorage();
+  notify("تم إدخال السيريل "+sn+" للمخزون ✓","success");
+  document.getElementById("sop-in-sn").value="";
+  sopShowTab("list");
+}
+function sopSaveOut(){
+  var sn=document.getElementById("sop-out-sn-sel").value;
+  var dt=document.getElementById("sop-out-date").value;
+  var cust=(document.getElementById("sop-out-cust").value||"").trim();
+  var type=document.getElementById("sop-out-type").value;
+  if(!sn){notify("لم يتم اختيار سيريل ✕","danger");return;}
+  var db=typeof SERIALS_DB!=="undefined"?SERIALS_DB:[];
+  var rec=db.find(function(s){return s.sn===sn;});
+  if(!rec){notify("السيريل غير موجود ✕","danger");return;}
+  rec.status=type;rec.dateOut=dt;rec.customer=cust;
+  var item=(typeof INV_ITEMS!=="undefined"?INV_ITEMS:[]).find(function(i){return i.code===_sopCode;});
+  if(item&&item.qty>0)item.qty--;
+  saveToStorage();
+  var lbl={sold:"تم تسجيل البيع",transferred:"تم التحويل",scrapped:"تم الإتلاف"};
+  notify((lbl[type]||"تم الإخراج")+" للسيريل "+sn+" ✓","success");
+  sopShowTab("list");
+}
 
 // ===== RAYA CUSTOM DIALOGS =====
 var _rayaDlgCb=null,_rayaDlgMode="confirm";
@@ -14167,6 +14264,23 @@ function _tryRestoreSession(){
     <div class="form-group"><label>سعر التكلفة (د.ع)</label><input type="number" class="form-control" id="inv-cost" placeholder="0"></div>
     <div class="form-group"><label>سعر البيع (د.ع)</label><input type="number" class="form-control" id="inv-price" placeholder="0"></div>
   </div>
+  <div class="form-row">
+    <div class="form-group">
+      <label style="font-weight:600;margin-bottom:8px;display:block">طريقة تقييم التكلفة</label>
+      <div style="display:flex;gap:20px;padding:10px 14px;background:#f8f9fa;border-radius:8px;border:1px solid #e0e0e0">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem"><input type="radio" name="inv-cost-method" value="average" id="inv-cm-avg" checked style="accent-color:var(--odoo-blue)"><span>وسطي</span></label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem"><input type="radio" name="inv-cost-method" value="fifo" id="inv-cm-fifo" style="accent-color:var(--odoo-blue)"><span>FIFO</span></label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem"><input type="radio" name="inv-cost-method" value="batch" id="inv-cm-batch" style="accent-color:var(--odoo-blue)"><span>دفعة</span></label>
+      </div>
+    </div>
+    <div class="form-group">
+      <label style="font-weight:600;margin-bottom:8px;display:block">تتبع السيريل</label>
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 14px;background:#f8f9fa;border-radius:8px;border:1px solid #e0e0e0">
+        <input type="checkbox" id="inv-track-serial" style="width:18px;height:18px;accent-color:var(--odoo-blue)">
+        <span style="font-size:.9rem">تفعيل تتبع رقم السيريل لكل وحدة</span>
+      </label>
+    </div>
+  </div>
 </div>
 <div class="modal-footer">
   <button class="btn btn-secondary" onclick="closeM('m-inventory')">إلغاء</button>
@@ -14174,7 +14288,53 @@ function _tryRestoreSession(){
 </div>
 </div></div>
 
-<!-- ===== USER MODAL ===== -->
+<!-- ===== SERIAL OPS MODAL ===== -->
+<div class="modal-overlay" id="m-serial-ops">
+  <div class="modal" style="width:580px;max-width:95%">
+    <div class="modal-header" style="background:var(--odoo-blue-l)">
+      <h3 id="sop-title" style="margin:0;font-size:1rem;color:var(--odoo-blue)">عمليات السيريل</h3>
+      <button class="modal-close" onclick="closeM('m-serial-ops')">✕</button>
+    </div>
+    <div class="modal-body" style="padding:0">
+      <div style="display:flex;border-bottom:2px solid #e0e0e0;background:#f8f9fa">
+        <button id="sop-btn-list" onclick="sopShowTab('list')" style="flex:1;padding:12px 6px;border:none;background:var(--odoo-blue);color:#fff;font-weight:600;font-size:.88rem;cursor:pointer">قائمة السيريلات</button>
+        <button id="sop-btn-in" onclick="sopShowTab('in')" style="flex:1;padding:12px 6px;border:none;background:transparent;font-size:.88rem;cursor:pointer">إدخال للمخزون</button>
+        <button id="sop-btn-out" onclick="sopShowTab('out')" style="flex:1;padding:12px 6px;border:none;background:transparent;font-size:.88rem;cursor:pointer">إخراج من المخزون</button>
+      </div>
+      <div id="sop-body-list" style="padding:16px">
+        <div id="sop-serial-list" style="max-height:320px;overflow-y:auto"></div>
+      </div>
+      <div id="sop-body-in" style="padding:16px;display:none">
+        <div class="form-row">
+          <div class="form-group"><label>رقم السيريل <span class="req">*</span></label><input type="text" class="form-control" id="sop-in-sn" placeholder="SN-12345"></div>
+          <div class="form-group"><label>تاريخ الإدخال</label><input type="date" class="form-control" id="sop-in-date"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>مرجع أمر الشراء</label><input type="text" class="form-control" id="sop-in-poref" placeholder="PO-001"></div>
+          <div class="form-group"><label>ملاحظات</label><input type="text" class="form-control" id="sop-in-notes"></div>
+        </div>
+        <button class="btn btn-primary" style="width:100%;margin-top:4px" onclick="sopSaveIn()">إدخال السيريل للمخزون</button>
+      </div>
+      <div id="sop-body-out" style="padding:16px;display:none">
+        <div class="form-group" style="margin-bottom:12px"><label>اختر رقم السيريل</label><select class="form-control" id="sop-out-sn-sel"></select></div>
+        <div class="form-row">
+          <div class="form-group"><label>تاريخ الإخراج</label><input type="date" class="form-control" id="sop-out-date"></div>
+          <div class="form-group"><label>الزبون / المرجع</label><input type="text" class="form-control" id="sop-out-cust"></div>
+        </div>
+        <div class="form-group"><label>نوع الإخراج</label>
+          <select class="form-control" id="sop-out-type">
+            <option value="sold">بيع</option>
+            <option value="transferred">تحويل</option>
+            <option value="scrapped">إتلاف</option>
+          </select>
+        </div>
+        <button class="btn btn-danger" style="width:100%;margin-top:8px" onclick="sopSaveOut()">تأكيد الإخراج</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== USER MODAL =====
 <div class="modal-overlay" id="m-user">
 <div class="modal lg">
 <div class="modal-header">
