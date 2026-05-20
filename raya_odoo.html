@@ -6861,46 +6861,17 @@ const ACCOUNTS_DB = [
 // ============================================================
 // SUPPLIERS_DB — قاعدة بيانات المجهزين
 // ============================================================
-const SUPPLIERS_DB = [
-  {id:'SUP-001', name:'شركة الخليج للتوزيع',         taxNo:'IQ-123456', phone:'07801234567', address:'بغداد — الكرادة',       accountCode:'2111'},
-  {id:'SUP-002', name:'مجهز قطع غيار كومينز',         taxNo:'IQ-789012', phone:'07901234567', address:'بغداد — الصناعية',      accountCode:'2112'},
-  {id:'SUP-003', name:'بيركنز للتجارة والتوزيع',      taxNo:'IQ-345678', phone:'07701234567', address:'البصرة — الشعب',        accountCode:'2111'},
-  {id:'SUP-004', name:'مستودعات النخيل للمعدات',      taxNo:'IQ-901234', phone:'07811234567', address:'كربلاء — المشاريع',     accountCode:'2111'},
-  {id:'SUP-005', name:'شركة بادوين العراق',            taxNo:'IQ-567890', phone:'07911234567', address:'أربيل — المجمع الصناعي',accountCode:'2112'},
-  {id:'SUP-006', name:'مؤسسة الرافدين للمولدات',      taxNo:'IQ-112233', phone:'07821234567', address:'الموصل — الصناعية',     accountCode:'2111'},
-  {id:'SUP-007', name:'شركة الفرات للطاقة',            taxNo:'IQ-445566', phone:'07731234567', address:'النجف — المجمع',        accountCode:'2112'},
-];
+const SUPPLIERS_DB = [];
 
 // ============================================================
 // ITEMS_DB — كتالوج المواد والخدمات
 // ============================================================
-const ITEMS_DB = [
-  {code:'ITM-001', name:'مولد بيركنز 250 KVA',         unit:'وحدة',  accountCode:'12111', defaultPrice:25000000},
-  {code:'ITM-002', name:'مولد بادوين 350 KVA',          unit:'وحدة',  accountCode:'12112', defaultPrice:38000000},
-  {code:'ITM-003', name:'مولد إيسوزو صيني 200 KVA',    unit:'وحدة',  accountCode:'12113', defaultPrice:18000000},
-  {code:'ITM-004', name:'قطع غيار بيركنز — طقم',       unit:'طقم',   accountCode:'12121', defaultPrice:1500000},
-  {code:'ITM-005', name:'قطع غيار بادوين — طقم',       unit:'طقم',   accountCode:'12122', defaultPrice:1800000},
-  {code:'ITM-006', name:'فلاتر ومستلزمات عامة',         unit:'قطعة',  accountCode:'12123', defaultPrice:150000},
-  {code:'ITM-007', name:'زيت محركات (لتر)',              unit:'لتر',   accountCode:'12131', defaultPrice:25000},
-  {code:'ITM-008', name:'ماء مقطر وكوولنت (لتر)',       unit:'لتر',   accountCode:'12132', defaultPrice:8000},
-  {code:'ITM-009', name:'مواد تشحيم متنوعة',            unit:'كيلو',  accountCode:'12133', defaultPrice:45000},
-  {code:'ITM-010', name:'خدمة صيانة دورية',             unit:'خدمة',  accountCode:'5211',  defaultPrice:500000},
-  {code:'ITM-011', name:'خدمة تركيب وتشغيل',            unit:'خدمة',  accountCode:'5211',  defaultPrice:750000},
-];
+const ITEMS_DB = [];
 
 // ============================================================
 // CUSTOMERS_DB — قاعدة بيانات الزبائن
 // ============================================================
-const CUSTOMERS_DB = [
-  {id:'CUS-001', name:'أحمد علي السعدي',    phone:'07801111111', accountCode:'1511', city:'بغداد'},
-  {id:'CUS-002', name:'سامي الجبوري',        phone:'07802222222', accountCode:'1511', city:'بغداد'},
-  {id:'CUS-003', name:'خالد الربيعي',        phone:'07803333333', accountCode:'1511', city:'الأنبار'},
-  {id:'CUS-004', name:'محمد الدليمي',        phone:'07804444444', accountCode:'1511', city:'بغداد'},
-  {id:'CUS-005', name:'علي حسين العبودي',    phone:'07805555555', accountCode:'1512', city:'البصرة'},
-  {id:'CUS-006', name:'حسن محمد الشمري',     phone:'07806666666', accountCode:'1512', city:'الناصرية'},
-  {id:'CUS-007', name:'وزارة الكهرباء',      phone:'07800000001', accountCode:'1513', city:'بغداد'},
-  {id:'CUS-008', name:'محافظة ذي قار',       phone:'07800000002', accountCode:'1513', city:'الناصرية'},
-];
+const CUSTOMERS_DB = [];
 
 const TYPE_COLORS = {
   asset:'var(--odoo-blue)', liability:'var(--odoo-red)',
@@ -6914,65 +6885,10 @@ const TYPE_LABELS = {
 // getAccountBalance — الرصيد يُحسب من القيود فقط
 // هذا هو المبدأ الأساسي: لا رصيد مخزون في الحساب
 // ============================================================
-const JOURNAL_ENTRIES_DATA = [
-  // مثال: قيد مبيعات
-  {id:'JV-001', date:'2026-05-14', journal:'sales',
-    lines:[
-      {code:'1511', debit:18500000, credit:0},
-      {code:'4111', debit:0,        credit:18500000},
-  ]},
-  // قيد قبض نقدي
-  {id:'JV-002', date:'2026-05-14', journal:'cash',
-    lines:[
-      {code:'1611', debit:18500000, credit:0},
-      {code:'1511', debit:0,        credit:18500000},
-  ]},
-  // قيد مصروفات رواتب
-  {id:'JV-003', date:'2026-05-01', journal:'adjustment',
-    lines:[
-      {code:'5311', debit:3000000,  credit:0},
-      {code:'5312', debit:1500000,  credit:0},
-      {code:'5313', debit:1000000,  credit:0},
-      {code:'2241', debit:0,        credit:5500000},
-  ]},
-  // قيد صرف الرواتب
-  {id:'JV-004', date:'2026-05-01', journal:'cash',
-    lines:[
-      {code:'2241', debit:5500000,  credit:0},
-      {code:'1611', debit:0,        credit:5500000},
-  ]},
-  // قيد مشتريات مولدات
-  {id:'JV-005', date:'2026-04-20', journal:'purchase',
-    lines:[
-      {code:'12111', debit:85000000, credit:0},
-      {code:'2211',  debit:0,        credit:85000000},
-  ]},
-  // قيد إيرادات صيانة
-  {id:'JV-006', date:'2026-05-10', journal:'maintenance',
-    lines:[
-      {code:'1511', debit:2500000,  credit:0},
-      {code:'4211', debit:0,        credit:2500000},
-  ]},
-  // قيد إيجار مكتب
-  {id:'JV-007', date:'2026-05-01', journal:'adjustment',
-    lines:[
-      {code:'5321', debit:2000000,  credit:0},
-      {code:'1611', debit:0,        credit:2000000},
-  ]},
-];
+const JOURNAL_ENTRIES_DATA = [];
 
 // ── بيانات الفواتير للبحث والمخزن ──────────────────────────────────
-const INVOICE_DATA = {
-  'INV-089': { customer:'أحمد السعدي',    date:'2026-05-14', total:'18,500,000', status:'مكتمل',  items:['مولد كومينز 50KVA — GEN-0045'] },
-  'INV-088': { customer:'سامي الجبوري',   date:'2026-05-13', total:'24,500,000', status:'جزئي',   items:['مولد بيركنز 100KVA — GEN-0048','كابينة 100KVA'] },
-  'INV-087': { customer:'محمد الدليمي',   date:'2026-05-12', total:'14,200,000', status:'مكتمل',  items:['مولد بادوين 65KVA — GEN-0048'] },
-  'INV-086': { customer:'خالد الربيعي',   date:'2026-05-10', total:'9,800,000',  status:'معلق',   items:['مولد إيسوزو 30KVA — GEN-0050'] },
-  'INV-085': { customer:'علي العبودي',    date:'2026-05-08', total:'32,000,000', status:'مكتمل',  items:['مولد بيركنز 200KVA — GEN-0042','وحدة ATS'] },
-  'INV-084': { customer:'حسن الشمري',     date:'2026-05-05', total:'11,500,000', status:'جزئي',   items:['مولد كومينز 40KVA — GEN-0055'] },
-  'PO-044':  { customer:'مجهز قطع غيار', date:'2026-05-05', total:'8,200,000',  status:'مكتمل',  items:['قطع غيار متنوعة'] },
-  'RSV-004': { customer:'محمد الدليمي',   date:'2026-05-14', total:'24,500,000', status:'محجوز',  items:['مولد بيركنز 100KVA — GEN-0055'] },
-  'RSV-003': { customer:'أحمد السعدي',    date:'2026-05-10', total:'18,500,000', status:'محجوز',  items:['مولد كومينز 50KVA — GEN-0045'] },
-};
+const INVOICE_DATA = {};
 
 function getAccountBalance(code) {
   let totalDebit = 0, totalCredit = 0;
@@ -7279,8 +7195,8 @@ function switchChartPeriod(period, btn) {
   var label = period === 'monthly' ? 'عرض شهري' : period === 'quarterly' ? 'عرض ربعي' : 'عرض سنوي';
   notify(label + ' — ' + vals.filter(function(v){return v>0;}).length + ' فترة', 'info');
 }
-var INV_ITEMS=[{code:'12111',name:'مولدات بيركنز',cat:'generator',qty:2,min:1,unit:'وحدة',cost:28000000,price:36000000},{code:'12112',name:'مولدات بادوين',cat:'generator',qty:2,min:1,unit:'وحدة',cost:55000000,price:75000000},{code:'12113',name:'مولدات إيسوزو',cat:'generator',qty:2,min:1,unit:'وحدة',cost:12000000,price:15000000},{code:'12121',name:'قطع غيار بيركنز',cat:'parts',qty:45,min:10,unit:'قطعة',cost:25000,price:45000},{code:'12131',name:'زيت Shell Rimula',cat:'oils',qty:380,min:100,unit:'لتر',cost:9000,price:13500},{code:'PRT-P001',name:'فلتر LF3349',cat:'parts',qty:2,min:10,unit:'قطعة',cost:28000,price:45000},{code:'PRT-B001',name:'بطارية 12V',cat:'parts',qty:3,min:5,unit:'قطعة',cost:150000,price:250000}];
-var INV_MOVEMENTS=[{id:'MOV-001',date:'2026-05-15',item:'12111',name:'مولدات بيركنز',type:'out',qty_in:0,qty_out:1,bal:2,ref:'INV-0089',reason:'بيع',user:'مبيعات'},{id:'MOV-002',date:'2026-05-14',item:'PRT-P001',name:'فلتر LF3349',type:'in',qty_in:20,qty_out:0,bal:22,ref:'PO-045',reason:'شراء',user:'admin'},{id:'MOV-003',date:'2026-05-12',item:'12131',name:'زيت Shell',type:'in',qty_in:100,qty_out:0,bal:380,ref:'PO-044',reason:'شراء',user:'admin'},{id:'MOV-004',date:'2026-05-10',item:'12112',name:'مولدات بادوين',type:'out',qty_in:0,qty_out:1,bal:2,ref:'INV-0088',reason:'بيع',user:'مبيعات'}];
+var INV_ITEMS=[];
+var INV_MOVEMENTS=[];
 var selectedTrackItem=null;
 
 
@@ -7794,24 +7710,7 @@ function trackItem(code) {
 // SALE MODAL — ITEMS SEARCH (Phase 1 fix)
 // ================================================================
 
-var SALE_ITEMS_DB = [
-  {code:'GEN-BRK-50',  name:'مولد بيركنز 50KVA',    cat:'generator', price:18500000, unit:'وحدة', stock:2},
-  {code:'GEN-BRK-100', name:'مولد بيركنز 100KVA',   cat:'generator', price:36000000, unit:'وحدة', stock:2},
-  {code:'GEN-BDW-150', name:'مولد بادوين 150KVA',   cat:'generator', price:55000000, unit:'وحدة', stock:2},
-  {code:'GEN-BDW-350', name:'مولد بادوين 350KVA',   cat:'generator', price:110000000,unit:'وحدة', stock:1},
-  {code:'GEN-ISZ-30',  name:'مولد إيسوزو 30KVA',    cat:'generator', price:9500000,  unit:'وحدة', stock:2},
-  {code:'GEN-ISZ-62',  name:'مولد إيسوزو 62.5KVA',  cat:'generator', price:21000000, unit:'وحدة', stock:2},
-  {code:'PRT-P001',    name:'فلتر زيت بيركنز LF3349',cat:'part',      price:45000,    unit:'قطعة', stock:2},
-  {code:'PRT-B001',    name:'بطارية 12V/150Ah',       cat:'part',      price:250000,   unit:'قطعة', stock:3},
-  {code:'PRT-D001',    name:'فلتر Donaldson هواء',   cat:'part',      price:60000,    unit:'قطعة', stock:8},
-  {code:'OIL-SHL-R4',  name:'زيت Shell Rimula R4 15W40',cat:'fluid',  price:13500,    unit:'لتر',  stock:380},
-  {code:'OIL-MOB-D',   name:'زيت Mobil Delvac',       cat:'fluid',    price:15000,    unit:'لتر',  stock:120},
-  {code:'WAT-001',     name:'ماء مقطر للبطاريات',     cat:'fluid',    price:1000,     unit:'لتر',  stock:480},
-  {code:'SRV-MAINT',   name:'خدمة صيانة دورية',       cat:'service',  price:150000,   unit:'خدمة', stock:null},
-  {code:'SRV-INSTALL', name:'خدمة تركيب وتشغيل',      cat:'service',  price:250000,   unit:'خدمة', stock:null},
-  {code:'SRV-CANOPY',  name:'توريد كابينة صوتية',     cat:'service',  price:2500000,  unit:'وحدة', stock:5},
-  {code:'SRV-TRANS',   name:'خدمة نقل وتوصيل',        cat:'service',  price:200000,   unit:'رحلة', stock:null},
-];
+var SALE_ITEMS_DB = [];
 
 var saleLineCounter = 0;
 window.selectedCustomer = window.selectedCustomer || null;
@@ -8274,71 +8173,8 @@ function renderLedger(code) {
 
 // ── 1. SYSTEM DATA (mirrors the DB schema in JS) ────────────────
 var AI_DATA = {
-  // فواتير المبيعات
-  sales: [
-    {id:'INV-0089', date:'2026-05-14', customer:'أحمد السعدي',   total:18500000, items:[{name:'مولد بيركنز 50KVA',  qty:1,price:18500000,cat:'generator',kva:50}],  paid:18500000, method:'cash',    status:'paid'},
-    {id:'INV-0088', date:'2026-05-13', customer:'سامي الجبوري',  total:55000000, items:[{name:'مولد بادوين 150KVA', qty:1,price:55000000,cat:'generator',kva:150}], paid:10000000, method:'credit',  status:'partial'},
-    {id:'INV-0087', date:'2026-05-12', customer:'محمد الدليمي',   total:36000000, items:[{name:'مولد بيركنز 100KVA',qty:1,price:36000000,cat:'generator',kva:100}], paid:36000000, method:'transfer',status:'paid'},
-    {id:'INV-0086', date:'2026-05-10', customer:'خالد الربيعي',  total:9500000,  items:[{name:'مولد إيسوزو 30KVA',  qty:1,price:9500000, cat:'generator',kva:30}],  paid:4000000,  method:'cash',    status:'partial'},
-    {id:'INV-0085', date:'2026-05-08', customer:'أحمد السعدي',   total:90000,    items:[{name:'فلتر LF3349',         qty:2,price:45000,   cat:'part',kva:0}],         paid:90000,    method:'cash',    status:'paid'},
-    {id:'INV-0084', date:'2026-05-05', customer:'ليث الكعبي',    total:21000000, items:[{name:'مولد إيسوزو 62.5KVA',qty:1,price:21000000,cat:'generator',kva:62.5}],paid:21000000, method:'transfer',status:'paid'},
-    {id:'INV-0083', date:'2026-04-28', customer:'سامي الجبوري',  total:110000000,items:[{name:'مولد بادوين 350KVA', qty:1,price:110000000,cat:'generator',kva:350}],paid:110000000,method:'bank',    status:'paid'},
-    {id:'INV-0082', date:'2026-04-20', customer:'محمد الدليمي',   total:27000,    items:[{name:'زيت Shell R4',        qty:3,price:9000,    cat:'fluid',kva:0}],         paid:27000,    method:'cash',    status:'paid'},
-    {id:'INV-0081', date:'2026-04-15', customer:'نور البغدادي',  total:36000000, items:[{name:'مولد بيركنز 100KVA',qty:1,price:36000000,cat:'generator',kva:100}],  paid:0,        method:'credit',  status:'unpaid'},
-    {id:'INV-0080', date:'2026-04-10', customer:'خالد الربيعي',  total:500000,   items:[{name:'بطارية 12V',          qty:2,price:250000,  cat:'part',kva:0}],          paid:500000,   method:'cash',    status:'paid'},
-  ],
-
-  // المخزون
-  inventory: [
-    {code:'GEN-BRK-50',  name:'مولد بيركنز 50KVA',    cat:'generator', qty:2,  min:1,  cost:14200000,price:18500000},
-    {code:'GEN-BRK-100', name:'مولد بيركنز 100KVA',   cat:'generator', qty:2,  min:1,  cost:28000000,price:36000000},
-    {code:'GEN-BDW-150', name:'مولد بادوين 150KVA',   cat:'generator', qty:2,  min:1,  cost:42000000,price:55000000},
-    {code:'GEN-BDW-350', name:'مولد بادوين 350KVA',   cat:'generator', qty:1,  min:1,  cost:85000000,price:110000000},
-    {code:'GEN-ISZ-30',  name:'مولد إيسوزو 30KVA',    cat:'generator', qty:2,  min:1,  cost:7000000, price:9500000},
-    {code:'GEN-ISZ-62',  name:'مولد إيسوزو 62.5KVA',  cat:'generator', qty:2,  min:1,  cost:16000000,price:21000000},
-    {code:'PRT-P001',    name:'فلتر زيت بيركنز LF3349',cat:'part',     qty:2,  min:10, cost:28000,   price:45000},
-    {code:'PRT-B001',    name:'بطارية 12V/150Ah',       cat:'part',     qty:3,  min:5,  cost:150000,  price:250000},
-    {code:'PRT-D001',    name:'فلتر Donaldson هواء',    cat:'part',     qty:8,  min:10, cost:35000,   price:60000},
-    {code:'OIL-SHL',     name:'زيت Shell Rimula R4',    cat:'fluid',    qty:380,min:100,cost:9000,    price:13500},
-    {code:'OIL-MOB',     name:'زيت Mobil Delvac',       cat:'fluid',    qty:120,min:50, cost:15000,   price:22000},
-    {code:'WAT-001',     name:'ماء مقطر للبطاريات',     cat:'fluid',    qty:480,min:100,cost:500,     price:1000},
-  ],
-
-  // الزبائن
-  customers: [
-    {id:'CUS-001',name:'أحمد علي السعدي',  phone:'07701234567',city:'بغداد', debt:3200000},
-    {id:'CUS-002',name:'سامي حسن الجبوري',phone:'07801234567',city:'النجف',  debt:45000000},
-    {id:'CUS-003',name:'خالد محمد الربيعي',phone:'07901234567',city:'بغداد', debt:5500000},
-    {id:'CUS-004',name:'محمد الدليمي',      phone:'07711234567',city:'بغداد', debt:36000000},
-    {id:'CUS-005',name:'نور البغدادي',      phone:'07651234567',city:'بغداد', debt:36000000},
-    {id:'CUS-006',name:'ليث الكعبي',       phone:'07611234567',city:'بصرة',  debt:0},
-  ],
-
-  // طلبات الصيانة
-  maintenance: [
-    {id:'MNT-020', date:'2026-05-14', customer:'أحمد السعدي',  type:'corrective',status:'open',      cost:0},
-    {id:'MNT-019', date:'2026-05-12', customer:'خالد الربيعي', type:'preventive', status:'in_progress',cost:150000},
-    {id:'MNT-018', date:'2026-05-10', customer:'سامي الجبوري', type:'corrective',status:'completed',  cost:450000},
-    {id:'MNT-017', date:'2026-05-08', customer:'محمد الدليمي',  type:'warranty',  status:'open',      cost:0},
-    {id:'MNT-016', date:'2026-05-05', customer:'نور البغدادي', type:'preventive', status:'completed',  cost:200000},
-    {id:'MNT-015', date:'2026-04-28', customer:'ليث الكعبي',   type:'corrective',status:'completed',  cost:850000},
-  ],
-
-  // الأقساط
-  installments: [
-    {id:'INST-015', customer:'سامي الجبوري',  total:55000000, paid:17500000, remain:37500000, next_due:'2026-06-15', overdue:false},
-    {id:'INST-012', customer:'أحمد السعدي',   total:18500000, paid:9500000,  remain:9000000,  next_due:'2026-05-30', overdue:true},
-    {id:'INST-010', customer:'نور البغدادي',  total:36000000, paid:0,        remain:36000000, next_due:'2026-05-01', overdue:true},
-  ],
-
-  // مصروفات الشهر
-  expenses: [
-    {date:'2026-05-01', type:'رواتب',    amount:7500000},
-    {date:'2026-05-01', type:'إيجار',    amount:2000000},
-    {date:'2026-05-08', type:'نقل',      amount:450000},
-    {date:'2026-05-10', type:'وقود',     amount:380000},
-    {date:'2026-05-12', type:'قرطاسية',  amount:120000},
-  ],
+  sales: [], inventory: [], customers: [],
+  maintenance: [], installments: [], expenses: []
 };
 
 // ── 2. PERMISSION MATRIX ────────────────────────────────────────
@@ -11944,14 +11780,7 @@ function runPayroll() {
 // ============================================================
 // MAINT_DB — قاعدة بيانات طلبات الصيانة
 // ============================================================
-let MAINT_DB = [
-  {id:'MNT-048', date:'2026-05-15', customer:'سامي الجبوري',  serial:'GEN-0062', desc:'مشكلة في التبديل التلقائي ATS', tech:'حسين علي',   type:'warranty',   cost:0,      status:'in_progress', priority:'urgent'},
-  {id:'MNT-047', date:'2026-05-12', customer:'خالد الربيعي',  serial:'GEN-0031', desc:'استهلاك زيت مرتفع',              tech:'كريم محمد',  type:'corrective', cost:850000, status:'open',        priority:'normal'},
-  {id:'MNT-046', date:'2026-05-10', customer:'أحمد السعدي',   serial:'GEN-0045', desc:'اهتزاز غير طبيعي عند التشغيل',  tech:'عمر أحمد',   type:'corrective', cost:350000, status:'completed',    priority:'normal'},
-  {id:'MNT-045', date:'2026-05-08', customer:'محمد الدليمي',  serial:'GEN-0070', desc:'صيانة دورية 500 ساعة',           tech:'حسين علي',   type:'preventive', cost:200000, status:'completed',    priority:'normal'},
-  {id:'MNT-044', date:'2026-05-05', customer:'سامي الجبوري',  serial:'GEN-0062', desc:'تغيير زيت + فلتر هواء',          tech:'كريم محمد',  type:'preventive', cost:180000, status:'completed',    priority:'normal'},
-  {id:'MNT-043', date:'2026-05-01', customer:'خالد الربيعي',  serial:'GEN-0031', desc:'فحص شامل ما قبل الصيف',          tech:'عمر أحمد',   type:'preventive', cost:0,      status:'open',        priority:'normal'},
-];
+let MAINT_DB = [];
 let _maintFilterStatus = 'all';
 
 // ============================================================
@@ -12189,17 +12018,7 @@ function saveMaintenance() {
 // ============================================================
 // WF_ORDERS — بيانات تدفق العمل (v11)
 // ============================================================
-var WF_ORDERS = [
-  {id:'SO-001',customer:'أحمد السعدي',customerId:'CUS-001',product:'GEN-0045 بيركنز 50KVA',amount:18500000,payMethod:'deferred',stage:'sales',date:'2026-05-15',journalId:''},
-  {id:'SO-002',customer:'سامي الجبوري',customerId:'CUS-002',product:'GEN-0080 بادوين 150KVA',amount:55000000,payMethod:'installment',stage:'sales',date:'2026-05-14',journalId:''},
-  {id:'SO-003',customer:'خالد الربيعي',customerId:'CUS-003',product:'GEN-0090 إيسوزو 30KVA',amount:9500000,payMethod:'deposit',stage:'sales',date:'2026-05-13',journalId:''},
-  {id:'SO-004',customer:'محمد الدليمي',customerId:'CUS-004',product:'GEN-0071 بيركنز 100KVA',amount:36000000,payMethod:'cash',stage:'payment',date:'2026-05-12',journalId:''},
-  {id:'SO-005',customer:'ناصر العبيدي',customerId:'CUS-005',product:'GEN-0091 إيسوزو 62.5KVA',amount:22000000,payMethod:'cash',stage:'warehouse',date:'2026-05-11',journalId:''},
-  {id:'SO-006',customer:'علي الحسني',customerId:'CUS-006',product:'بادوين 350KVA',amount:110000000,payMethod:'deferred',stage:'purchase',date:'2026-05-10',journalId:''},
-  {id:'SO-007',customer:'حيدر الموسوي',customerId:'CUS-007',product:'بيركنز 200KVA',amount:72000000,payMethod:'deferred',stage:'purchase',date:'2026-05-09',journalId:''},
-  {id:'SO-008',customer:'كريم الشمري',customerId:'CUS-008',product:'GEN-0045 بيركنز 50KVA',amount:18500000,payMethod:'cash',stage:'delivery',date:'2026-05-08',journalId:''},
-  {id:'SO-009',customer:'زيد العامري',customerId:'CUS-009',product:'GEN-0062 بادوين 150KVA',amount:55000000,payMethod:'cash',stage:'completed',date:'2026-05-07',journalId:''}
-];
+var WF_ORDERS = [];
 
 var WF_STAGES = [
   {id:'sales',    label:'إصدار الفاتورة', icon:'🧾', color:'var(--odoo-purple)', bg:'#f8f0ff', border:'var(--odoo-purple)', next:'payment',  nextLabel:'← قبض'},
@@ -12491,6 +12310,33 @@ setInterval(function() {
 
 var _RAYA_KEY = 'raya_blue_v10';
 
+
+// ============================================================
+// resetAllData() — إعادة تهيئة كاملة (استخدم من console أو زر الإعدادات)
+// ============================================================
+function resetAllData() {
+  if (!confirm("تحذير: سيتم حذف جميع البيانات نهائياً. هل أنت متأكد؟")) return;
+  JOURNAL_ENTRIES_DATA.splice(0);
+  CUSTOMERS_DB.splice(0);
+  SUPPLIERS_DB.splice(0);
+  MAINT_DB.splice(0);
+  PAYROLL_RECORDS.splice(0);
+  INV_ITEMS.splice(0);
+  INV_MOVEMENTS.splice(0);
+  SALE_ITEMS_DB.splice(0);
+  ITEMS_DB.splice(0);
+  WF_ORDERS.splice(0);
+  AI_DATA.sales.splice(0);
+  AI_DATA.inventory.splice(0);
+  AI_DATA.customers.splice(0);
+  AI_DATA.maintenance.splice(0);
+  AI_DATA.installments.splice(0);
+  AI_DATA.expenses.splice(0);
+  try { localStorage.removeItem("raya_blue_v10"); } catch(e){}
+  if (typeof _syncToServer === "function") _syncToServer();
+  notify("تم تفريغ جميع البيانات ✔", "success");
+  setTimeout(function(){ location.reload(); }, 1500);
+}
 function saveToStorage() {
   try {
     localStorage.setItem(_RAYA_KEY, JSON.stringify({
