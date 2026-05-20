@@ -6871,7 +6871,49 @@ const ITEMS_DB = [];
 // ============================================================
 // CUSTOMERS_DB — قاعدة بيانات الزبائن
 // ============================================================
-const CUSTOMERS_DB = [];
+const CUSTOMERS_DB = [
+  {id:'CUS-001', name:'شركة طاقات الفرات - مصطفى كمر', phone:'07730408040', accountCode:'1511', city:'بغداد', address:'الكرادة', debt:0},
+  {id:'CUS-002', name:'حردان أبو احمد', phone:'', accountCode:'1511', city:'بغداد', address:'الكرادة', debt:0},
+  {id:'CUS-003', name:'محمد صادق الربيعي', phone:'07700089306', accountCode:'1511', city:'بغداد', address:'بغداد الجديدة', debt:0},
+  {id:'CUS-004', name:'دكتور احسان هاشم – عيادة ليبرتي', phone:'07902610481', accountCode:'1511', city:'بغداد', address:'العطيفية', debt:0},
+  {id:'CUS-005', name:'ارض العابر', phone:'', accountCode:'1511', city:'البصرة', address:'شارع الوفود', debt:0},
+  {id:'CUS-006', name:'زيد حلة', phone:'', accountCode:'1511', city:'بابل', address:'الحلة', debt:0},
+  {id:'CUS-007', name:'شركة اوفتك', phone:'07502956464', accountCode:'1511', city:'بغداد', address:'كرادة - قرب ساحة التحريات', debt:0},
+  {id:'CUS-008', name:'مصطفى محسن علي – عيادة مصطفى', phone:'07806867427', accountCode:'1511', city:'بابل', address:'الحلة - قرب مدرسة غزة', debt:0},
+  {id:'CUS-009', name:'فندق الحرمين - احمد عدنان', phone:'07901489514', accountCode:'1511', city:'بغداد', address:'الكاظمية - شارع الرضا', debt:0},
+  {id:'CUS-010', name:'علي وعمر', phone:'', accountCode:'1511', city:'بغداد', address:'كمب سارة', debt:0},
+  {id:'CUS-011', name:'شركة سما كربلاء - محمد مهند', phone:'', accountCode:'1511', city:'كربلاء', address:'قرب مطار كربلاء', debt:0},
+  {id:'CUS-012', name:'عبد الرسول رعد ظهار', phone:'07800004060', accountCode:'1511', city:'الديوانية', address:'الديوانية', debt:0},
+  {id:'CUS-013', name:'اثير كريم حسين', phone:'07809008820', accountCode:'1511', city:'بغداد', address:'جميلة شارع خير الله', debt:0},
+  {id:'CUS-014', name:'شركة أنظمة النجاح للتجارة والاستثمارات', phone:'07809164954', accountCode:'1511', city:'بغداد', address:'الدورة شارع أبو طيارة', debt:0},
+  {id:'CUS-015', name:'شركة مسافات', phone:'', accountCode:'1511', city:'بغداد', address:'الحارثية', debt:0},
+  {id:'CUS-016', name:'الوليد خالد غالب', phone:'07855555788', accountCode:'1511', city:'ذي قار', address:'الناصرية', debt:0},
+  {id:'CUS-017', name:'نور عصام الدين صادق', phone:'07901434082', accountCode:'1511', city:'بغداد', address:'اليرموك', debt:0},
+  {id:'CUS-018', name:'محمد مرزة عبد', phone:'07500341179', accountCode:'1511', city:'بغداد', address:'زيونة', debt:0},
+  {id:'CUS-019', name:'حسين علي عبودي', phone:'07714300626', accountCode:'1511', city:'بغداد', address:'التاجي', debt:0},
+  {id:'CUS-020', name:'شركة القدرة الكاملة – احمد سالم', phone:'', accountCode:'1511', city:'بغداد', address:'شارع 62', debt:0},
+  {id:'CUS-021', name:'وليد مخيبر خلف – شركة النبع الصافي', phone:'07770655122', accountCode:'1511', city:'بغداد', address:'بسماية - حي الوحدة', debt:0},
+  {id:'CUS-022', name:'محمد مثنى علوان', phone:'07703166982', accountCode:'1511', city:'ميسان', address:'العمارة', debt:0},
+  {id:'CUS-023', name:'احمد سلمان جاسم العامري', phone:'07725005500', accountCode:'1511', city:'بغداد', address:'الراشدية', debt:0},
+  {id:'CUS-024', name:'شركة الخير العميم للمقاولات - تقي رشيد عزيز', phone:'07827777992', accountCode:'1511', city:'واسط', address:'الكوت', debt:0},
+  {id:'CUS-025', name:'حسنين حسين شعيل', phone:'07739990241', accountCode:'1511', city:'ميسان', address:'العمارة قرب مدرسة بطل خيبر', debt:0},
+  {id:'CUS-026', name:'مهندس صالح مهدي محمد - عضو لجنة الاشراف ميسان', phone:'07717436961', accountCode:'1511', city:'ميسان', address:'العمارة قرب مدرسة بطل خيبر', debt:0},
+  {id:'CUS-027', name:'علي قيس علي – مجمع 5 كيلو', phone:'07903333008', accountCode:'1511', city:'الانبار', address:'الرمادي - 5 كيلو', debt:0},
+  {id:'CUS-028', name:'كريم إسماعيل - كنافة عبيروت', phone:'07725118800', accountCode:'1511', city:'بغداد', address:'كرادة شارع 62', debt:0},
+  {id:'CUS-029', name:'علي رحيم عاصي', phone:'07737772266', accountCode:'1511', city:'ميسان', address:'العمارة المجر الكبير', debt:0},
+  {id:'CUS-030', name:'احمد جعفر كاظم', phone:'07803337333', accountCode:'1511', city:'واسط', address:'النعمانية', debt:0},
+  {id:'CUS-031', name:'شركة كولاب للتجارة', phone:'07707496046', accountCode:'1511', city:'بغداد', address:'أبو غريب', debt:0},
+  {id:'CUS-032', name:'عبد الله حسن مطر', phone:'07828828871', accountCode:'1511', city:'ذي قار', address:'الرفاعي – طريق أبو الماش محلات أبو غدير', debt:0},
+  {id:'CUS-033', name:'فارس العزاوي – الطاقة المتطورة', phone:'', accountCode:'1511', city:'بغداد', address:'شارع 62', debt:0},
+  {id:'CUS-034', name:'مستشفى الحياة الأهلي العام', phone:'07722408373', accountCode:'1511', city:'صلاح الدين', address:'تكريت - شارع 40', debt:0},
+  {id:'CUS-035', name:'محمود عبد الزهرة احمد حسوني الطائي', phone:'07727080366', accountCode:'1511', city:'بغداد', address:'المدائن الجعارة', debt:0},
+  {id:'CUS-036', name:'سجاد جبار خضير - كافيه دخان', phone:'07887501301', accountCode:'1511', city:'ذي قار', address:'الناصرية - الشطرة', debt:0},
+  {id:'CUS-037', name:'مصطفى مطشر حطوط – محطة مياه الزعفرانية', phone:'07731377404', accountCode:'1511', city:'بغداد', address:'الزعفرانية', debt:0},
+  {id:'CUS-038', name:'منتظر مجيد علي حسين', phone:'07813989024', accountCode:'1511', city:'ميسان', address:'قلعة صالح – نهر العز قرب مركز الشرطة', debt:0},
+  {id:'CUS-039', name:'احمد جميل كاظم – مطعم دجاج شيبك', phone:'07806848866', accountCode:'1511', city:'ذي قار', address:'ناصرية الإدارة المحلية تقاطع البهو', debt:0},
+  {id:'CUS-040', name:'وسام محمد زبون راشد', phone:'07719434371', accountCode:'1511', city:'بغداد', address:'زعفرانية شارع مستشفى ابن الخطيب', debt:0},
+  {id:'CUS-041', name:'علاء ايو ريتاج', phone:'', accountCode:'1511', city:'بغداد', address:'شارع 62', debt:0}
+];
 
 const TYPE_COLORS = {
   asset:'var(--odoo-blue)', liability:'var(--odoo-red)',
