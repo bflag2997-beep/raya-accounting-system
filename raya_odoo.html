@@ -12388,6 +12388,8 @@ function confirmQuickCustomer() {
 // ============================================================
 // SERVER SYNC — تزامن الداتا مع السيرفر المحلي
 // ============================================================
+var _RAYA_CLIENT_ID = 'c' + Date.now() + Math.random().toString(36).slice(2, 6);
+
 function _syncToServer() {
   try {
     if (window.location.protocol === 'file:') return;
@@ -12401,7 +12403,7 @@ function _syncToServer() {
       wfOrders:  (typeof WF_ORDERS !== 'undefined' ? WF_ORDERS : [])
     });
     var xhr = new XMLHttpRequest();
-    xhr.open('POST', '/api/data', true);
+    xhr.open('POST', '/api/data?client=' + _RAYA_CLIENT_ID, true);
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.onload = function() {
       if (xhr.status === 200) console.info('[Raya] تم حفظ الداتا على السيرفر D: ✔');
@@ -12455,17 +12457,37 @@ function _loadFromServer(callback) {
   } catch(e) { if(callback) callback(false); }
 }
 
-// تحديث تلقائي كل 30 ثانية (يلتقط تغييرات بقية الموظفين)
-setInterval(function() {
-  if (window.location.protocol !== 'file:') {
-    _loadFromServer(function(updated) {
-      if (updated) {
+// Real-Time Sync — SSE (Server-Sent Events)
+function _connectSSE() {
+  if (window.location.protocol === 'file:') return;
+  if (typeof EventSource === 'undefined') return;
+  var _sseSource = new EventSource('/api/events');
+  _sseSource.addEventListener('datachanged', function(e) {
+    // تجاهل إذا كنت أنا من حفظ
+    if (e.data === _RAYA_CLIENT_ID) return;
+    console.info('[Raya] 🔄 تغيير من موظف آخر — جاري التحديث...');
+    if (typeof _loadFromServer === 'function') {
+      _loadFromServer(function(updated) {
+        if (!updated) return;
         var ap = document.querySelector('.page.active');
         if (ap) { var pgId = ap.id.replace('page-',''); if(typeof go==='function') go(pgId, null); }
-      }
-    });
+        if (typeof notify === 'function') notify('🔄 تم استلام تحديث من موظف آخر', 'info');
+      });
+    }
+  });
+  _sseSource.onerror = function() {
+    // EventSource يعيد الاتصال تلقائياً
+    console.warn('[Raya] SSE انقطع — إعادة الاتصال...');
+  };
+  console.info('[Raya] SSE متصل — التحديث الآن فوري ✔');
+}
+
+// احتياطي: polling كل 60 ثانية فقط لو SSE فشل
+setInterval(function() {
+  if (window.location.protocol !== 'file:' && typeof _loadFromServer === 'function') {
+    _loadFromServer(function(){});
   }
-}, 30000);
+}, 60000);
 
 var _RAYA_KEY = 'raya_blue_v10';
 
@@ -12730,7 +12752,7 @@ window.addEventListener('unhandledrejection', function(ev) {
   var loaded = loadFromStorage();
   if (loaded) console.info('[Raya v10] تم تحميل البيانات من localStorage ✔');
   else        console.info('[Raya v10] بيانات افتراضية (لا يوجد حفظ سابق)');
-  // تحميل من السيرفر عند البداية
+  // تحميل من السيرفر عند البداية + اتصال SSE للتحديث الفوري
   setTimeout(function() {
     if (typeof _loadFromServer === 'function') {
       _loadFromServer(function(updated) {
@@ -12740,6 +12762,7 @@ window.addEventListener('unhandledrejection', function(ev) {
         }
       });
     }
+    if (typeof _connectSSE === 'function') _connectSSE();
   }, 800);
 })();
 
