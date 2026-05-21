@@ -139,18 +139,25 @@ input,select,textarea,button{font-family:var(--font);font-size:13px}
 .grid-14{display:grid;grid-template-columns:1.5fr 1fr;gap:16px}
 .grid-41{display:grid;grid-template-columns:1fr 1.5fr;gap:16px}
 
-/* ===== ODOO-STYLE TABLE ===== */
-.o-table-wrap{overflow-x:auto}
-.o-table{width:100%;border-collapse:collapse}
-.o-table thead tr{background:var(--surface2);border-bottom:2px solid var(--border)}
-.o-table th{padding:10px 14px;text-align:right;font-size:11px;font-weight:700;color:var(--text-m);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
-.o-table td{padding:10px 14px;font-size:12.5px;border-bottom:1px solid #F0F0F0;vertical-align:middle}
-.o-table tbody tr:hover{background:#FAFBFF}
+/* ===== ENTERPRISE TABLE ===== */
+.o-table-wrap{overflow-x:auto;border-radius:10px;box-shadow:0 2px 18px rgba(113,75,103,.09);border:1px solid rgba(113,75,103,.13)}
+.o-table{width:100%;border-collapse:collapse;font-size:12.5px}
+.o-table thead{position:sticky;top:0;z-index:5}
+.o-table thead tr{background:linear-gradient(135deg,#4a2d42 0%,#714B67 55%,#2d5a7b 100%)}
+.o-table th{padding:12px 16px;text-align:right;font-size:10.5px;font-weight:700;color:rgba(255,255,255,.95);text-transform:uppercase;letter-spacing:.7px;white-space:nowrap;border-left:1px solid rgba(255,255,255,.1);cursor:default;user-select:none}
+.o-table th:last-child{border-left:none}
+.o-table td{padding:11px 16px;border-bottom:1px solid #f2edf8;vertical-align:middle;transition:background .1s ease}
+.o-table tbody tr{border-right:3px solid transparent;transition:border-color .1s}
+.o-table tbody tr:nth-child(odd){background:#ffffff}
+.o-table tbody tr:nth-child(even){background:#faf7fc}
+.o-table tbody tr:hover{background:#ede5f5 !important;border-right-color:#714B67}
 .o-table tbody tr:last-child td{border-bottom:none}
-.o-table .code-cell{font-family:var(--mono);font-size:11.5px;font-weight:600;color:var(--odoo-blue)}
-.o-table .amount-dr{font-weight:700;color:var(--odoo-green)}
-.o-table .amount-cr{font-weight:700;color:var(--odoo-red)}
-.o-table .amount-bal{font-weight:700;color:var(--odoo-blue)}
+.o-table tfoot tr{background:linear-gradient(135deg,#f0e8f4 0%,#e6f2f3 100%);border-top:2px solid #714B67}
+.o-table tfoot td{padding:11px 16px;font-weight:800;font-size:13px;color:#4a2d42}
+.o-table .code-cell{font-family:var(--mono);font-size:11px;font-weight:700;color:#017E84;background:#e0f4f5;padding:3px 8px;border-radius:5px;display:inline-block;letter-spacing:.3px}
+.o-table .amount-dr{font-weight:700;color:#1a6b3a;font-family:var(--mono)}
+.o-table .amount-cr{font-weight:700;color:#b91c1c;font-family:var(--mono)}
+.o-table .amount-bal{font-weight:800;color:#017E84;font-family:var(--mono)}
 
 /* ===== BADGES ===== */
 .badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;white-space:nowrap;letter-spacing:.2px}
@@ -549,12 +556,16 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:14px 0}
 /* modal xl */
 .modal.xl{max-width:1000px;width:96vw}
 @media print {
-  body > *:not(#raya-print-overlay) { display: none !important; }
-  #raya-print-overlay { display: block !important; background: #fff !important; padding: 0 !important; }
+  body > *:not(#raya-print-overlay) { display: none !important; visibility: hidden !important; }
+  #raya-print-overlay { display: block !important; background: #fff !important; padding: 0 !important; position: static !important; overflow: visible !important; }
   #raya-print-overlay .no-print { display: none !important; }
-  #raya-print-page { box-shadow: none !important; border-radius: 0 !important; max-width: 100% !important; }
-  @page { margin: 10mm; size: A4 landscape; }
-  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  #raya-print-page { box-shadow: none !important; border-radius: 0 !important; max-width: 100% !important; margin: 0 !important; }
+  @page { margin: 8mm; size: A4 landscape; }
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+  table { page-break-inside: auto; }
+  tr { page-break-inside: avoid; page-break-after: auto; }
+  thead { display: table-header-group; }
+  tfoot { display: table-footer-group; }
 }
 </style>
 
@@ -718,6 +729,21 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:14px 0}
 /* Fix old page headers */
 .phi h2, .page-title { font-size: 18px; font-weight: 800; color: var(--text); }
 .phi p, .page-subtitle { font-size: 12px; color: var(--text-m); margin-top: 3px; }
+/* ===== GLOBAL TABLE UPGRADE ===== */
+.tw table, #parts-tbl, #gen-tbl, #inv-items-body-wrap table, #cust-table-body-wrap table {width:100%;border-collapse:collapse}
+#parts-tbl thead tr, .tw table thead tr{background:linear-gradient(135deg,#1e3a5f 0%,#2d5a7b 100%)}
+#parts-tbl th, .tw table th{padding:11px 13px;text-align:right;font-size:10.5px;font-weight:700;color:rgba(255,255,255,.95);text-transform:uppercase;letter-spacing:.6px;white-space:nowrap;border-left:1px solid rgba(255,255,255,.1)}
+#parts-tbl tbody tr:nth-child(odd), .tw table tbody tr:nth-child(odd){background:#fff}
+#parts-tbl tbody tr:nth-child(even), .tw table tbody tr:nth-child(even){background:#f5f8ff}
+#parts-tbl tbody tr:hover, .tw table tbody tr:hover{background:#e8f0ff !important;border-right:3px solid #1e3a5f}
+#parts-tbl td, .tw table td{padding:10px 13px;border-bottom:1px solid #edf0f8;vertical-align:middle;font-size:12.5px}
+/* Status badges upgrade */
+.badge-green{background:linear-gradient(135deg,#d4edda,#b7e1c4);color:#155724;border:1px solid #b7ddbf;font-weight:700}
+.badge-red{background:linear-gradient(135deg,#f8d7da,#f5b8be);color:#721c24;border:1px solid #f1aeb5;font-weight:700}
+.badge-yellow{background:linear-gradient(135deg,#fff3cd,#ffe58a);color:#664d03;border:1px solid #ffda6a;font-weight:700}
+.badge-gray{background:linear-gradient(135deg,#e9ecef,#dee2e6);color:#495057;border:1px solid #ced4da;font-weight:600}
+/* Table card — remove card overflow hidden so sticky header works */
+.card{overflow:visible}
 /* Fix table in old pages */
 .o-table th, table thead th { text-align: right; }
 /* Fix amount colors */
@@ -7461,24 +7487,41 @@ function submitTimesheetEntry() {
 }
 
 function exportHRExcel() {
-  const BOM = '\uFEFF';
-  const rows = [
-    ['شركة الراية الزرقاء — تقرير الموارد البشرية — مايو 2026'],
-    [],
-    ['الموظف','الوظيفة','الإجازة المستحقة','المأخوذ','المتبقي','الزمنية الشهرية','المستخدم','المتبقي','تأخير','خروج مبكر'],
-    ...EMPLOYEES.map(emp => {
-      const lvU = getMonthLeaveUsed(emp.id,5), tsU = getMonthTSUsed(emp.id,5);
-      return [emp.name, emp.role, MONTHLY_LEAVE_DAYS+'يوم', lvU+'يوم', (MONTHLY_LEAVE_DAYS-lvU)+'يوم',
-              '300دق', tsU+'دق', (MONTHLY_TS_MINUTES-tsU)+'دق',
-              TS_RECORDS.filter(r=>r.empId===emp.id&&r.tsType==='late').length,
-              TS_RECORDS.filter(r=>r.empId===emp.id&&r.tsType==='early_leave').length];
+  if (typeof exportToExcel === 'function' && typeof REPORT_CONFIGS !== 'undefined') {
+    var hrConfig = {
+      title: 'تقرير الموارد البشرية',
+      titleEn: 'HR Report',
+      icon: '👥',
+      headers: ['الموظف','الوظيفة','الإجازة المستحقة','المأخوذة','المتبقية','التأخيرات','الخروج المبكر'],
+      getData: function() {
+        return (typeof EMPLOYEES !== 'undefined' ? EMPLOYEES : []).map(function(emp) {
+          var lvU = typeof getMonthLeaveUsed === 'function' ? getMonthLeaveUsed(emp.id, 5) : 0;
+          var late = (typeof TS_RECORDS !== 'undefined' ? TS_RECORDS : []).filter(function(r){ return r.empId===emp.id && r.tsType==='late'; }).length;
+          var early = (typeof TS_RECORDS !== 'undefined' ? TS_RECORDS : []).filter(function(r){ return r.empId===emp.id && r.tsType==='early_leave'; }).length;
+          var monthly = typeof MONTHLY_LEAVE_DAYS !== 'undefined' ? MONTHLY_LEAVE_DAYS : 30;
+          return [emp.name, emp.role, monthly + ' يوم', lvU + ' يوم', (monthly - lvU) + ' يوم', late, early];
+        });
+      }
+    };
+    exportToExcel(hrConfig, '', '');
+    return;
+  }
+  // Fallback CSV
+  var BOM = '\uFEFF';
+  var rows = [['الموظف','الوظيفة','التأخيرات','الخروج المبكر']].concat(
+    (typeof EMPLOYEES !== 'undefined' ? EMPLOYEES : []).map(function(emp) {
+      var late = (typeof TS_RECORDS !== 'undefined' ? TS_RECORDS : []).filter(function(r){ return r.empId===emp.id && r.tsType==='late'; }).length;
+      var early = (typeof TS_RECORDS !== 'undefined' ? TS_RECORDS : []).filter(function(r){ return r.empId===emp.id && r.tsType==='early_leave'; }).length;
+      return [emp.name, emp.role, late, early];
     })
-  ];
-  const csv = BOM + rows.map(r=>r.map(c=>'"'+String(c)+'"').join(',')).join('\n');
-  const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
-  const a = Object.assign(document.createElement('a'),{href:URL.createObjectURL(blob),download:'HR_Report_May2026.csv'});
+  );
+  var csv = BOM + rows.map(function(r){ return r.map(function(c){ return '"'+String(c)+'"'; }).join(','); }).join('\n');
+  var blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'HR_Report.csv';
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  notify('✅ تم تصدير تقرير الموارد البشرية','success');
+  notify('تم تصدير تقرير HR','success');
 }
 
 // Init HR when page loads
@@ -10445,67 +10488,122 @@ function exportToExcel(config, from, to) {
   var data   = config.getData();
   var period = from && to ? 'من ' + from + ' إلى ' + to : 'كل البيانات';
   var now    = new Date().toLocaleDateString('en-GB');
-  var color  = '#' + COMPANY.color;
+  var color  = '#' + (COMPANY.color || '714B67');
   var cols   = config.headers.length;
 
-  var cell = function(val, style, span) {
+  // Detect numeric columns (if >60% of rows have a number in that col)
+  var numericCols = config.headers.map(function(h, ci) {
+    if (data.length === 0) return false;
+    var numCount = data.filter(function(row) {
+      var v = String(row[ci]||'').replace(/[,\s]/g,'');
+      return v.length > 0 && !isNaN(parseFloat(v)) && isFinite(v);
+    }).length;
+    return numCount / data.length > 0.5;
+  });
+
+  var cell = function(val, style, span, type) {
     var s = span > 1 ? ' ss:MergeAcross="' + (span-1) + '"' : '';
+    var numVal = String(val||'').replace(/[,\s]/g,'');
+    var useNum = type === 'num' || (type !== 'str' && !isNaN(parseFloat(numVal)) && isFinite(numVal) && numVal.length > 0 && numVal !== '0');
+    if (useNum && type !== 'str') {
+      return '<Cell ss:StyleID="' + style + '"' + s + '><Data ss:Type="Number">' + parseFloat(numVal) + '</Data></Cell>';
+    }
     return '<Cell ss:StyleID="' + style + '"' + s + '><Data ss:Type="String">' +
       String(val||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</Data></Cell>';
   };
 
-  var xls = '<?xml version="1.0" encoding="UTF-8"?>\n' +
-    '<?mso-application progid="Excel.Sheet"?>\n' +
-    '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">\n' +
-    '<Styles>\n' +
-    '<Style ss:ID="hdr"><Alignment ss:Horizontal="Center" ss:ReadingOrder="RightToLeft"/><Font ss:Bold="1" ss:Color="#FFFFFF" ss:Size="11"/><Interior ss:Color="' + color + '" ss:Pattern="Solid"/></Style>\n' +
-    '<Style ss:ID="co1"><Alignment ss:Horizontal="Center" ss:ReadingOrder="RightToLeft"/><Font ss:Bold="1" ss:Color="' + color + '" ss:Size="16"/><Interior ss:Color="#F0EEFF" ss:Pattern="Solid"/></Style>\n' +
-    '<Style ss:ID="co2"><Alignment ss:Horizontal="Center" ss:ReadingOrder="RightToLeft"/><Font ss:Color="#666666" ss:Size="10"/><Interior ss:Color="#F8F7FF" ss:Pattern="Solid"/></Style>\n' +
-    '<Style ss:ID="rpt"><Alignment ss:Horizontal="Center" ss:ReadingOrder="RightToLeft"/><Font ss:Bold="1" ss:Color="#FFFFFF" ss:Size="13"/><Interior ss:Color="' + color + '" ss:Pattern="Solid"/></Style>\n' +
-    '<Style ss:ID="meta"><Alignment ss:ReadingOrder="RightToLeft"/><Font ss:Color="#333333" ss:Size="10"/><Interior ss:Color="#F0EEFF" ss:Pattern="Solid"/></Style>\n' +
-    '<Style ss:ID="odd"><Alignment ss:ReadingOrder="RightToLeft"/><Font ss:Size="10"/><Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:Color="#E0DAF5" ss:Weight="1"/></Borders></Style>\n' +
-    '<Style ss:ID="even"><Alignment ss:ReadingOrder="RightToLeft"/><Font ss:Size="10"/><Interior ss:Color="#F8F7FF" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:Color="#E0DAF5" ss:Weight="1"/></Borders></Style>\n' +
-    '<Style ss:ID="good"><Alignment ss:ReadingOrder="RightToLeft"/><Font ss:Bold="1" ss:Color="#198754" ss:Size="10"/><Interior ss:Color="#F0FFF4" ss:Pattern="Solid"/></Style>\n' +
-    '<Style ss:ID="bad"><Alignment ss:ReadingOrder="RightToLeft"/><Font ss:Bold="1" ss:Color="#DC3545" ss:Size="10"/><Interior ss:Color="#FFF5F5" ss:Pattern="Solid"/></Style>\n' +
-    '<Style ss:ID="warn"><Alignment ss:ReadingOrder="RightToLeft"/><Font ss:Bold="1" ss:Color="#D97706" ss:Size="10"/><Interior ss:Color="#FFFBEB" ss:Pattern="Solid"/></Style>\n' +
-    '<Style ss:ID="ftr"><Alignment ss:Horizontal="Center" ss:ReadingOrder="RightToLeft"/><Font ss:Color="#888888" ss:Size="9"/><Interior ss:Color="#F0EEFF" ss:Pattern="Solid"/></Style>\n' +
-    '</Styles>\n' +
-    '<Worksheet ss:Name="' + config.title + '">\n<Table ss:DefaultColumnWidth="130">\n';
+  var colW = Math.max(110, Math.floor(1050 / cols));
 
-  xls += '<Row ss:Height="30">' + cell(COMPANY.name, 'co1', cols) + '</Row>\n';
-  xls += '<Row ss:Height="18">' + cell(COMPANY.subtitle, 'co2', cols) + '</Row>\n';
-  xls += '<Row ss:Height="16">' + cell('هاتف: ' + COMPANY.phone + '   |   إيميل: ' + COMPANY.email, 'co2', cols) + '</Row>\n';
-  xls += '<Row ss:Height="6"><Cell><Data ss:Type="String"></Data></Cell></Row>\n';
-  xls += '<Row ss:Height="26">' + cell(config.icon + '  ' + config.title + '  (' + config.titleEn + ')', 'rpt', cols) + '</Row>\n';
-  xls += '<Row ss:Height="18">' + cell('الفترة: ' + period, 'meta', Math.ceil(cols/2)) + cell('تاريخ الإصدار: ' + now + '   |   السجلات: ' + data.length, 'meta', Math.floor(cols/2)) + '</Row>\n';
-  xls += '<Row ss:Height="6"><Cell><Data ss:Type="String"></Data></Cell></Row>\n';
-  xls += '<Row ss:Height="22">' + config.headers.map(function(h){ return cell(h,'hdr'); }).join('') + '</Row>\n';
+  var xls = '<?xml version="1.0" encoding="UTF-8"?>' +
+    '<?mso-application progid="Excel.Sheet"?>' +
+    '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">' +
+    '<Styles>' +
+    '<Style ss:ID="co1"><Alignment ss:Horizontal="Center" ss:ReadingOrder="RightToLeft" ss:WrapText="0"/><Font ss:Bold="1" ss:Color="' + color + '" ss:Size="18" ss:Name="Cairo"/><Interior ss:Color="#F5F0F8" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:Color="' + color + '" ss:Weight="2"/></Borders></Style>' +
+    '<Style ss:ID="co2"><Alignment ss:Horizontal="Center" ss:ReadingOrder="RightToLeft"/><Font ss:Color="#666666" ss:Size="9" ss:Name="Cairo"/><Interior ss:Color="#FAF7FC" ss:Pattern="Solid"/></Style>' +
+    '<Style ss:ID="co3"><Alignment ss:Horizontal="Center" ss:ReadingOrder="RightToLeft"/><Font ss:Color="#888888" ss:Size="9" ss:Name="Cairo"/><Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/></Style>' +
+    '<Style ss:ID="rpt"><Alignment ss:Horizontal="Center" ss:ReadingOrder="RightToLeft"/><Font ss:Bold="1" ss:Color="#FFFFFF" ss:Size="13" ss:Name="Cairo"/><Interior ss:Color="' + color + '" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:Color="#4a2d42" ss:Weight="2"/></Borders></Style>' +
+    '<Style ss:ID="meta"><Alignment ss:Horizontal="Center" ss:ReadingOrder="RightToLeft"/><Font ss:Color="#333333" ss:Size="10" ss:Name="Cairo"/><Interior ss:Color="#F0E8F4" ss:Pattern="Solid"/><Borders><Border ss:Position="Right" ss:Color="#C9A8C0" ss:Weight="1"/><Border ss:Position="Bottom" ss:Color="#C9A8C0" ss:Weight="1"/></Borders></Style>' +
+    '<Style ss:ID="hdr"><Alignment ss:Horizontal="Center" ss:ReadingOrder="RightToLeft"/><Font ss:Bold="1" ss:Color="#FFFFFF" ss:Size="11" ss:Name="Cairo"/><Interior ss:Color="' + color + '" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:Color="#4a2d42" ss:Weight="2"/><Border ss:Position="Right" ss:Color="rgba(255,255,255,.3)" ss:Weight="1"/><Border ss:Position="Left" ss:Color="rgba(255,255,255,.3)" ss:Weight="1"/></Borders></Style>' +
+    '<Style ss:ID="odd"><Alignment ss:ReadingOrder="RightToLeft" ss:WrapText="0"/><Font ss:Size="10" ss:Name="Cairo"/><Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:Color="#EDE5F5" ss:Weight="1"/><Border ss:Position="Right" ss:Color="#EDE5F5" ss:Weight="1"/></Borders></Style>' +
+    '<Style ss:ID="even"><Alignment ss:ReadingOrder="RightToLeft" ss:WrapText="0"/><Font ss:Size="10" ss:Name="Cairo"/><Interior ss:Color="#FAF7FC" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:Color="#EDE5F5" ss:Weight="1"/><Border ss:Position="Right" ss:Color="#EDE5F5" ss:Weight="1"/></Borders></Style>' +
+    '<Style ss:ID="oddN"><Alignment ss:Horizontal="Right" ss:ReadingOrder="RightToLeft"/><Font ss:Size="10" ss:Name="Courier New"/><NumberFormat ss:Format="#,##0"/><Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:Color="#EDE5F5" ss:Weight="1"/><Border ss:Position="Right" ss:Color="#EDE5F5" ss:Weight="1"/></Borders></Style>' +
+    '<Style ss:ID="evenN"><Alignment ss:Horizontal="Right" ss:ReadingOrder="RightToLeft"/><Font ss:Size="10" ss:Name="Courier New"/><NumberFormat ss:Format="#,##0"/><Interior ss:Color="#FAF7FC" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:Color="#EDE5F5" ss:Weight="1"/><Border ss:Position="Right" ss:Color="#EDE5F5" ss:Weight="1"/></Borders></Style>' +
+    '<Style ss:ID="good"><Alignment ss:ReadingOrder="RightToLeft"/><Font ss:Bold="1" ss:Color="#155724" ss:Size="10" ss:Name="Cairo"/><Interior ss:Color="#D4EDDA" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:Color="#B7DDBF" ss:Weight="1"/></Borders></Style>' +
+    '<Style ss:ID="bad"><Alignment ss:ReadingOrder="RightToLeft"/><Font ss:Bold="1" ss:Color="#721C24" ss:Size="10" ss:Name="Cairo"/><Interior ss:Color="#F8D7DA" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:Color="#F1AEB5" ss:Weight="1"/></Borders></Style>' +
+    '<Style ss:ID="warn"><Alignment ss:ReadingOrder="RightToLeft"/><Font ss:Bold="1" ss:Color="#664D03" ss:Size="10" ss:Name="Cairo"/><Interior ss:Color="#FFF3CD" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:Color="#FFDA6A" ss:Weight="1"/></Borders></Style>' +
+    '<Style ss:ID="tot"><Alignment ss:Horizontal="Right" ss:ReadingOrder="RightToLeft"/><Font ss:Bold="1" ss:Color="#4a2d42" ss:Size="11" ss:Name="Cairo"/><NumberFormat ss:Format="#,##0"/><Interior ss:Color="#EDE5F5" ss:Pattern="Solid"/><Borders><Border ss:Position="Top" ss:Color="' + color + '" ss:Weight="2"/><Border ss:Position="Bottom" ss:Color="' + color + '" ss:Weight="2"/></Borders></Style>' +
+    '<Style ss:ID="totL"><Alignment ss:Horizontal="Center" ss:ReadingOrder="RightToLeft"/><Font ss:Bold="1" ss:Color="#4a2d42" ss:Size="11" ss:Name="Cairo"/><Interior ss:Color="#EDE5F5" ss:Pattern="Solid"/><Borders><Border ss:Position="Top" ss:Color="' + color + '" ss:Weight="2"/><Border ss:Position="Bottom" ss:Color="' + color + '" ss:Weight="2"/></Borders></Style>' +
+    '<Style ss:ID="ftr"><Alignment ss:Horizontal="Center" ss:ReadingOrder="RightToLeft"/><Font ss:Color="#888888" ss:Size="9" ss:Name="Cairo"/><Interior ss:Color="#FAF7FC" ss:Pattern="Solid"/><Borders><Border ss:Position="Top" ss:Color="#C9A8C0" ss:Weight="1"/></Borders></Style>' +
+    '</Styles>' +
+    '<Worksheet ss:Name="' + config.title + '">' +
+    '<Table ss:DefaultColumnWidth="' + colW + '">';
 
+  // Header section
+  xls += '<Row ss:Height="38">' + cell(COMPANY.name, 'co1', cols, 'str') + '</Row>';
+  xls += '<Row ss:Height="16">' + cell(COMPANY.subtitle || '', 'co2', cols, 'str') + '</Row>';
+  xls += '<Row ss:Height="14">' + cell('📞 ' + COMPANY.phone + '   |   ✉ ' + COMPANY.email + '   |   ' + COMPANY.address, 'co3', cols, 'str') + '</Row>';
+  xls += '<Row ss:Height="5"><Cell><Data ss:Type="String"></Data></Cell></Row>';
+  xls += '<Row ss:Height="30">' + cell(config.icon + '  ' + config.title + '  (' + config.titleEn + ')', 'rpt', cols, 'str') + '</Row>';
+  // Metadata row split
+  var halfL = Math.ceil(cols / 2), halfR = Math.floor(cols / 2);
+  xls += '<Row ss:Height="20">' +
+    cell('📅 الفترة: ' + period, 'meta', halfL, 'str') +
+    cell('🗓 إصدار: ' + now + '   ·   سجلات: ' + data.length, 'meta', halfR, 'str') +
+    '</Row>';
+  xls += '<Row ss:Height="5"><Cell><Data ss:Type="String"></Data></Cell></Row>';
+
+  // Column headers
+  xls += '<Row ss:Height="24">' + config.headers.map(function(h){ return cell(h,'hdr',1,'str'); }).join('') + '</Row>';
+
+  // Data rows with smart styling
+  var colTotals = new Array(cols).fill(0);
   data.forEach(function(row, i) {
-    xls += '<Row ss:Height="18">';
-    row.forEach(function(c) {
+    xls += '<Row ss:Height="19">';
+    row.forEach(function(c, ci) {
       var val = String(c||'');
-      var s = i%2===0 ? 'odd' : 'even';
-      if (val.match(/مسدد|طبيعي/)) s = 'good';
-      else if (val.match(/متأخر|نفد/)) s = 'bad';
-      else if (val.match(/جزئي|منخفض/)) s = 'warn';
-      xls += cell(val, s);
+      var isNum = numericCols[ci];
+      var styleBase = i%2===0 ? (isNum ? 'oddN' : 'odd') : (isNum ? 'evenN' : 'even');
+      if (val.match(/مسدد|طبيعي|جيد|✅/)) styleBase = 'good';
+      else if (val.match(/متأخر|نفد|🔴/)) styleBase = 'bad';
+      else if (val.match(/جزئي|منخفض|⚠|متخفض/)) styleBase = 'warn';
+      // Accumulate totals for numeric cols
+      if (isNum) {
+        var numV = parseFloat(val.replace(/[,\s]/g,''));
+        if (!isNaN(numV)) colTotals[ci] += numV;
+      }
+      xls += cell(val, styleBase, 1, isNum ? 'num' : 'str');
     });
-    xls += '</Row>\n';
+    xls += '</Row>';
   });
 
-  xls += '<Row ss:Height="6"><Cell><Data ss:Type="String"></Data></Cell></Row>\n';
-  xls += '<Row ss:Height="18">' + cell(COMPANY.name + ' — ' + COMPANY.nameEn + '  |  ' + COMPANY.phone + '  |  نظام الراية الزرقاء المالي  |  ' + now, 'ftr', cols) + '</Row>\n';
-  xls += '</Table>\n</Worksheet>\n</Workbook>';
+  // Totals row (only if there are numeric cols with non-zero totals)
+  var hasTotals = colTotals.some(function(v, i){ return numericCols[i] && v !== 0; });
+  if (hasTotals) {
+    xls += '<Row ss:Height="5"><Cell><Data ss:Type="String"></Data></Cell></Row>';
+    xls += '<Row ss:Height="24">';
+    config.headers.forEach(function(h, ci) {
+      if (numericCols[ci] && colTotals[ci] !== 0) {
+        xls += cell(colTotals[ci], 'tot', 1, 'num');
+      } else {
+        xls += cell(ci === 0 ? 'الإجمالي' : '', 'totL', 1, 'str');
+      }
+    });
+    xls += '</Row>';
+  }
 
-  var blob = new Blob([xls], { type: 'application/vnd.ms-excel;charset=utf-8' });
+  // Footer
+  xls += '<Row ss:Height="5"><Cell><Data ss:Type="String"></Data></Cell></Row>';
+  xls += '<Row ss:Height="16">' + cell(COMPANY.name + ' — ' + (COMPANY.nameEn||'') + '  |  ' + COMPANY.phone + '  |  نظام الراية الزرقاء المالي  |  ' + now, 'ftr', cols, 'str') + '</Row>';
+  xls += '</Table></Worksheet></Workbook>';
+
+  var blob = new Blob(['\uFEFF' + xls], { type: 'application/vnd.ms-excel;charset=utf-8' });
   var url  = URL.createObjectURL(blob);
   var a    = document.createElement('a');
   a.href   = url;
-  a.download = 'الراية_الزرقاء_' + config.titleEn.replace(/\s+/g,'_') + '_' + (from||new Date().toISOString().split('T')[0]) + '.xls';
+  a.download = 'الراية_الزرقاء_' + (config.titleEn||config.title).replace(/\s+/g,'_') + '_' + (from||new Date().toISOString().split('T')[0]) + '.xls';
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
-  notify('✅ تم تنزيل ملف Excel: ' + config.title, 'success');
+  notify('✅ تم تنزيل Excel: ' + config.title + ' (' + data.length + ' سجل)', 'success');
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -10515,59 +10613,130 @@ function exportToPDF(config, from, to) {
   var data   = config.getData();
   var period = from && to ? 'من ' + from + ' إلى ' + to : 'كل البيانات';
   var now    = new Date().toLocaleDateString('en-GB');
-  var color  = '#' + COMPANY.color;
+  var color  = '#' + (COMPANY.color || '714B67');
+
+  // Compute summary KPIs
+  var totalRows = data.length;
+  var numericSums = [];
+  config.headers.forEach(function(h, ci) {
+    var sum = 0, cnt = 0;
+    data.forEach(function(row) {
+      var v = parseFloat(String(row[ci]||'').replace(/[,\s]/g,''));
+      if (!isNaN(v)) { sum += v; cnt++; }
+    });
+    if (cnt > totalRows * 0.5) numericSums.push({label: h, value: sum});
+  });
 
   var tableRows = data.map(function(row, i) {
-    var bg = i%2===0 ? '#ffffff' : '#f8f7ff';
-    return '<tr style="background:' + bg + '">' +
+    var bg = i % 2 === 0 ? '#ffffff' : '#faf7fc';
+    return '<tr style="background:' + bg + ';border-bottom:1px solid #ede5f5">' +
       row.map(function(c) {
         var val = String(c||'');
-        var s = 'padding:7px 10px;border-bottom:1px solid #e8e0f5;border-right:1px solid #e8e0f5;font-size:11px;';
-        if (val.match(/مسدد|طبيعي/)) s += 'color:#198754;font-weight:600';
-        else if (val.match(/متأخر|نفد/)) s += 'color:#dc3545;font-weight:600';
-        else if (val.match(/جزئي|منخفض/)) s += 'color:#f59e0b;font-weight:600';
-        return '<td style="' + s + '">' + val + '</td>';
+        var style = 'padding:9px 11px;font-size:11px;border-right:1px solid #ede5f5;';
+        if (val.match(/مسدد|طبيعي|جيد|✅/)) style += 'color:#155724;font-weight:700;background:#d4edda';
+        else if (val.match(/متأخر|نفد|🔴/)) style += 'color:#721c24;font-weight:700;background:#f8d7da';
+        else if (val.match(/جزئي|منخفض|⚠|متخفض/)) style += 'color:#664d03;font-weight:700;background:#fff3cd';
+        return '<td style="' + style + '">' + val + '</td>';
       }).join('') + '</tr>';
   }).join('');
 
+  // Totals row HTML
+  var totalsRow = '';
+  var hasTotals = false;
+  var totCells = config.headers.map(function(h, ci) {
+    var sum = 0, cnt = 0;
+    data.forEach(function(row) {
+      var v = parseFloat(String(row[ci]||'').replace(/[,\s]/g,''));
+      if (!isNaN(v)) { sum += v; cnt++; }
+    });
+    if (cnt > data.length * 0.5 && sum !== 0) { hasTotals = true; return '<td style="padding:9px 11px;font-weight:800;font-size:12px;color:#4a2d42;font-family:monospace;border-right:1px solid #c9a8c0">' + sum.toLocaleString('en-US') + '</td>'; }
+    return '<td style="padding:9px 11px;font-weight:700;font-size:11px;color:#4a2d42;border-right:1px solid #c9a8c0">' + (ci === 0 ? 'الإجمالي' : '') + '</td>';
+  }).join('');
+  if (hasTotals) totalsRow = '<tfoot><tr style="background:linear-gradient(135deg,#ede5f5,#e0f2f3);border-top:2px solid ' + color + '">' + totCells + '</tr></tfoot>';
+
+  // KPI summary section
+  var kpiHtml = '';
+  if (numericSums.length > 0) {
+    var kpiColors = ['#714B67','#017E84','#28A745','#E6830A','#DC3545'];
+    kpiHtml = '<div style="display:grid;grid-template-columns:repeat(' + Math.min(numericSums.length, 4) + ',1fr);gap:10px;margin-bottom:18px">' +
+      numericSums.slice(0,4).map(function(k, ki) {
+        return '<div style="background:linear-gradient(135deg,' + kpiColors[ki] + '22,' + kpiColors[ki] + '11);border:1px solid ' + kpiColors[ki] + '33;border-radius:10px;padding:12px 14px;text-align:center">' +
+          '<div style="font-size:10px;color:#666;font-weight:700;margin-bottom:4px">' + k.label + '</div>' +
+          '<div style="font-size:18px;font-weight:900;color:' + kpiColors[ki] + ';font-family:Courier New,monospace">' + k.value.toLocaleString('en-US') + '</div>' +
+          '<div style="font-size:9px;color:#999;margin-top:2px">دينار عراقي</div>' +
+        '</div>';
+      }).join('') + '</div>';
+  }
+
   var overlay = document.getElementById('raya-print-overlay');
   if (!overlay) { overlay = document.createElement('div'); overlay.id = 'raya-print-overlay'; document.body.appendChild(overlay); }
-  overlay.style.cssText = 'display:block;position:fixed;inset:0;background:#f4f4f8;z-index:99999;overflow-y:auto;font-family:Cairo,Arial,sans-serif;direction:rtl;padding:20px 24px';
+  overlay.style.cssText = 'display:block;position:fixed;inset:0;background:#eee;z-index:99999;overflow-y:auto;font-family:Cairo,Arial,sans-serif;direction:rtl;padding:20px';
 
   overlay.innerHTML =
-    '<div style="display:flex;gap:10px;margin-bottom:16px;align-items:center" class="no-print">' +
-      '<button onclick="window.print()" style="background:' + color + ';color:#fff;border:none;padding:10px 22px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:700;font-family:Cairo,Arial,sans-serif">🖨️ طباعة / حفظ PDF</button>' +
-      '<button onclick="closePrintOverlay()" style="background:#6c757d;color:#fff;border:none;padding:10px 18px;border-radius:8px;cursor:pointer;font-size:14px;font-family:Cairo,Arial,sans-serif">✕ إغلاق</button>' +
-      '<span style="font-size:12px;color:#666">← اضغط طباعة ثم اختر «حفظ كـ PDF» من الطابعة</span>' +
+    // Control bar (no-print)
+    '<div style="display:flex;gap:10px;margin-bottom:16px;align-items:center;background:#fff;padding:10px 16px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.1)" class="no-print">' +
+      '<button onclick="window.print()" style="background:' + color + ';color:#fff;border:none;padding:10px 22px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:700;font-family:Cairo,Arial,sans-serif;display:flex;align-items:center;gap:6px">🖨️ طباعة / حفظ PDF</button>' +
+      '<button onclick="closePrintOverlay()" style="background:#6c757d;color:#fff;border:none;padding:10px 18px;border-radius:8px;cursor:pointer;font-size:13px;font-family:Cairo,Arial,sans-serif">✕ إغلاق</button>' +
+      '<span style="font-size:11px;color:#666;flex:1">💡 اختر "حفظ كـ PDF" من قائمة الطابعة للحصول على ملف PDF احترافي</span>' +
+      '<span style="font-size:12px;font-weight:700;color:' + color + '">' + data.length + ' سجل</span>' +
     '</div>' +
-    '<div id="raya-print-page" style="background:#fff;max-width:1050px;margin:0 auto;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.12);padding:28px 32px">' +
-      '<div style="background:linear-gradient(135deg,' + color + ' 0%,#4f46e5 100%);border-radius:10px;padding:22px 28px;display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">' +
-        '<div>' +
-          '<div style="color:#fff;font-size:22px;font-weight:900">⚡ ' + COMPANY.name + '</div>' +
-          '<div style="color:rgba(255,255,255,.85);font-size:11.5px;margin-top:4px">' + COMPANY.subtitle + '</div>' +
-          '<div style="color:rgba(255,255,255,.7);font-size:10.5px;margin-top:3px">📞 ' + COMPANY.phone + '   ✉ ' + COMPANY.email + '</div>' +
-        '</div>' +
-        '<div style="text-align:center">' +
-          '<div style="background:rgba(255,255,255,.18);color:#fff;padding:12px 24px;border-radius:22px;font-weight:800;font-size:15px;border:1.5px solid rgba(255,255,255,.35)">' + config.icon + ' ' + config.title + '</div>' +
-          '<div style="color:rgba(255,255,255,.7);font-size:10px;margin-top:6px">' + config.titleEn + '</div>' +
+    // Main print page
+    '<div id="raya-print-page" style="background:#fff;max-width:1080px;margin:0 auto;border-radius:12px;box-shadow:0 6px 32px rgba(0,0,0,.14);overflow:hidden">' +
+      // Top gradient header
+      '<div style="background:linear-gradient(135deg,' + color + ' 0%,#4a2d42 50%,#1e3a5f 100%);padding:24px 32px;position:relative;overflow:hidden">' +
+        '<div style="position:absolute;top:-20px;left:-20px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.05)"></div>' +
+        '<div style="position:absolute;bottom:-30px;right:10%;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.04)"></div>' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;position:relative">' +
+          '<div>' +
+            '<div style="color:#fff;font-size:26px;font-weight:900;letter-spacing:-.3px">⚡ ' + COMPANY.name + '</div>' +
+            '<div style="color:rgba(255,255,255,.75);font-size:11.5px;margin-top:5px">' + (COMPANY.subtitle||'') + '</div>' +
+            '<div style="color:rgba(255,255,255,.6);font-size:10.5px;margin-top:3px;display:flex;gap:16px">' +
+              '<span>📞 ' + COMPANY.phone + '</span>' +
+              '<span>✉ ' + COMPANY.email + '</span>' +
+            '</div>' +
+          '</div>' +
+          '<div style="text-align:center">' +
+            '<div style="background:rgba(255,255,255,.15);backdrop-filter:blur(4px);color:#fff;padding:14px 26px;border-radius:26px;font-weight:800;font-size:15px;border:1.5px solid rgba(255,255,255,.3)">' + config.icon + ' ' + config.title + '</div>' +
+            '<div style="color:rgba(255,255,255,.6);font-size:10px;margin-top:6px;letter-spacing:.5px;text-transform:uppercase">' + (config.titleEn||'') + '</div>' +
+          '</div>' +
         '</div>' +
       '</div>' +
-      '<div style="display:flex;border:1.5px solid #e0daf5;border-radius:8px;overflow:hidden;margin-bottom:18px">' +
-        '<div style="flex:1;padding:10px 16px;background:#f8f7ff;border-right:1px solid #e0daf5"><div style="font-size:10px;color:#888">التقرير</div><div style="font-size:12px;font-weight:700;color:' + color + '">' + config.title + '</div></div>' +
-        '<div style="flex:1.5;padding:10px 16px;background:#fff;border-right:1px solid #e0daf5"><div style="font-size:10px;color:#888">الفترة</div><div style="font-size:12px;font-weight:600">' + period + '</div></div>' +
-        '<div style="flex:1;padding:10px 16px;background:#f8f7ff;border-right:1px solid #e0daf5"><div style="font-size:10px;color:#888">تاريخ الإصدار</div><div style="font-size:12px;font-weight:600">' + now + '</div></div>' +
-        '<div style="flex:.7;padding:10px 16px;background:#fff"><div style="font-size:10px;color:#888">السجلات</div><div style="font-size:16px;font-weight:900;color:' + color + '">' + data.length + '</div></div>' +
+      // Meta row
+      '<div style="display:grid;grid-template-columns:repeat(4,1fr);border-bottom:2px solid ' + color + '33">' +
+        '<div style="padding:12px 18px;border-right:1px solid #ede5f5;background:#faf7fc"><div style="font-size:9.5px;color:#999;font-weight:700;text-transform:uppercase;letter-spacing:.5px">التقرير</div><div style="font-size:12px;font-weight:700;color:' + color + ';margin-top:2px">' + config.title + '</div></div>' +
+        '<div style="padding:12px 18px;border-right:1px solid #ede5f5;background:#fff"><div style="font-size:9.5px;color:#999;font-weight:700;text-transform:uppercase;letter-spacing:.5px">الفترة</div><div style="font-size:12px;font-weight:600;margin-top:2px">' + period + '</div></div>' +
+        '<div style="padding:12px 18px;border-right:1px solid #ede5f5;background:#faf7fc"><div style="font-size:9.5px;color:#999;font-weight:700;text-transform:uppercase;letter-spacing:.5px">تاريخ الإصدار</div><div style="font-size:12px;font-weight:600;margin-top:2px">' + now + '</div></div>' +
+        '<div style="padding:12px 18px;background:#fff"><div style="font-size:9.5px;color:#999;font-weight:700;text-transform:uppercase;letter-spacing:.5px">إجمالي السجلات</div><div style="font-size:20px;font-weight:900;color:' + color + ';margin-top:0px">' + data.length + '</div></div>' +
       '</div>' +
-      '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">' +
-        '<thead><tr style="background:' + color + '">' +
-          config.headers.map(function(h){ return '<th style="color:#fff;padding:10px 12px;text-align:right;font-size:11.5px;font-weight:700;border:1px solid rgba(255,255,255,.15);white-space:nowrap">' + h + '</th>'; }).join('') +
-        '</tr></thead><tbody>' + tableRows + '</tbody></table></div>' +
-      '<div style="margin-top:20px;padding-top:12px;border-top:2px solid ' + color + ';text-align:center;font-size:10px;color:#999">' +
-        COMPANY.name + ' — ' + COMPANY.nameEn + '  |  ' + COMPANY.phone + '  |  نظام الراية الزرقاء المالي  |  ' + now +
+      // KPI section
+      (kpiHtml ? '<div style="padding:16px 24px;background:#f9f6fd;border-bottom:1px solid #ede5f5">' + kpiHtml + '</div>' : '') +
+      // Table
+      '<div style="padding:0 0 8px;overflow-x:auto">' +
+        '<table style="width:100%;border-collapse:collapse;font-family:Cairo,Arial,sans-serif">' +
+          '<thead><tr style="background:linear-gradient(135deg,#4a2d42 0%,#714B67 60%,#2d5a7b 100%)">' +
+            config.headers.map(function(h){ return '<th style="color:rgba(255,255,255,.95);padding:12px 11px;text-align:right;font-size:10.5px;font-weight:700;border-left:1px solid rgba(255,255,255,.1);white-space:nowrap;letter-spacing:.5px;text-transform:uppercase">' + h + '</th>'; }).join('') +
+          '</tr></thead>' +
+          '<tbody>' + tableRows + '</tbody>' +
+          totalsRow +
+        '</table>' +
+      '</div>' +
+      // Footer
+      '<div style="padding:12px 24px;background:linear-gradient(135deg,#f0e8f4,#e6f2f3);border-top:2px solid ' + color + '33;display:flex;justify-content:space-between;align-items:center">' +
+        '<div style="font-size:10px;color:#888">' + COMPANY.name + ' — ' + (COMPANY.nameEn||'') + '  |  نظام الراية الزرقاء المالي</div>' +
+        '<div style="font-size:10px;color:#888">' + now + '  |  ' + COMPANY.phone + '</div>' +
       '</div>' +
     '</div>';
 
-  notify('✅ اضغط "طباعة / حفظ PDF" لاستخراج الملف', 'success');
+  // Print-specific CSS for this overlay
+  var printStyle = document.getElementById('raya-pdf-print-style');
+  if (!printStyle) {
+    printStyle = document.createElement('style');
+    printStyle.id = 'raya-pdf-print-style';
+    printStyle.textContent = '@media print{#raya-print-overlay .no-print{display:none!important}#raya-print-page{box-shadow:none!important;border-radius:0!important;max-width:100%!important}@page{margin:8mm;size:A4 landscape}body *:not(#raya-print-overlay):not(#raya-print-overlay *){visibility:hidden!important}#raya-print-overlay,#raya-print-overlay *{visibility:visible!important}}';
+    document.head.appendChild(printStyle);
+  }
+
+  notify('✅ اضغط "طباعة / حفظ PDF" لتصدير التقرير بتنسيق احترافي', 'success');
 }
 
 function closePrintOverlay() {
@@ -14228,7 +14397,7 @@ function restoreDataJSON(input) {
 // EXCEL EXPORT — تصدير CSV/Excel
 // ============================================================
 function _downloadCSV(rows, filename) {
-  var bom = '﻿';
+  var bom = '\uFEFF';
   var csv = bom + rows.map(function(row) {
     return row.map(function(cell) {
       var s = String(cell == null ? '' : cell);
