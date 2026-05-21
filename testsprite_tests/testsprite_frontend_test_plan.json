@@ -1,0 +1,1756 @@
+[
+  {
+    "id": "TC001",
+    "title": "Signs in with valid credentials and opens the permitted dashboard",
+    "description": "This test verifies that a user can authenticate successfully and land on the dashboard with only the modules they are allowed to access.",
+    "category": "Login / Authentication",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user lands on the dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify only permitted modules are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC002",
+    "title": "Launch the app and reach the permitted dashboard",
+    "description": "This verifies that an authenticated user can open the app and land on the dashboard with access to the modules allowed for their role.",
+    "category": "Inventory Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the dashboard is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify only the modules permitted for the signed-in role are visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC003",
+    "title": "Launches from a valid USB key and reaches the login screen",
+    "description": "This test verifies that when the required key file is present, the app opens successfully and presents the login screen.",
+    "category": "USB Key Activation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the application entry page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the login screen is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the application shell is accessible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC004",
+    "title": "User can log out and session access is cleared",
+    "description": "A logged-in user can log out and no longer sees authenticated dashboard content afterward.",
+    "category": "User & Permissions Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Log out of the application"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the authenticated dashboard is no longer visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the login view is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC005",
+    "title": "Signs out and clears the authenticated session",
+    "description": "This test verifies that a logged-in user can log out and is returned to the unauthenticated state with protected content cleared.",
+    "category": "Login / Authentication",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the account menu"
+      },
+      {
+        "type": "action",
+        "description": "Choose the sign out action"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the login screen is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify protected dashboard content is no longer displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC006",
+    "title": "Prevent unauthorized access to protected modules",
+    "description": "This test verifies that a user only sees the modules permitted for their role after login and cannot access restricted areas from the dashboard.",
+    "category": "Role and Permission Enforcement",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Wait for the dashboard to load"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify only permitted modules are visible on the dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify restricted modules are not visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC007",
+    "title": "Blocks access when the USB key file is missing",
+    "description": "This test verifies that without the required key file, the app does not continue into the application and shows a key-missing state.",
+    "category": "USB Key Activation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the application entry page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a key-missing error state is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the application data area is not displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC008",
+    "title": "Log out and clear the active session",
+    "description": "This verifies that a signed-in user can log out and return to the unauthenticated entry state.",
+    "category": "Inventory Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the account menu"
+      },
+      {
+        "type": "action",
+        "description": "Log out of the application"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the unauthenticated entry screen is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify protected dashboard content is no longer visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC009",
+    "title": "User sees only permitted modules after login",
+    "description": "A logged-in user lands on the dashboard and only sees modules they are allowed to access.",
+    "category": "User & Permissions Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the dashboard loads successfully"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify only permitted modules are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC010",
+    "title": "Shows role-appropriate modules on the dashboard",
+    "description": "This test verifies that the signed-in user only sees modules permitted by their role and does not see restricted areas.",
+    "category": "Login / Authentication",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify permitted modules are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify restricted modules are not displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC011",
+    "title": "Rejects invalid credentials and keeps the user signed out",
+    "description": "This test verifies that entering incorrect login details prevents access and leaves the user at the authentication screen.",
+    "category": "Login / Authentication",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with invalid-user"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with invalid-password"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a login error message is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the dashboard is not displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC012",
+    "title": "Administrator saves user and permission changes",
+    "description": "An administrator can create or update users and permission assignments and the changes persist for later access control use.",
+    "category": "User & Permissions Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open user and permission management"
+      },
+      {
+        "type": "action",
+        "description": "Add a new user with a unique username, password, role, and module permissions"
+      },
+      {
+        "type": "action",
+        "description": "Save the user changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated user appears in the user management view"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the assigned permissions are shown for that user"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC013",
+    "title": "Dashboard opens and shows operational summaries",
+    "description": "An authenticated user can open the dashboard and see the main operational summary information needed to begin work.",
+    "category": "Real-Time Sync (SSE)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the dashboard loads successfully"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify operational summaries are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC014",
+    "title": "Loads the operational dashboard after sign in",
+    "description": "This test verifies that after authentication the dashboard loads the business summaries and visual operational data.",
+    "category": "Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify dashboard summary cards are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify operational charts are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC015",
+    "title": "Create a new inventory item",
+    "description": "This verifies that a user can add a new inventory item and save it successfully.",
+    "category": "Inventory Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the inventory management section"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a new inventory item"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the item details with valid values"
+      },
+      {
+        "type": "action",
+        "description": "Save the inventory item"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new inventory item is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the inventory list reflects the saved item"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC016",
+    "title": "Create a sales workflow order",
+    "description": "This verifies that a user can create and save a sales workflow order with customer, items, payment, and stage details.",
+    "category": "Sales / Workflow Orders",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the sales workflow orders section"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a new order"
+      },
+      {
+        "type": "action",
+        "description": "Select an existing customer"
+      },
+      {
+        "type": "action",
+        "description": "Add at least one inventory item to the order"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the payment and stage details with valid values"
+      },
+      {
+        "type": "action",
+        "description": "Save the order"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new order is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the saved order shows the expected stage and payment details"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC017",
+    "title": "Administrator updates an existing user's access rights",
+    "description": "An administrator can edit an existing user's role or module permissions and the updated access rights are visible after saving.",
+    "category": "User & Permissions Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open user and permission management"
+      },
+      {
+        "type": "action",
+        "description": "Select an existing user for editing"
+      },
+      {
+        "type": "action",
+        "description": "Change the user's role or module permissions"
+      },
+      {
+        "type": "action",
+        "description": "Save the user changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the edited user remains present in the user management view"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated access rights are shown for that user"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC018",
+    "title": "Review operational summaries on the dashboard",
+    "description": "This verifies that the dashboard loads operational summary information after sign-in and presents the key business overview to the user.",
+    "category": "Inventory Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify operational summary data is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the dashboard content is populated"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC019",
+    "title": "Create a valid customer record",
+    "description": "This test verifies that an authenticated user can create and save a new customer record and see it available in the customer data view.",
+    "category": "Customer Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the customer management section"
+      },
+      {
+        "type": "action",
+        "description": "Add a new customer record"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the required customer fields with valid values"
+      },
+      {
+        "type": "action",
+        "description": "Save the customer record"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new customer record is displayed in the customer list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC020",
+    "title": "Save a balanced journal entry",
+    "description": "This test verifies that an accounting user can create and save a balanced journal entry and see it reflected in accounting views.",
+    "category": "Accounting / Journal Entries",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the accounting journal entry screen"
+      },
+      {
+        "type": "action",
+        "description": "Add a balanced journal entry with debit and credit lines"
+      },
+      {
+        "type": "action",
+        "description": "Save the journal entry"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the saved journal entry is visible in accounting views"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC021",
+    "title": "Update an existing inventory item",
+    "description": "This verifies that a user can edit an inventory item and see the updated values persist in the inventory list.",
+    "category": "Inventory Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the inventory management section"
+      },
+      {
+        "type": "action",
+        "description": "Select an existing inventory item to edit"
+      },
+      {
+        "type": "action",
+        "description": "Update the item details with new valid values"
+      },
+      {
+        "type": "action",
+        "description": "Save the inventory item"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the edited inventory item is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated inventory values are visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC022",
+    "title": "Create a valid supplier record",
+    "description": "This test verifies that an authenticated user can create and save a new supplier record and see it available in the supplier data view.",
+    "category": "Supplier Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the supplier management section"
+      },
+      {
+        "type": "action",
+        "description": "Add a new supplier record"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the required supplier fields with valid values"
+      },
+      {
+        "type": "action",
+        "description": "Save the supplier record"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new supplier record is displayed in the supplier list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC023",
+    "title": "Refreshes dashboard data after a save in another open client",
+    "description": "This test verifies that dashboard data updates in an open session after another client saves a change and the realtime sync event arrives.",
+    "category": "Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Wait for dashboard data to load"
+      },
+      {
+        "type": "action",
+        "description": "Observe the dashboard summaries after another client saves a change"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify refreshed summary data is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated business metrics are visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC024",
+    "title": "Connected dashboard refreshes after another save",
+    "description": "A connected session receives live updates after another client saves data so the dashboard refreshes without manual reload.",
+    "category": "Real-Time Sync (SSE)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the application in the first session"
+      },
+      {
+        "type": "action",
+        "description": "Open the dashboard or operational summary view"
+      },
+      {
+        "type": "action",
+        "description": "Keep the session connected to live updates"
+      },
+      {
+        "type": "action",
+        "description": "In another browser session, save a data change from a normal workflow"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the dashboard content updates automatically"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the refreshed operational data is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC025",
+    "title": "Edit an existing customer record",
+    "description": "This test verifies that an authenticated user can update an existing customer record and see the updated customer data after saving.",
+    "category": "Customer Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the customer management section"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing customer record"
+      },
+      {
+        "type": "action",
+        "description": "Update one or more customer fields with valid values"
+      },
+      {
+        "type": "action",
+        "description": "Save the customer changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated customer record is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC026",
+    "title": "Edit an existing supplier record",
+    "description": "This test verifies that an authenticated user can update an existing supplier record and see the updated supplier data after saving.",
+    "category": "Supplier Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the supplier management section"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing supplier record"
+      },
+      {
+        "type": "action",
+        "description": "Update one or more supplier fields with valid values"
+      },
+      {
+        "type": "action",
+        "description": "Save the supplier changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated supplier record is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC027",
+    "title": "Create a valid installment plan",
+    "description": "This test verifies that an authenticated user can create and save a new installment plan and see it available for payment tracking.",
+    "category": "Installments Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the installments management section"
+      },
+      {
+        "type": "action",
+        "description": "Add a new installment plan"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the required installment fields with valid values"
+      },
+      {
+        "type": "action",
+        "description": "Save the installment plan"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new installment plan is displayed in the installment list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC028",
+    "title": "Save a maintenance request",
+    "description": "This test verifies that a service user can create and save a maintenance request that becomes available for tracking.",
+    "category": "Maintenance Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the maintenance management screen"
+      },
+      {
+        "type": "action",
+        "description": "Create a new maintenance request with customer, serial number, description, status, cost, and notes"
+      },
+      {
+        "type": "action",
+        "description": "Save the maintenance request"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the saved maintenance request is visible in the request list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC029",
+    "title": "Save a payroll record",
+    "description": "This test verifies that a payroll user can create and save a monthly payroll record and review the calculated net pay.",
+    "category": "Payroll",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the payroll management screen"
+      },
+      {
+        "type": "action",
+        "description": "Create a payroll record with employee details, salary, additions, and deductions"
+      },
+      {
+        "type": "action",
+        "description": "Save the payroll record"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the saved payroll record is visible in the payroll list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the calculated net pay is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC030",
+    "title": "Save a serial-number tracked item",
+    "description": "This verifies that a user can create or update a serialized stock record and have it available for tracking.",
+    "category": "Serial Number Tracking",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the serial number tracking section"
+      },
+      {
+        "type": "action",
+        "description": "Create a new serial record"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the serial record details with valid values"
+      },
+      {
+        "type": "action",
+        "description": "Save the serial record"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the serial record is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the serial item is available for tracking"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC031",
+    "title": "Reject an unbalanced journal entry",
+    "description": "This test verifies that an accounting user cannot save an unbalanced journal entry and that accounting totals are not updated.",
+    "category": "Accounting / Journal Entries",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the accounting journal entry screen"
+      },
+      {
+        "type": "action",
+        "description": "Add an unbalanced journal entry with debit and credit lines"
+      },
+      {
+        "type": "action",
+        "description": "Save the journal entry"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a journal validation error is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify accounting totals remain unchanged"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC032",
+    "title": "Reject an invalid customer record",
+    "description": "This test verifies that missing or invalid customer data is not saved and the user sees validation feedback.",
+    "category": "Customer Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the customer management section"
+      },
+      {
+        "type": "action",
+        "description": "Add a new customer record"
+      },
+      {
+        "type": "action",
+        "description": "Leave a required customer field empty or invalid"
+      },
+      {
+        "type": "action",
+        "description": "Save the customer record"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a validation message is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the customer record is not added"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC033",
+    "title": "Update maintenance status through its lifecycle",
+    "description": "This test verifies that a maintenance user can move an existing request from pending to completed and keep the updated status visible.",
+    "category": "Maintenance Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the maintenance management screen"
+      },
+      {
+        "type": "action",
+        "description": "Create a new maintenance request with valid details"
+      },
+      {
+        "type": "action",
+        "description": "Save the maintenance request"
+      },
+      {
+        "type": "action",
+        "description": "Open the saved maintenance request for editing"
+      },
+      {
+        "type": "action",
+        "description": "Change the request status to completed"
+      },
+      {
+        "type": "action",
+        "description": "Save the maintenance request"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the request is shown with the completed status"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC034",
+    "title": "Reject an invalid supplier record",
+    "description": "This test verifies that missing or invalid supplier data is not saved and the user sees validation feedback.",
+    "category": "Supplier Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the supplier management section"
+      },
+      {
+        "type": "action",
+        "description": "Add a new supplier record"
+      },
+      {
+        "type": "action",
+        "description": "Leave a required supplier field empty or invalid"
+      },
+      {
+        "type": "action",
+        "description": "Save the supplier record"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a validation message is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the supplier record is not added"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC035",
+    "title": "Connected client resumes live updates after reconnecting",
+    "description": "A user can reconnect to live updates and receive subsequent changes after the connection has been re-established.",
+    "category": "Real-Time Sync (SSE)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the application in a connected session"
+      },
+      {
+        "type": "action",
+        "description": "Open the dashboard or operational summary view"
+      },
+      {
+        "type": "action",
+        "description": "Disconnect the live updates connection using the available UI control"
+      },
+      {
+        "type": "action",
+        "description": "Reconnect live updates using the available UI control"
+      },
+      {
+        "type": "action",
+        "description": "Save a data change from another normal workflow"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the dashboard receives the update after reconnecting"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the refreshed data is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC036",
+    "title": "Prevent saving an incomplete sales workflow order",
+    "description": "This verifies that an order with missing required customer or item details is rejected and not saved.",
+    "category": "Sales / Workflow Orders",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the sales workflow orders section"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a new order"
+      },
+      {
+        "type": "action",
+        "description": "Leave required order details incomplete"
+      },
+      {
+        "type": "action",
+        "description": "Save the order"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an order validation error is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no incomplete order was saved"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC037",
+    "title": "Prevent saving inventory with invalid values",
+    "description": "This verifies that invalid inventory input is rejected and the existing inventory data remains unchanged.",
+    "category": "Inventory Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the inventory management section"
+      },
+      {
+        "type": "action",
+        "description": "Start creating or editing an inventory item"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the item details with invalid values"
+      },
+      {
+        "type": "action",
+        "description": "Save the inventory item"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an inventory validation error is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no invalid inventory item was saved"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC038",
+    "title": "Reject an invalid installment plan",
+    "description": "This test verifies that invalid installment plan data is not saved and the user sees validation feedback.",
+    "category": "Installments Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the installments management section"
+      },
+      {
+        "type": "action",
+        "description": "Add a new installment plan"
+      },
+      {
+        "type": "action",
+        "description": "Leave a required installment field empty or invalid"
+      },
+      {
+        "type": "action",
+        "description": "Save the installment plan"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a validation message is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the installment plan is not added"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC039",
+    "title": "Administrator is blocked from saving invalid user data",
+    "description": "An administrator cannot save malformed user or permission data, and the existing user list remains unchanged.",
+    "category": "User & Permissions Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open user and permission management"
+      },
+      {
+        "type": "action",
+        "description": "Start creating or editing a user with missing or invalid required fields"
+      },
+      {
+        "type": "action",
+        "description": "Save the user changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a validation error is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no new user record is added"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC040",
+    "title": "Reject maintenance data with invalid fields",
+    "description": "This test verifies that invalid maintenance details are rejected and no maintenance record is created.",
+    "category": "Maintenance Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the maintenance management screen"
+      },
+      {
+        "type": "action",
+        "description": "Start a new maintenance request"
+      },
+      {
+        "type": "action",
+        "description": "Fill the form with invalid customer, serial, or status data"
+      },
+      {
+        "type": "action",
+        "description": "Save the maintenance request"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a maintenance validation error is visible"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC041",
+    "title": "Reject invalid serial-number tracking data",
+    "description": "This verifies that invalid serial tracking input is rejected and no bad serial record is stored.",
+    "category": "Serial Number Tracking",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the serial number tracking section"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a serial record"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the serial record details with invalid values"
+      },
+      {
+        "type": "action",
+        "description": "Save the serial record"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a serial validation error is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no invalid serial record was saved"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC042",
+    "title": "Reject invalid payroll values",
+    "description": "This test verifies that invalid payroll values are rejected and no payroll record is added.",
+    "category": "Payroll",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the payroll management screen"
+      },
+      {
+        "type": "action",
+        "description": "Start a new payroll record"
+      },
+      {
+        "type": "action",
+        "description": "Fill the form with invalid salary or deduction values"
+      },
+      {
+        "type": "action",
+        "description": "Save the payroll record"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a payroll validation error is visible"
+      }
+    ],
+    "priority": "Low"
+  }
+]

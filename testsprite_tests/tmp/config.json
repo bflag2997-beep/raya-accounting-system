@@ -1,0 +1,17 @@
+{
+  "status": "init",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:3333/raya_odoo.html",
+  "executionArgs": {
+    "projectName": "raya_blue",
+    "projectPath": "D:\\raya_blue",
+    "testIds": [],
+    "additionalInstruction": "Login credentials: username=admin, password=123456. The app is a single HTML file SPA (raya_odoo.html). Navigation is done by clicking sidebar .nav-item elements which call go(). After login, verify the dashboard is visible (#app display block, #login-screen hidden). To navigate to inventory (spare parts), click the nav-item that calls go('inv-parts'). Then click the tab button for 'الأصناف' (items tab) and verify rows appear in #inv-items-body. The app is RTL Arabic.",
+    "serverMode": "development",
+    "envs": {
+      "API_KEY": "sk-user-YR2-SPShU7q5yPtxBsYWk2AbcxtNtZ8Vo__24H6_Viku9r6trxxbl-EtzFCOXrrDUrYep9FWe6Yh1dx9T_NKVaRHiFP2hkOW-OWFYmCJ7z7w-iZZ94xskOju6LorUWaPycs"
+    }
+  },
+  "serverPort": 56864
+}

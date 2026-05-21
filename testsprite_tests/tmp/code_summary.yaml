@@ -1,0 +1,133 @@
+version: "2"
+type: frontend
+tech_stack:
+  - language: HTML/CSS/JavaScript (vanilla)
+  - framework: Single-page application (no framework)
+  - ui_library: Custom Odoo-inspired RTL CSS design system
+  - other: localStorage/sessionStorage persistence, IBM Plex Sans Arabic font
+routes:
+  - path: /raya_odoo.html
+    file: raya_odoo.html
+    auth_required: false
+    description: Login screen shown on load; app shell revealed after successful auth
+  - path: /raya_odoo.html (page=dashboard)
+    file: raya_odoo.html
+    auth_required: true
+    description: Dashboard with KPI stat cards and recent alerts
+  - path: /raya_odoo.html (page=inv-parts)
+    file: raya_odoo.html
+    auth_required: true
+    description: Spare parts inventory table with search and tabs
+  - path: /raya_odoo.html (page=inv-generators)
+    file: raya_odoo.html
+    auth_required: true
+    description: Generator inventory (Perkins, Baldwin, Isuzu)
+  - path: /raya_odoo.html (page=inv-fluids)
+    file: raya_odoo.html
+    auth_required: true
+    description: Water and oils inventory table
+  - path: /raya_odoo.html (page=customers)
+    file: raya_odoo.html
+    auth_required: true
+    description: Customer list and management
+  - path: /raya_odoo.html (page=sales)
+    file: raya_odoo.html
+    auth_required: true
+    description: Sales invoices list
+  - path: /raya_odoo.html (page=maintenance)
+    file: raya_odoo.html
+    auth_required: true
+    description: Maintenance and service requests
+features:
+  - name: User Login
+    description: Login with username/password from in-memory USERS_DB; session saved to sessionStorage
+    files:
+      - raya_odoo.html
+    entry_route: /raya_odoo.html
+    user_interactions:
+      - Enter username "admin" in input#lu
+      - Enter password "123456" in input#lp
+      - Click the login button (.btn-login) or press Enter
+      - See error message (#login-err) if credentials are invalid
+      - Login screen hides and app shell (#app) becomes visible on success
+    api_calls: []
+    auth_required: false
+  - name: Sidebar Navigation
+    description: Right-side sidebar with nav items to switch between app pages; active page shown, others hidden
+    files:
+      - raya_odoo.html
+    entry_route: /raya_odoo.html
+    user_interactions:
+      - Click any .nav-item in the sidebar to navigate
+      - Active nav item gets .active class with purple left border
+      - Topbar title and breadcrumb update to the current page label
+      - Clicking a restricted page shows a permissions denial modal
+    api_calls: []
+    auth_required: true
+  - name: Spare Parts Inventory (قطع الغيار)
+    description: View and manage spare parts items in a tabular list with search and tabs
+    files:
+      - raya_odoo.html
+    entry_route: /raya_odoo.html
+    user_interactions:
+      - Click "قطع الغيار" in the sidebar to open #page-inv-parts
+      - Click the "الأصناف" tab button to show the items table
+      - Table rows show code, name, category badge, quantity, min stock, unit, cost, price, status badge, cost method
+      - Rows with qty=0 have red background; qty<min have yellow background
+      - Type in search input to filter visible rows by item name or code
+      - Click "إضافة صنف" to open the add-item modal (m-inventory)
+      - Click the serial button in a row to open serial operations modal
+    api_calls: []
+    auth_required: true
+  - name: Generator Inventory (مخزون المولدات)
+    description: View generator stock by brand with specs and serial numbers
+    files:
+      - raya_odoo.html
+    entry_route: /raya_odoo.html
+    user_interactions:
+      - Click "مخزون المولدات" in the sidebar to open #page-inv-generators
+      - View generator cards/rows grouped by brand (Perkins, Baldwin, Isuzu)
+    api_calls: []
+    auth_required: true
+  - name: Water and Oils Inventory (ماء وزيوت)
+    description: View and manage lubricants, distilled water, and coolant stock
+    files:
+      - raya_odoo.html
+    entry_route: /raya_odoo.html
+    user_interactions:
+      - Click "ماء وزيوت" in the sidebar to open #page-inv-fluids
+      - View fluid inventory table
+      - Click "إضافة صنف" to add a new fluid item
+    api_calls: []
+    auth_required: true
+  - name: Dashboard KPIs
+    description: Landing page after login showing financial and operational KPI stat cards
+    files:
+      - raya_odoo.html
+    entry_route: /raya_odoo.html
+    user_interactions:
+      - View stat cards for sales revenue, purchases, maintenance count, and receivables
+      - View recent alerts panel (e.g. low-stock warnings)
+    api_calls: []
+    auth_required: true
+  - name: Logout
+    description: Clears sessionStorage and reloads the page to show the login screen again
+    files:
+      - raya_odoo.html
+    entry_route: /raya_odoo.html
+    user_interactions:
+      - Click the user menu chip in the topbar
+      - Confirm logout in the in-app confirmation dialog
+      - Page reloads and login screen is displayed
+    api_calls: []
+    auth_required: true
+known_limitations:
+  - issue: No backend API — all data is in-memory JS variables and localStorage only
+    location: raya_odoo.html (PERSISTENCE ENGINE section ~line 13172)
+    impact: Data resets on hard reload unless localStorage snapshot exists
+  - issue: Navigation uses show/hide (display none/block) not real routing; URL never changes
+    location: raya_odoo.html go() function ~line 4881
+    impact: Browser back button does not navigate between pages
+  - issue: Passwords stored in plaintext in USERS_DB JS variable
+    location: raya_odoo.html ~line 4819
+    impact: Security concern — acceptable only for local demo use

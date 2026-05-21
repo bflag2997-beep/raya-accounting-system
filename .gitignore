@@ -12,6 +12,17 @@ test_*.html
 test_*.js
 *.log
 
+# Node
+node_modules/
+package-lock.json
+
+# Data backups (stay on local disk only)
+raya_data/
+
+# Large check/debug files
+_v11_check.js
+_v11b_check.js
+
 # OS
 Thumbs.db
 desktop.ini
