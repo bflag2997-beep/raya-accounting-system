@@ -537,6 +537,8 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:14px 0}
 .sb-opt .sb-name{color:#374151}
 .sb-opt .sb-sub{color:#9ca3af;font-size:11px;display:block;margin-top:2px}
 .sb-invalid .sb-text{border-color:var(--odoo-red)!important;background:#fff5f5!important}
+.modal .sb-wrap{position:relative;z-index:1000}
+.modal .sb-dropdown{z-index:10000}
 /* Purchase table */
 #pur-lines-table th{padding:6px 8px;text-align:right;background:#1e3a5f;color:#fff;font-size:12px;white-space:nowrap}
 #pur-lines-table td{padding:4px 6px;border-bottom:1px solid #e5e7eb;vertical-align:middle}
@@ -4166,6 +4168,10 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:14px 0}
       <input class="form-control" id="pay-desc" placeholder="سبب الصرف التفصيلي...">
     </div>
   </div>
+  <div class="form-group">
+    <label>رقم فاتورة الشراء (اختياري)</label>
+    <input type="text" class="form-control" id="pmt-purchase-ref" placeholder="مثال: PO-001 — يربط الدفع بفاتورة الشراء" dir="ltr">
+  </div>
   <div id="pay-entry-preview" style="display:none;background:#fef2f2;border:1.5px solid var(--odoo-red);border-radius:6px;padding:10px;font-size:12px">
     <div style="font-weight:700;color:var(--odoo-red);margin-bottom:6px">📒 القيد المحاسبي المقترح</div>
     <div id="pmnt-entry-lines"></div>
@@ -4849,7 +4855,17 @@ function doLogin(){
     document.getElementById('lp').value='';
   }
 }
-function logout(){rayaConfirm('هل تريد تسجيل الخروج؟',function(){try{sessionStorage.removeItem('raya_sess');}catch(e){}location.reload();});}
+function logout(){
+  if(typeof backupDataJSON==='function'){
+    var doLogout=function(){try{sessionStorage.removeItem('raya_sess');}catch(e){}location.reload();};
+    rayaConfirm('هل تريد تحميل نسخة احتياطية قبل تسجيل الخروج؟',function(){
+      try{backupDataJSON();}catch(e){}
+      setTimeout(doLogout,1000);
+    },{yesLabel:'خروج مع نسخة احتياطية'});
+  } else {
+    rayaConfirm('هل تريد تسجيل الخروج؟',function(){try{sessionStorage.removeItem('raya_sess');}catch(e){}location.reload();});
+  }
+}
 
 // ===== NAVIGATION =====
 const PT={
@@ -5754,7 +5770,7 @@ function saveReceipt(){const t=document.getElementById('rcp-type')?.value;if(!t)
 
 
 // ===== FORMAT =====
-function fmt(n){return new Intl.NumberFormat('ar-IQ').format(Math.round(n));}
+function fmt(n){return new Intl.NumberFormat('en-US').format(Math.round(n));}
 
 // ===== ACCOUNT TREE RENDER =====
 function bldTree(ns,depth){
@@ -8243,6 +8259,7 @@ function ctxAction(action) {
   }
 }
 document.addEventListener('DOMContentLoaded',function(){
+  setInterval(function(){ try{ if(typeof saveToStorage==='function') saveToStorage(); }catch(e){} }, 30000);
   document.querySelectorAll('.modal-overlay,.mb').forEach(function(o){o.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});});
   try{calcRsvExpiry();}catch(e){}
   try{updateWFCounts();}catch(e){}
@@ -8931,6 +8948,54 @@ function renderLedger(code) {
       + '</tr>';
   }).join('');
 
+  // Add right-click context menu to ledger rows
+  tbody.querySelectorAll('tr').forEach(function(tr, idx) {
+    tr.style.cursor = 'context-menu';
+    tr.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+      var row = rows[idx];
+      if (!row) return;
+      var existing = document.getElementById('ledger-ctx-menu');
+      if (existing) existing.remove();
+      var menu = document.createElement('div');
+      menu.id = 'ledger-ctx-menu';
+      menu.style.cssText = 'position:fixed;background:#fff;border:1.5px solid #714B67;border-radius:8px;box-shadow:0 8px 28px rgba(0,0,0,.18);z-index:99999;min-width:200px;overflow:hidden;font-family:Arial,sans-serif;direction:rtl';
+      menu.style.top  = Math.min(e.clientY, window.innerHeight - 200) + 'px';
+      menu.style.left = Math.min(e.clientX, window.innerWidth  - 220) + 'px';
+      var hdr = '<div style="padding:8px 12px;background:#f3eef1;border-bottom:1px solid #e5e7eb;font-size:11px;font-weight:700;color:#714B67">' + row.ref + '</div>';
+      var items = [
+        { icon:'🔍', label:'عرض القيد الكامل', action:'viewEntry' },
+        { icon:'📒', label:'دفتر الأستاذ للحساب', action:'goLedger' },
+        { icon:'📋', label:'نسخ رقم المرجع', action:'copyRef' }
+      ];
+      var itemsHtml = items.map(function(it) {
+        return '<div class="lctx-item" data-action="' + it.action + '" style="padding:9px 14px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background=\'#f3eef1\'" onmouseout="this.style.background=\'transparent\'">'
+          + '<span>' + it.icon + '</span><span>' + it.label + '</span></div>';
+      }).join('');
+      menu.innerHTML = hdr + itemsHtml;
+      document.body.appendChild(menu);
+      menu.querySelectorAll('.lctx-item').forEach(function(item) {
+        item.addEventListener('click', function() {
+          var act = this.dataset.action;
+          menu.remove();
+          if (act === 'viewEntry') {
+            var entry = (typeof JOURNAL_ENTRIES_DATA !== 'undefined') ? JOURNAL_ENTRIES_DATA.find(function(en){ return en.id === row.ref; }) : null;
+            if (entry) {
+              var linesHtml = (entry.lines||[]).map(function(l){ return '<tr><td style="padding:4px 8px;border:1px solid #ddd">' + (l.code||'') + '</td><td style="padding:4px 8px;border:1px solid #ddd">' + (l.name||'') + '</td><td style="padding:4px 8px;border:1px solid #ddd;text-align:left;color:green">' + (l.debit>0?l.debit.toLocaleString('en-US'):'') + '</td><td style="padding:4px 8px;border:1px solid #ddd;text-align:left;color:red">' + (l.credit>0?l.credit.toLocaleString('en-US'):'') + '</td></tr>'; }).join('');
+              var msg = '<strong>القيد: ' + entry.id + '</strong><br>التاريخ: ' + (entry.date||'') + '<br>البيان: ' + (entry.description||entry.desc||'') + '<br><br><table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:8px"><tr style="background:#714B67;color:#fff"><th style="padding:4px 8px">الحساب</th><th>البيان</th><th>مدين</th><th>دائن</th></tr>' + linesHtml + '</table>';
+              if(typeof notify==='function') notify(msg, 'info');
+            } else { if(typeof notify==='function') notify('القيد ' + row.ref + ' غير موجود', 'warning'); }
+          } else if (act === 'goLedger') {
+            if(typeof go==='function') go('ledger', null);
+          } else if (act === 'copyRef') {
+            navigator.clipboard.writeText(row.ref).then(function(){ if(typeof notify==='function') notify('تم نسخ: ' + row.ref, 'success'); });
+          }
+        });
+      });
+      document.addEventListener('click', function removeLedgerMenu() { var m=document.getElementById('ledger-ctx-menu'); if(m) m.remove(); document.removeEventListener('click', removeLedgerMenu); });
+    });
+  });
+
   // Footer totals
   if (tfoot) {
     tfoot.style.display = '';
@@ -9309,6 +9374,29 @@ function sendAIMessage() {
   setTimeout(function() { processAIQuery(q); }, 800 + Math.random() * 600);
 }
 
+function aiGetSystemSummary() {
+  var summary = {};
+  try {
+    if (typeof JOURNAL_ENTRIES_DATA !== 'undefined') {
+      summary.totalEntries = JOURNAL_ENTRIES_DATA.length;
+      summary.totalSales = JOURNAL_ENTRIES_DATA.filter(function(e){ return e.journal==='sale'; }).reduce(function(s,e){ return s+(e.lines||[]).reduce(function(ss,l){return ss+(l.credit||0);},0); },0);
+      summary.totalPurchases = JOURNAL_ENTRIES_DATA.filter(function(e){ return e.journal==='purchase'; }).reduce(function(s,e){ return s+(e.lines||[]).reduce(function(ss,l){return ss+(l.debit||0);},0); },0);
+    }
+    if (typeof CUSTOMERS_DB !== 'undefined') summary.customerCount = CUSTOMERS_DB.length;
+    if (typeof SUPPLIERS_DB !== 'undefined') summary.supplierCount = SUPPLIERS_DB.length;
+    if (typeof MAINT_DB !== 'undefined') {
+      summary.maintTotal = MAINT_DB.length;
+      summary.maintOpen = MAINT_DB.filter(function(m){ return m.status==='open'; }).length;
+    }
+    if (typeof INV_ITEMS !== 'undefined') {
+      summary.invCount = INV_ITEMS.length;
+      summary.lowStock = INV_ITEMS.filter(function(i){ return (i.qty||0)<(i.min||0); }).length;
+    }
+    if (typeof PAYROLL_RECORDS !== 'undefined') summary.payrollCount = PAYROLL_RECORDS.length;
+  } catch(e) {}
+  return summary;
+}
+
 function processAIQuery(q) {
   var role = (window.currentUser || {}).role || 'admin';
 
@@ -9316,6 +9404,44 @@ function processAIQuery(q) {
   if (q.length < 5 || (q.match(/^(كم|ما|هل|من)\s*$/) )) {
     hideAITyping();
     appendAIMsg('ai', '⚠️ السؤال غير واضح. يرجى تحديد:<br>• الموضوع (مبيعات، مخزون، صيانة...)<br>• الفترة الزمنية (اليوم، هذا الشهر، أبريل...)');
+    return;
+  }
+
+  // Free-form data query — read all system data
+  var qLower = q.toLowerCase();
+  var sys = aiGetSystemSummary();
+
+  // Customer questions
+  if ((qLower.indexOf('زبون') >= 0 || qLower.indexOf('عميل') >= 0) && typeof CUSTOMERS_DB !== 'undefined') {
+    var name = q.replace(/.*زبون\s*/,'').replace(/.*عميل\s*/,'').trim();
+    var found = name.length > 1 ? CUSTOMERS_DB.filter(function(c){ return (c.name||'').indexOf(name)>=0; }) : [];
+    if (found.length) {
+      hideAITyping();
+      appendAIMsg('ai', '<strong>نتائج البحث:</strong><br>' + found.map(function(c){ return '• ' + c.name + ' — ' + (c.phone||'') + ' — ' + (c.city||''); }).join('<br>'));
+      return;
+    }
+  }
+
+  // Inventory questions
+  if ((qLower.indexOf('مخزون') >= 0 || qLower.indexOf('صنف') >= 0 || qLower.indexOf('قطعة') >= 0) && typeof INV_ITEMS !== 'undefined') {
+    if (qLower.indexOf('منخفض') >= 0 || qLower.indexOf('ناقص') >= 0) {
+      var low = INV_ITEMS.filter(function(i){ return (i.qty||0)<(i.min||0); });
+      hideAITyping();
+      appendAIMsg('ai', low.length ? '<strong>الأصناف المنخفضة (' + low.length + '):</strong><br>' + low.map(function(i){ return '• ' + i.name + ' — متوفر: ' + i.qty + ' / الحد الأدنى: ' + i.min; }).join('<br>') : '✅ لا توجد أصناف منخفضة');
+      return;
+    }
+  }
+
+  // General summary
+  if (qLower.indexOf('ملخص') >= 0 || qLower.indexOf('إجمالي') >= 0 || qLower.indexOf('احصائ') >= 0) {
+    hideAITyping();
+    appendAIMsg('ai', '<strong>ملخص النظام:</strong><br>'
+      + '• إجمالي المبيعات: ' + (sys.totalSales||0).toLocaleString('en-US') + ' د.ع<br>'
+      + '• إجمالي المشتريات: ' + (sys.totalPurchases||0).toLocaleString('en-US') + ' د.ع<br>'
+      + '• عدد الزبائن: ' + (sys.customerCount||0) + '<br>'
+      + '• عدد المجهزين: ' + (sys.supplierCount||0) + '<br>'
+      + '• طلبات الصيانة: ' + (sys.maintTotal||0) + ' (مفتوح: ' + (sys.maintOpen||0) + ')<br>'
+      + '• أصناف المخزون: ' + (sys.invCount||0) + ' (منخفض: ' + (sys.lowStock||0) + ')');
     return;
   }
 
@@ -10821,14 +10947,17 @@ function savePayment() {
   if (!method) { notify('⚠️ يرجى اختيار طريقة الصرف', 'danger'); return; }
   if (!desc)   { notify('⚠️ يرجى إدخال وصف العملية', 'danger'); return; }
 
+  var purRef = (document.getElementById('pmt-purchase-ref')||{}).value || '';
   var jId = 'PAY-' + Date.now();
-  JOURNAL_ENTRIES_DATA.push({
+  var payEntry = {
     id: jId, date: date, journal: 'cash', desc: desc, beneficiary: benef,
     lines: [
       {code: accCode, debit: amt, credit: 0},
       {code: method,  debit: 0,   credit: amt}
     ]
-  });
+  };
+  if (purRef) payEntry.purchaseRef = purRef;
+  JOURNAL_ENTRIES_DATA.push(payEntry);
   if (typeof addAuditLog === 'function') addAuditLog('add', jId, 'صرف نقدي: ' + desc + ' إلى ' + benef + ' — ' + amt.toLocaleString('en-US') + ' د.ع');
   closeM('m-payment');
   notify('✅ تم حفظ وصل الصرف ' + jId + ' وإنشاء القيد المحاسبي', 'success');
@@ -12131,6 +12260,40 @@ function importWordTemplate() {
   notify('✅ تم استيراد قالب الفاتورة من Word — قيد المعالجة', 'success');
 }
 
+function importFromCSV(input) {
+  var file = input.files[0]; if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    var lines = ev.target.result.split('\n').filter(function(l){ return l.trim(); });
+    if (lines.length < 2) { notify('الملف فارغ أو غير صالح ✕', 'danger'); return; }
+    var imported = 0;
+    lines.slice(1).forEach(function(line) {
+      var cols = line.split(',').map(function(c){ return c.trim().replace(/"/g,''); });
+      var date = cols[0] || new Date().toISOString().split('T')[0];
+      var customer = cols[1] || '';
+      var desc = cols[2] || 'مستورد من Excel';
+      var amount = parseFloat((cols[3]||'0').replace(/[^0-9.]/g,'')) || 0;
+      var type = (cols[4]||'sale').toLowerCase().indexOf('purchase')>=0 ? 'purchase' : 'sale';
+      if (amount <= 0) return;
+      var id = (type==='sale'?'INV':'PO') + '-IMP-' + String(Date.now()).slice(-6) + '-' + imported;
+      var entry = {
+        id: id, date: date, journal: type, description: desc, customer: customer,
+        lines: type==='sale'
+          ? [{code:'1611', debit:amount, credit:0}, {code:'4111', debit:0, credit:amount}]
+          : [{code:'1511', debit:amount, credit:0}, {code:'2111', debit:0, credit:amount}]
+      };
+      if (typeof JOURNAL_ENTRIES_DATA !== 'undefined') JOURNAL_ENTRIES_DATA.push(entry);
+      imported++;
+    });
+    if (typeof saveToStorage === 'function') saveToStorage();
+    notify('تم استيراد ' + imported + ' سجل من Excel ✓', 'success');
+    var prev = document.getElementById('import-preview');
+    if (prev) { prev.style.display='block'; prev.innerHTML = '<div style="color:var(--odoo-green);font-weight:700">تم استيراد ' + imported + ' سجل بنجاح</div>'; }
+    input.value = '';
+  };
+  reader.readAsText(file);
+}
+
 // ── filterWF: تصفية بطاقات تدفق العمل ──────────────────────────────
 function filterWF(status, btn) {
   var cards = document.querySelectorAll('.wf-card');
@@ -12179,6 +12342,7 @@ function convertReservation(rsvId, genSerial, customerName, totalPrice, depositP
   // Mark reservation as converted
   var row = document.querySelector('[data-rsv="' + rsvId + '"]');
   if (row) row.style.opacity = '0.5';
+  });
 }
 
 // ── cancelReservation: إلغاء حجز ────────────────────────────────────
@@ -12202,9 +12366,27 @@ function selectTemplate(tplName) {
   cards.forEach(function(c) { c.classList.remove('active'); });
   var sel = document.getElementById('tpl-' + tplName);
   if (sel) sel.classList.add('active');
-  notify('تم اختيار القالب: ' + tplName, 'info');
+  window.invCurrentTemplate = tplName;
   // Re-render preview with selected template
   if (typeof renderInvoicePreview === 'function') renderInvoicePreview();
+  // Apply template styles directly to preview panel
+  var preview = document.getElementById('invoice-preview-panel') || document.querySelector('.invoice-preview');
+  if (preview) {
+    var templates = {
+      classic: { headerBg:'#714B67', headerColor:'#fff', bodyFont:'Arial', borderStyle:'1px solid #e5e7eb', titleSize:'22px' },
+      modern:  { headerBg:'#017E84', headerColor:'#fff', bodyFont:'Cairo,Arial', borderStyle:'none', titleSize:'24px' },
+      minimal: { headerBg:'#f8f9fa', headerColor:'#333', bodyFont:'Arial', borderStyle:'1px solid #ddd', titleSize:'20px' }
+    };
+    var tpl = templates[tplName] || templates.classic;
+    var headerEl = preview.querySelector('.inv-header, [class*="header"]');
+    if (headerEl) {
+      headerEl.style.background = tpl.headerBg;
+      headerEl.style.color = tpl.headerColor;
+    }
+    preview.style.fontFamily = tpl.bodyFont;
+    preview.style.border = tpl.borderStyle;
+  }
+  notify('تم تطبيق القالب: ' + tplName, 'success');
 }
 
 // ── saveInvoiceTemplate: حفظ تعديلات مصمم الفاتورة ─────────────────
@@ -12238,30 +12420,13 @@ function previewInvoice() {
 function printInvoicePreview() {
   var previewEl = document.getElementById('invoice-preview-panel') || document.querySelector('.inv-preview-wrap .invoice-preview');
   if (!previewEl) { window.print(); return; }
-  var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">' +
-    '<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">' +
-    '<style>body{font-family:Cairo,Arial,sans-serif;margin:0;padding:16px;direction:rtl}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style>' +
-    '</head><body>' + previewEl.outerHTML + '<div class="modal-overlay" id="raya-dlg-overlay" style="z-index:9999">
-  <div class="modal" style="width:480px;max-width:95%">
-    <div id="raya-dlg-header" class="modal-header" style="padding:16px 20px;background:#f8f9fa;border-radius:var(--r-lg) var(--r-lg) 0 0">
-      <h3 id="raya-dlg-title" style="margin:0;font-size:1rem;font-weight:600;color:var(--text-d)">تأكيد</h3>
-    </div>
-    <div class="modal-body" style="padding:20px 24px 24px">
-      <p id="raya-dlg-msg" style="margin:0 0 18px;line-height:1.9;font-size:.95rem;color:var(--text-d)"></p>
-      <div id="raya-dlg-inp-wrap" style="display:none;margin-bottom:16px">
-        <input id="raya-dlg-inp" type="text" class="form-control" dir="rtl" style="text-align:right"
-          onkeydown="if(event.key==='Enter')_rayaDlgYes()">
-      </div>
-      <div style="display:flex;gap:10px;justify-content:flex-start">
-        <button id="raya-dlg-yes" class="btn btn-primary" onclick="_rayaDlgYes()">نعم</button>
-        <button id="raya-dlg-no" class="btn btn-secondary" onclick="_rayaDlgNo()">إلغاء</button>
-      </div>
-    </div>
-  </div>
-</div>
-</body></html>';
+  var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'
+    + '<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">'
+    + '<style>body{font-family:Cairo,Arial,sans-serif;margin:0;padding:16px;direction:rtl}@media print{body{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}*{visibility:visible!important}}</style>'
+    + '</head><body>' + previewEl.outerHTML
+    + '</body></html>';
   var w = window.open('', '_blank', 'width=900,height=650');
-  if (w) { w.document.write(html); w.document.close(); setTimeout(function() { w.print(); }, 600); }
+  if (w) { w.document.write(html); w.document.close(); setTimeout(function() { w.focus(); w.print(); }, 800); }
 }
 
 // ── exportInvoicePDF: تصدير الفاتورة كـ PDF ────────────────────────
@@ -12342,6 +12507,15 @@ function saveCustomer() {
       type: type, taxNo: taxNo, credit: credit,
       address: address, notes: notes, accountCode: '1511'
     });
+    // Add customer sub-account under 1511
+    if (typeof ACCOUNTS_DB !== 'undefined') {
+      var maxAccNum = ACCOUNTS_DB.filter(function(a){ return a.code && a.code.startsWith('15110'); }).reduce(function(mx, a){ var n=parseInt(a.code.slice(5)||0); return n>mx?n:mx; }, 0);
+      var accCode = '1511' + String(maxAccNum + 1).padStart(5, '0');
+      var exists = ACCOUNTS_DB.find(function(a){ return a.name === name && a.code && a.code.startsWith('1511'); });
+      if (!exists) {
+        ACCOUNTS_DB.push({ code: accCode, name: name, type: 'asset', normal: 'debit', group: 1, parent: '1511' });
+      }
+    }
     notify('تم إضافة الزبون ' + name + ' بنجاح ✓', 'success');
   }
   closeM('m-customer');
@@ -13418,7 +13592,10 @@ function backupDataJSON() {
       customers: CUSTOMERS_DB,
       suppliers: SUPPLIERS_DB,
       maint:     MAINT_DB,
-      payroll:   PAYROLL_RECORDS
+      payroll:   PAYROLL_RECORDS,
+      invItems:  (typeof INV_ITEMS !== 'undefined' ? INV_ITEMS : []),
+      installments: (typeof INSTALLMENTS_DB !== 'undefined' ? INSTALLMENTS_DB : []),
+      wfOrders:  (typeof WF_ORDERS !== 'undefined' ? WF_ORDERS : [])
     }, null, 2);
     var blob = new Blob([payload], {type:'application/json'});
     var a = document.createElement('a');
@@ -13448,6 +13625,9 @@ function restoreDataJSON(input) {
       merge(SUPPLIERS_DB,         d.suppliers);
       merge(MAINT_DB,             d.maint);
       merge(PAYROLL_RECORDS,      d.payroll);
+      if (d.invItems && typeof INV_ITEMS !== 'undefined') merge(INV_ITEMS, d.invItems);
+      if (d.installments && typeof INSTALLMENTS_DB !== 'undefined') merge(INSTALLMENTS_DB, d.installments);
+      if (d.wfOrders && typeof WF_ORDERS !== 'undefined') merge(WF_ORDERS, d.wfOrders);
       saveToStorage();
       notify('تمت الاستعادة — جاري إعادة التحميل... ✔', 'success');
       setTimeout(function(){ location.reload(); }, 1500);
@@ -13591,7 +13771,7 @@ function printMaintReport() {
     + '</body></html>';
 
   var w = window.open('','_blank','width=1100,height=720');
-  if (w) { w.document.write(html); w.document.close(); setTimeout(function(){ w.print(); },500); }
+  if (w) { w.document.write(html); w.document.close(); setTimeout(function(){ w.focus(); w.print(); },800); }
 }
 
 // ============================================================
@@ -14092,6 +14272,17 @@ function _tryRestoreSession(){
       <li>اجعل الفقرات واضحة لحقل الزبون والمبلغ</li>
       <li>Word 2016 أو أحدث يعطي أفضل النتائج</li>
     </ul>
+  </div>
+
+  <!-- EXCEL/CSV IMPORT -->
+  <div style="margin-top:18px;border-top:1px solid var(--border);padding-top:16px">
+    <div style="font-weight:700;font-size:13px;margin-bottom:10px">📊 استيراد فواتير من Excel (CSV)</div>
+    <div class="form-group">
+      <label>اختر ملف CSV أو Excel</label>
+      <input type="file" id="import-excel-file" accept=".csv,.xlsx,.xls" class="form-control" onchange="importFromCSV(this)">
+      <div style="font-size:11px;color:var(--text-m);margin-top:4px">يدعم ملفات CSV — الأعمدة: التاريخ, الزبون, البيان, المبلغ, النوع</div>
+    </div>
+    <div id="import-preview" style="display:none;margin-top:12px"></div>
   </div>
 </div>
 <div class="modal-footer">
