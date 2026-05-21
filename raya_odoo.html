@@ -3707,7 +3707,7 @@ body.dark-mode .nav-item.active { background: rgba(1,126,132,0.3); }
     </div>
   </div>
 </div>
-<div class="modal-footer no-print"><button class="btn btn-secondary" onclick="closeM('m-print')">إغلاق</button><button class="btn btn-primary" onclick="window.print()">🖨 طباعة</button></div>
+<div class="modal-footer no-print"><button class="btn btn-secondary" onclick="closeM('m-print')">إغلاق</button><button class="btn btn-primary" onclick="printReceiptModal()">🖨 طباعة</button></div>
 </div></div>
 
 <div class="notif-container" id="notif-container"></div>
@@ -3803,6 +3803,13 @@ body.dark-mode .nav-item.active { background: rgba(1,126,132,0.3); }
 <div class="modal-footer"><button class="btn btn-secondary" onclick="closeM('m-customer')">إلغاء</button><button class="btn btn-primary" onclick="saveCustomer()">💾 حفظ الزبون</button></div>
 </div></div>
 
+<!-- CUSTOMER CARD MODAL -->
+<div class="modal-overlay" id="m-customer-card"><div class="modal xl">
+<div class="modal-header"><h3 id="cust-card-title">📇 بطاقة الزبون</h3><button class="modal-close" onclick="closeM('m-customer-card')">✕</button></div>
+<div class="modal-body" id="cust-card-body" style="padding:0;min-height:300px"></div>
+<div class="modal-footer"><button class="btn btn-secondary" onclick="closeM('m-customer-card')">إغلاق</button><button class="btn btn-primary" id="cust-card-edit-btn" onclick="">✏️ تعديل</button></div>
+</div></div>
+
 <!-- MAINTENANCE MODAL -->
 <div class="modal-overlay" id="m-maintenance"><div class="modal lg">
 <div class="modal-header"><h3>🔧 طلب صيانة جديد</h3><button class="modal-close" onclick="closeM('m-maintenance')">✕</button></div>
@@ -3865,6 +3872,13 @@ body.dark-mode .nav-item.active { background: rgba(1,126,132,0.3); }
   </div>
 </div>
 <div class="modal-footer"><button class="btn btn-secondary" onclick="closeM('m-supplier')">إلغاء</button><button class="btn btn-primary" onclick="saveSupplier()">💾 حفظ</button></div>
+</div></div>
+
+<!-- SUPPLIER CARD MODAL -->
+<div class="modal-overlay" id="m-supplier-card"><div class="modal xl">
+<div class="modal-header"><h3 id="supp-card-title">📇 بطاقة المجهز</h3><button class="modal-close" onclick="closeM('m-supplier-card')">✕</button></div>
+<div class="modal-body" id="supp-card-body" style="padding:0;min-height:300px"></div>
+<div class="modal-footer"><button class="btn btn-secondary" onclick="closeM('m-supplier-card')">إغلاق</button><button class="btn btn-primary" id="supp-card-edit-btn" onclick="">✏️ تعديل</button></div>
 </div></div>
 
 <!-- PURCHASE MODAL — International Standard -->
@@ -5234,7 +5248,9 @@ function saveInventoryItem() {
   var unit=document.getElementById('inv-unit')?.value||'قطعة';
   var costMethod=(document.querySelector('input[name="inv-cost-method"]:checked')||{}).value||'average';
   var trackSerial=document.getElementById('inv-track-serial')?.checked||false;
-  if(typeof INV_ITEMS!=='undefined') INV_ITEMS.push({code:code,name:name,cat:cat,qty:qty,min:min,cost:cost,price:price,unit:unit,costMethod:costMethod,trackSerial:trackSerial});
+  var trackExpiry=document.getElementById('inv-track-expiry')?.checked||false;
+  var trackBatch=document.getElementById('inv-track-batch')?.checked||false;
+  if(typeof INV_ITEMS!=='undefined') INV_ITEMS.push({code:code,name:name,cat:cat,qty:qty,min:min,cost:cost,price:price,unit:unit,costMethod:costMethod,trackSerial:trackSerial,trackExpiry:trackExpiry,trackBatch:trackBatch});
   if(typeof AI_DATA!=='undefined'&&AI_DATA.inventory) AI_DATA.inventory.push({code:code,name:name,cat:cat,qty:qty,min:min,cost:cost,price:price});
   saveToStorage();
   closeM('m-inventory');
@@ -8139,6 +8155,75 @@ function renderInvMovements(filter){
     '<td style="font-size:11px;color:var(--text-m)">'+mv.user+'</td></tr>';
   }).join('');
 }
+function openItemCard(code) {
+  var it = (typeof INV_ITEMS !== 'undefined') ? INV_ITEMS.find(function(i){ return i.code === code; }) : null;
+  if (!it) { notify('الصنف غير موجود', 'warning'); return; }
+  var titleEl = document.getElementById('item-card-title');
+  if (titleEl) titleEl.textContent = '📦 بطاقة المادة — ' + it.name;
+  var stColor = it.qty === 0 ? '#c62828' : it.qty < it.min ? '#e65100' : '#2e7d32';
+  var stLabel = it.qty === 0 ? 'نفاد' : it.qty < it.min ? 'منخفض' : 'جيد';
+  var cmLabel = it.costMethod==='fifo'?'FIFO':it.costMethod==='batch'?'دفعة':'وسطي';
+  var tags = '';
+  if (it.trackSerial) tags += '<span style="background:#dbeafe;color:#1d4ed8;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;margin-left:6px">🔢 سيريل</span>';
+  if (it.trackExpiry) tags += '<span style="background:#fef3c7;color:#92400e;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;margin-left:6px">📅 صلاحية</span>';
+  if (it.trackBatch)  tags += '<span style="background:#dcfce7;color:#166534;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;margin-left:6px">📦 دفعة</span>';
+  var mvRows = '';
+  if (typeof JOURNAL_ENTRIES_DATA !== 'undefined') {
+    var mvs = [];
+    JOURNAL_ENTRIES_DATA.forEach(function(e) {
+      (e.lines||[]).forEach(function(l) {
+        if ((l.code||'') === code || (l.itemCode||'') === code) {
+          mvs.push({date:e.date||'—', ref:e.id||'', type:e.journal==='purchase'?'وارد':e.journal==='sale'?'صادر':'تسوية', qty:l.qty||0, desc:l.name||e.description||''});
+        }
+      });
+    });
+    mvs.slice(-10).forEach(function(mv) {
+      mvRows += '<tr><td style="padding:6px 10px;border-bottom:1px solid #f3f4f6;font-size:12px">' + mv.date + '</td>'
+        + '<td style="padding:6px 10px;border-bottom:1px solid #f3f4f6;font-size:12px">' + mv.ref + '</td>'
+        + '<td style="padding:6px 10px;border-bottom:1px solid #f3f4f6;font-size:12px">' + mv.type + '</td>'
+        + '<td style="padding:6px 10px;border-bottom:1px solid #f3f4f6;font-size:12px;text-align:center">' + mv.qty + '</td>'
+        + '<td style="padding:6px 10px;border-bottom:1px solid #f3f4f6;font-size:12px">' + mv.desc + '</td></tr>';
+    });
+  }
+  var html = '<div style="padding:20px">'
+    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">'
+    + '<div style="background:#f8f9fa;border-radius:10px;padding:16px;border:1px solid #e0e0e0">'
+    + '<div style="font-size:11px;color:#888;font-weight:600;margin-bottom:4px;text-transform:uppercase">معلومات الصنف</div>'
+    + '<div style="font-size:19px;font-weight:900;color:#1e3a5f;margin-bottom:6px">' + it.name + '</div>'
+    + '<div style="font-size:12px;color:#666;font-family:monospace;margin:3px 0">كود: ' + it.code + '</div>'
+    + '<div style="font-size:13px;color:#444;margin:3px 0">الفئة: ' + it.cat + '</div>'
+    + '<div style="font-size:13px;color:#444;margin:3px 0">وحدة القياس: ' + (it.unit||'—') + '</div>'
+    + '<div style="font-size:13px;color:#444;margin:3px 0">طريقة التقييم: ' + cmLabel + '</div>'
+    + (tags ? '<div style="margin-top:10px">' + tags + '</div>' : '')
+    + '</div>'
+    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'
+    + '<div style="background:linear-gradient(135deg,#e3f2fd,#bbdefb);border-radius:10px;padding:14px;text-align:center">'
+    + '<div style="font-size:11px;color:#1565c0;font-weight:700">الكمية الحالية</div>'
+    + '<div style="font-size:24px;font-weight:900;color:' + stColor + ';margin-top:4px">' + it.qty + '</div>'
+    + '<div style="font-size:10px;color:' + stColor + ';font-weight:700">' + it.unit + ' — ' + stLabel + '</div></div>'
+    + '<div style="background:#f3e5f5;border-radius:10px;padding:14px;text-align:center">'
+    + '<div style="font-size:11px;color:#4a148c;font-weight:700">الحد الأدنى</div>'
+    + '<div style="font-size:24px;font-weight:900;color:#4a148c;margin-top:4px">' + it.min + '</div>'
+    + '<div style="font-size:10px;color:#7b1fa2">' + it.unit + '</div></div>'
+    + '<div style="background:linear-gradient(135deg,#fff8e1,#ffecb3);border-radius:10px;padding:14px;text-align:center">'
+    + '<div style="font-size:11px;color:#e65100;font-weight:700">سعر التكلفة</div>'
+    + '<div style="font-size:16px;font-weight:900;color:#bf360c;margin-top:4px">' + fmt(it.cost||0) + '</div>'
+    + '<div style="font-size:10px;color:#d84315">دينار</div></div>'
+    + '<div style="background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-radius:10px;padding:14px;text-align:center">'
+    + '<div style="font-size:11px;color:#2e7d32;font-weight:700">سعر البيع</div>'
+    + '<div style="font-size:16px;font-weight:900;color:#1b5e20;margin-top:4px">' + fmt(it.price||0) + '</div>'
+    + '<div style="font-size:10px;color:#388e3c">دينار</div></div>'
+    + '</div></div>'
+    + (mvRows ? '<div><div style="font-weight:700;font-size:13px;color:#1e3a5f;margin-bottom:8px">حركات المخزون (آخر 10)</div>'
+    + '<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#1e3a5f;color:#fff">'
+    + '<th style="padding:8px 10px">التاريخ</th><th style="padding:8px 10px">المرجع</th><th style="padding:8px 10px">النوع</th><th style="padding:8px 10px">الكمية</th><th style="padding:8px 10px">البيان</th></tr></thead>'
+    + '<tbody>' + mvRows + '</tbody></table></div>' : '<div style="text-align:center;color:#888;padding:16px;font-size:13px">لا توجد حركات مسجلة</div>')
+    + '</div>';
+  var bodyEl = document.getElementById('item-card-body');
+  if (bodyEl) bodyEl.innerHTML = html;
+  openM('m-item-card');
+}
+
 function renderInvItems(){
   var tbody=document.getElementById('inv-items-body');if(!tbody)return;
   tbody.innerHTML=INV_ITEMS.map(function(it){
@@ -8149,7 +8234,7 @@ function renderInvItems(){
     var serialBtn = it.trackSerial
       ? '<button class="btn btn-primary btn-xs" onclick="openSerialOps(\''+it.code+'\',\''+it.name.replace(/\x27/g,'')+'\')">سيريل</button>'
       : '<button class="btn btn-secondary btn-xs" onclick="selectTrackItem(\''+it.code+'\')">🔄</button>';
-    return '<tr style="'+(it.qty===0?'background:#fff1f2':it.qty<it.min?'background:#fffbeb':'')+'">'+
+    return '<tr data-invcode="' + it.code.replace(/\x27/g,'') + '" style="'+(it.qty===0?'background:#fff1f2':it.qty<it.min?'background:#fffbeb':'')+'">'+
     '<td class="code-cell">'+it.code+'</td><td style="font-weight:700">'+it.name+'</td>'+
     '<td><span class="badge badge-gray">'+it.cat+'</span></td>'+
     '<td style="text-align:center;font-weight:800">'+it.qty+'</td>'+
@@ -8158,7 +8243,7 @@ function renderInvItems(){
     '<td style="text-align:center;font-family:monospace;color:var(--odoo-green)">'+fmt(it.price)+'</td>'+
     '<td><span class="badge '+st+'">'+it.qty+'</span></td>'+
     '<td style="text-align:center"><span style="font-size:10px;padding:2px 8px;border-radius:4px;font-weight:600;background:'+cmBg+';color:'+cmColor+'">'+cmLabel+'</span></td>'+
-    '<td>'+serialBtn+'</td></tr>';
+    '<td>'+serialBtn+' <button class="btn btn-primary btn-xs" onclick="openItemCard(\''+it.code.replace(/\x27/g,'')+'\')">📇</button></td></tr>';
   }).join('');
 }
 function showInvTab(tab,btn){
@@ -8422,6 +8507,60 @@ document.addEventListener('DOMContentLoaded',function(){
     var tbA=document.querySelector('.topbar-actions');
     if(tbA&&!document.getElementById('wout-btn')){var b=document.createElement('button');b.id='wout-btn';b.className='tb-btn';b.style.cssText='border-color:#f59e0b;color:#f59e0b';b.textContent='📦 إخراج مخزن';b.onclick=function(){openM('m-warehouse-out');};tbA.insertBefore(b,tbA.firstChild);}
   },600);
+  // Global right-click context menu — prevent browser default inside app
+  document.addEventListener('contextmenu', function(gcmE) {
+    if (gcmE.defaultPrevented) return;
+    var mainArea = document.getElementById('main-content') || document.querySelector('.main');
+    if (!mainArea) return;
+    var node = gcmE.target; var inside = false;
+    while (node) { if (node === mainArea) { inside = true; break; } node = node.parentElement; }
+    if (!inside) return;
+    gcmE.preventDefault();
+    var ex = document.getElementById('app-ctx-menu'); if (ex) ex.remove();
+    var tr = gcmE.target.closest ? gcmE.target.closest('tr') : null;
+    var cid = tr && tr.dataset ? tr.dataset.cid : null;
+    var sid = tr && tr.dataset ? tr.dataset.sid : null;
+    var icode = tr && tr.dataset ? tr.dataset.invcode : null;
+    var menuItems = [];
+    if (cid) {
+      menuItems = [
+        {icon:'📇', label:'بطاقة الزبون', cb:function(){ openCustomerCard(cid); }},
+        {icon:'📋', label:'كشف الحساب', cb:function(){ showCustomerStatement(cid); }},
+        {icon:'✏️', label:'تعديل', cb:function(){ openEditCustomer(cid); }}
+      ];
+    } else if (sid) {
+      menuItems = [
+        {icon:'📇', label:'بطاقة المجهز', cb:function(){ openSupplierCard(sid); }},
+        {icon:'📋', label:'كشف الحساب', cb:function(){ showSupplierStatement(sid); }},
+        {icon:'✏️', label:'تعديل', cb:function(){ openEditSupplier(sid); }}
+      ];
+    } else if (icode) {
+      menuItems = [
+        {icon:'📇', label:'بطاقة المادة', cb:function(){ openItemCard(icode); }},
+        {icon:'🔄', label:'تسوية مخزون', cb:function(){ openM('m-inventory-adjust'); }}
+      ];
+    } else {
+      menuItems = [
+        {icon:'🔄', label:'تحديث', cb:function(){ if(typeof renderDashboard==='function') renderDashboard(); }},
+        {icon:'🏠', label:'الرئيسية', cb:function(){ if(typeof go==='function') go('dashboard'); }},
+        {icon:'🔍', label:'بحث Ctrl+K', cb:function(){ if(typeof openGlobalSearch==='function') openGlobalSearch(); }}
+      ];
+    }
+    var ctxMenu = document.createElement('div');
+    ctxMenu.id = 'app-ctx-menu';
+    ctxMenu.style.cssText = 'position:fixed;background:#fff;border:1.5px solid #714B67;border-radius:8px;box-shadow:0 8px 28px rgba(0,0,0,.18);z-index:99999;min-width:180px;overflow:hidden;font-family:Arial,sans-serif;direction:rtl';
+    ctxMenu.style.top = Math.min(gcmE.clientY, window.innerHeight - (menuItems.length * 40 + 20)) + 'px';
+    ctxMenu.style.left = Math.min(gcmE.clientX, window.innerWidth - 200) + 'px';
+    ctxMenu.innerHTML = menuItems.map(function(it) {
+      return '<div class="ctx-item" style="padding:9px 14px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background=\'#f3eef1\'" onmouseout="this.style.background=\'transparent\'">'
+        + '<span>' + it.icon + '</span><span>' + it.label + '</span></div>';
+    }).join('');
+    document.body.appendChild(ctxMenu);
+    ctxMenu.querySelectorAll('.ctx-item').forEach(function(el, idx) {
+      el.addEventListener('click', function() { ctxMenu.remove(); menuItems[idx].cb(); });
+    });
+    document.addEventListener('click', function rmCtx() { var m=document.getElementById('app-ctx-menu'); if(m)m.remove(); document.removeEventListener('click',rmCtx); });
+  });
 });
 
 
@@ -11947,6 +12086,71 @@ function renderIncomeStatement() {
 // ============================================================
 // CUSTOMERS PAGE — كشوف حسابات الزبائن
 // ============================================================
+function openCustomerCard(custId) {
+  var c = CUSTOMERS_DB.find(function(x){ return x.id === custId; });
+  if (!c) { notify('الزبون غير موجود', 'warning'); return; }
+  var titleEl = document.getElementById('cust-card-title');
+  if (titleEl) titleEl.textContent = '📇 بطاقة الزبون — ' + c.name;
+  var editBtn = document.getElementById('cust-card-edit-btn');
+  if (editBtn) editBtn.setAttribute('onclick', 'closeM("m-customer-card");openEditCustomer("' + custId + '")');
+  var totalSales = 0, pendingAmt = 0, lastDate = '', txCount = 0;
+  var recentTx = [];
+  JOURNAL_ENTRIES_DATA.forEach(function(e) {
+    if (e.customerId === c.id || e.customer === c.name) {
+      var cr = (e.lines||[]).reduce(function(s,l){ return s+(l.credit||0); }, 0);
+      var dr = (e.lines||[]).reduce(function(s,l){ return s+(l.debit||0); }, 0);
+      if (e.journal === 'sale') { totalSales += cr; if (e.payMethod === 'deferred' && !e.paid) pendingAmt += cr; txCount++; }
+      if (!lastDate || (e.date||'') > lastDate) lastDate = e.date||'';
+      if (recentTx.length < 5) recentTx.push(e);
+    }
+  });
+  var txRows = recentTx.map(function(e) {
+    var amt = (e.lines||[]).reduce(function(s,l){ return s+Math.max(l.credit||0,l.debit||0); }, 0);
+    return '<tr><td style="padding:6px 10px;border-bottom:1px solid #f3f4f6;font-size:12px">' + (e.date||'—') + '</td>'
+      + '<td style="padding:6px 10px;border-bottom:1px solid #f3f4f6;font-size:12px">' + (e.id||'') + '</td>'
+      + '<td style="padding:6px 10px;border-bottom:1px solid #f3f4f6;font-size:12px">' + (e.description||e.desc||'—') + '</td>'
+      + '<td style="padding:6px 10px;border-bottom:1px solid #f3f4f6;font-size:12px;text-align:left;font-family:monospace">' + fmt(amt) + '</td></tr>';
+  }).join('');
+  var html = '<div style="padding:20px">'
+    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">'
+    + '<div style="background:#f8f9fa;border-radius:10px;padding:16px;border:1px solid #e0e0e0">'
+    + '<div style="font-size:11px;color:#888;margin-bottom:4px;font-weight:600;text-transform:uppercase">معلومات الزبون</div>'
+    + '<div style="font-size:20px;font-weight:900;color:#714B67;margin-bottom:8px">' + c.name + '</div>'
+    + '<div style="font-size:13px;color:#444;margin:3px 0">📞 ' + (c.phone||'—') + '</div>'
+    + '<div style="font-size:13px;color:#444;margin:3px 0">📍 ' + (c.city||'—') + '</div>'
+    + '<div style="font-size:13px;color:#444;margin:3px 0">🏷️ ' + (c.type||'—') + '</div>'
+    + (c.address ? '<div style="font-size:12px;color:#666;margin:3px 0">📌 ' + c.address + '</div>' : '')
+    + (c.taxNo ? '<div style="font-size:12px;color:#666;margin:3px 0">🔢 السجل: ' + c.taxNo + '</div>' : '')
+    + '</div>'
+    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'
+    + '<div style="background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-radius:10px;padding:14px;text-align:center">'
+    + '<div style="font-size:11px;color:#2e7d32;font-weight:700">إجمالي المشتريات</div>'
+    + '<div style="font-size:18px;font-weight:900;color:#1b5e20;margin-top:4px">' + fmt(totalSales) + '</div>'
+    + '<div style="font-size:10px;color:#388e3c">دينار عراقي</div></div>'
+    + '<div style="background:linear-gradient(135deg,' + (pendingAmt>0?'#ffeef0,#ffd0d5':'#e8f5e9,#c8e6c9') + ');border-radius:10px;padding:14px;text-align:center">'
+    + '<div style="font-size:11px;color:' + (pendingAmt>0?'#c62828':'#2e7d32') + ';font-weight:700">الذمم المعلقة</div>'
+    + '<div style="font-size:18px;font-weight:900;color:' + (pendingAmt>0?'#b71c1c':'#1b5e20') + ';margin-top:4px">' + fmt(pendingAmt) + '</div>'
+    + '<div style="font-size:10px;color:' + (pendingAmt>0?'#e53935':'#388e3c') + '">' + (pendingAmt>0?'متأخر':'مسدد') + '</div></div>'
+    + '<div style="background:#e3f2fd;border-radius:10px;padding:14px;text-align:center">'
+    + '<div style="font-size:11px;color:#1565c0;font-weight:700">عدد المعاملات</div>'
+    + '<div style="font-size:18px;font-weight:900;color:#0d47a1;margin-top:4px">' + txCount + '</div>'
+    + '<div style="font-size:10px;color:#1976d2">معاملة</div></div>'
+    + '<div style="background:#f3e5f5;border-radius:10px;padding:14px;text-align:center">'
+    + '<div style="font-size:11px;color:#6a1b9a;font-weight:700">حد الائتمان</div>'
+    + '<div style="font-size:18px;font-weight:900;color:#4a148c;margin-top:4px">' + fmt(c.credit||0) + '</div>'
+    + '<div style="font-size:10px;color:#7b1fa2">دينار</div></div>'
+    + '</div></div>'
+    + (recentTx.length > 0 ? '<div style="margin-top:4px"><div style="font-weight:700;font-size:13px;color:#714B67;margin-bottom:8px">آخر المعاملات</div>'
+    + '<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#714B67;color:#fff">'
+    + '<th style="padding:8px 10px;font-weight:600">التاريخ</th><th style="padding:8px 10px;font-weight:600">الرقم</th><th style="padding:8px 10px;font-weight:600">البيان</th><th style="padding:8px 10px;font-weight:600">المبلغ</th></tr></thead>'
+    + '<tbody>' + txRows + '</tbody></table></div>' : '<div style="text-align:center;color:#888;padding:20px;font-size:13px">لا توجد معاملات مسجلة</div>')
+    + (c.notes ? '<div style="margin-top:12px;padding:10px;background:#fffde7;border-radius:6px;font-size:12px;color:#555;border-right:3px solid #f9a825">📝 ' + c.notes + '</div>' : '')
+    + '</div>';
+  var bodyEl = document.getElementById('cust-card-body');
+  if (bodyEl) bodyEl.innerHTML = html;
+  openM('m-customer-card');
+}
+
 function renderCustomersPage() {
   var tbody = document.getElementById('cust-table-body');
   if (!tbody) return;
@@ -11961,14 +12165,14 @@ function renderCustomersPage() {
         if (e.payMethod === 'deferred' && !e.paid) { pendingAmt += cr; pendingCount++; }
       }
     });
-    rows += '<tr>';
+    rows += '<tr data-cid="' + c.id + '">';
     rows += '<td class="code-cell">' + c.id + '</td>';
     rows += '<td style="font-weight:700">' + c.name + '</td>';
     rows += '<td dir="ltr" style="font-family:monospace">' + (c.phone || '—') + '</td>';
     rows += '<td>' + (c.city || '—') + '</td>';
     rows += '<td style="font-weight:700;color:var(--odoo-green)">' + (totalSales > 0 ? fmt(totalSales) + ' د.ع' : '—') + '</td>';
     rows += '<td>' + (pendingAmt > 0 ? '<span style="color:var(--odoo-red);font-weight:700">' + fmt(pendingAmt) + ' د.ع</span>' : '<span style="color:var(--odoo-green)">✅ لا ذمم</span>') + '</td>';
-    rows += '<td style="white-space:nowrap"><button class="btn btn-o btn-xs" data-cid="' + c.id + '" onclick="showCustomerStatement(this.dataset.cid)">📋 كشف</button> <button class="btn btn-secondary btn-xs" data-cid="' + c.id + '" onclick="openEditCustomer(this.dataset.cid)">✏️</button> <button class="btn btn-xs" style="background:#fee2e2;color:#991b1b;border-color:#fca5a5" data-cid="' + c.id + '" onclick="deleteCustomer(this.dataset.cid)">🗑️</button></td>';
+    rows += '<td style="white-space:nowrap"><button class="btn btn-primary btn-xs" data-cid="' + c.id + '" onclick="openCustomerCard(this.dataset.cid)">📇 بطاقة</button> <button class="btn btn-o btn-xs" data-cid="' + c.id + '" onclick="showCustomerStatement(this.dataset.cid)">📋 كشف</button> <button class="btn btn-secondary btn-xs" data-cid="' + c.id + '" onclick="openEditCustomer(this.dataset.cid)">✏️</button> <button class="btn btn-xs" style="background:#fee2e2;color:#991b1b;border-color:#fca5a5" data-cid="' + c.id + '" onclick="deleteCustomer(this.dataset.cid)">🗑️</button></td>';
     rows += '</tr>';
   });
   tbody.innerHTML = rows || '<tr><td colspan="7" style="text-align:center;color:var(--text-s);padding:16px">لا يوجد زبائن</td></tr>';
@@ -12023,6 +12227,74 @@ function showCustomerStatement(custId) {
 // ============================================================
 // SUPPLIERS PAGE — كشوف حسابات المجهزين
 // ============================================================
+function openSupplierCard(suppId) {
+  var s = SUPPLIERS_DB.find(function(x){ return x.id === suppId; });
+  if (!s) { notify('المجهز غير موجود', 'warning'); return; }
+  var titleEl = document.getElementById('supp-card-title');
+  if (titleEl) titleEl.textContent = '📇 بطاقة المجهز — ' + s.name;
+  var editBtn = document.getElementById('supp-card-edit-btn');
+  if (editBtn) editBtn.setAttribute('onclick', 'closeM("m-supplier-card");openEditSupplier("' + suppId + '")');
+  var totalPur = 0, totalPaid = 0, lastDate = '', txCount = 0, recentTx = [];
+  JOURNAL_ENTRIES_DATA.forEach(function(e) {
+    if (e.supplierId === s.id || e.supplier === s.name) {
+      if (e.journal === 'purchase') {
+        var dr = (e.lines||[]).reduce(function(sum,l){ return sum+(l.debit||0); }, 0);
+        totalPur += dr; txCount++;
+      }
+      if (e.journal === 'payment') {
+        var cr = (e.lines||[]).reduce(function(sum,l){ return sum+(l.credit||0); }, 0);
+        totalPaid += cr;
+      }
+      if (!lastDate || (e.date||'') > lastDate) lastDate = e.date||'';
+      if (recentTx.length < 5) recentTx.push(e);
+    }
+  });
+  var outstanding = totalPur - totalPaid;
+  var txRows = recentTx.map(function(e) {
+    var amt = (e.lines||[]).reduce(function(sm,l){ return sm+Math.max(l.credit||0,l.debit||0); }, 0);
+    return '<tr><td style="padding:6px 10px;border-bottom:1px solid #f3f4f6;font-size:12px">' + (e.date||'—') + '</td>'
+      + '<td style="padding:6px 10px;border-bottom:1px solid #f3f4f6;font-size:12px">' + (e.id||'') + '</td>'
+      + '<td style="padding:6px 10px;border-bottom:1px solid #f3f4f6;font-size:12px">' + (e.journal==='purchase'?'شراء':'دفعة') + '</td>'
+      + '<td style="padding:6px 10px;border-bottom:1px solid #f3f4f6;font-size:12px;text-align:left;font-family:monospace">' + fmt(amt) + '</td></tr>';
+  }).join('');
+  var html = '<div style="padding:20px">'
+    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">'
+    + '<div style="background:#f8f9fa;border-radius:10px;padding:16px;border:1px solid #e0e0e0">'
+    + '<div style="font-size:11px;color:#888;margin-bottom:4px;font-weight:600;text-transform:uppercase">معلومات المجهز</div>'
+    + '<div style="font-size:20px;font-weight:900;color:#1e3a5f;margin-bottom:8px">' + s.name + '</div>'
+    + '<div style="font-size:13px;color:#444;margin:3px 0">📞 ' + (s.phone||'—') + '</div>'
+    + '<div style="font-size:13px;color:#444;margin:3px 0">📍 ' + (s.address||'—') + '</div>'
+    + '<div style="font-size:13px;color:#444;margin:3px 0">🔧 ' + (s.spec||'—') + '</div>'
+    + '<div style="font-size:13px;color:#444;margin:3px 0">⏱️ مدة السداد: ' + (s.terms||30) + ' يوم</div>'
+    + '</div>'
+    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'
+    + '<div style="background:linear-gradient(135deg,#e8eaf6,#c5cae9);border-radius:10px;padding:14px;text-align:center">'
+    + '<div style="font-size:11px;color:#283593;font-weight:700">إجمالي المشتريات</div>'
+    + '<div style="font-size:18px;font-weight:900;color:#1a237e;margin-top:4px">' + fmt(totalPur) + '</div>'
+    + '<div style="font-size:10px;color:#3949ab">دينار عراقي</div></div>'
+    + '<div style="background:linear-gradient(135deg,#e0f7fa,#b2ebf2);border-radius:10px;padding:14px;text-align:center">'
+    + '<div style="font-size:11px;color:#006064;font-weight:700">إجمالي المدفوعات</div>'
+    + '<div style="font-size:18px;font-weight:900;color:#004d40;margin-top:4px">' + fmt(totalPaid) + '</div>'
+    + '<div style="font-size:10px;color:#00796b">دينار</div></div>'
+    + '<div style="background:linear-gradient(135deg,' + (outstanding>0?'#fce4ec,#f8bbd0':'#e8f5e9,#c8e6c9') + ');border-radius:10px;padding:14px;text-align:center">'
+    + '<div style="font-size:11px;color:' + (outstanding>0?'#880e4f':'#1b5e20') + ';font-weight:700">المبلغ المستحق</div>'
+    + '<div style="font-size:18px;font-weight:900;color:' + (outstanding>0?'#b71c1c':'#1b5e20') + ';margin-top:4px">' + fmt(Math.max(0,outstanding)) + '</div>'
+    + '<div style="font-size:10px;color:' + (outstanding>0?'#c62828':'#388e3c') + '">' + (outstanding>0?'مستحق':'مسدد') + '</div></div>'
+    + '<div style="background:#f3e5f5;border-radius:10px;padding:14px;text-align:center">'
+    + '<div style="font-size:11px;color:#4a148c;font-weight:700">حد الائتمان</div>'
+    + '<div style="font-size:18px;font-weight:900;color:#4a148c;margin-top:4px">' + fmt(s.credit||0) + '</div>'
+    + '<div style="font-size:10px;color:#7b1fa2">دينار</div></div>'
+    + '</div></div>'
+    + (recentTx.length > 0 ? '<div><div style="font-weight:700;font-size:13px;color:#1e3a5f;margin-bottom:8px">آخر المعاملات</div>'
+    + '<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#1e3a5f;color:#fff">'
+    + '<th style="padding:8px 10px">التاريخ</th><th style="padding:8px 10px">الرقم</th><th style="padding:8px 10px">النوع</th><th style="padding:8px 10px">المبلغ</th></tr></thead>'
+    + '<tbody>' + txRows + '</tbody></table></div>' : '<div style="text-align:center;color:#888;padding:20px;font-size:13px">لا توجد معاملات مسجلة</div>')
+    + '</div>';
+  var bodyEl = document.getElementById('supp-card-body');
+  if (bodyEl) bodyEl.innerHTML = html;
+  openM('m-supplier-card');
+}
+
 function renderSuppliersPage() {
   var tbody = document.getElementById('supp-table-body');
   var sub   = document.getElementById('supp-count-sub');
@@ -12040,13 +12312,13 @@ function renderSuppliersPage() {
         pendingAmt += cr;
       }
     });
-    rows += '<tr>';
+    rows += '<tr data-sid="' + s.id + '">';
     rows += '<td class="code-cell">' + s.id + '</td>';
     rows += '<td style="font-weight:700">' + s.name + '</td>';
     rows += '<td dir="ltr" style="font-family:monospace">' + (s.phone || '—') + '</td>';
     rows += '<td style="font-weight:700;color:var(--odoo-purple)">' + (totalPur > 0 ? fmt(totalPur) + ' د.ع' : '—') + '</td>';
     rows += '<td>' + (pendingAmt > 0 ? '<span style="color:var(--odoo-orange);font-weight:700">' + fmt(pendingAmt) + ' د.ع</span>' : '<span style="color:var(--odoo-green)">—</span>') + '</td>';
-    rows += '<td style="white-space:nowrap"><button class="btn btn-o btn-xs" data-sid="' + s.id + '" onclick="showSupplierStatement(this.dataset.sid)">📋 كشف</button> <button class="btn btn-secondary btn-xs" data-sid="' + s.id + '" onclick="openEditSupplier(this.dataset.sid)">✏️</button> <button class="btn btn-xs" style="background:#fee2e2;color:#991b1b;border-color:#fca5a5" data-sid="' + s.id + '" onclick="deleteSupplier(this.dataset.sid)">🗑️</button></td>';
+    rows += '<td style="white-space:nowrap"><button class="btn btn-primary btn-xs" data-sid="' + s.id + '" onclick="openSupplierCard(this.dataset.sid)">📇 بطاقة</button> <button class="btn btn-o btn-xs" data-sid="' + s.id + '" onclick="showSupplierStatement(this.dataset.sid)">📋 كشف</button> <button class="btn btn-secondary btn-xs" data-sid="' + s.id + '" onclick="openEditSupplier(this.dataset.sid)">✏️</button> <button class="btn btn-xs" style="background:#fee2e2;color:#991b1b;border-color:#fca5a5" data-sid="' + s.id + '" onclick="deleteSupplier(this.dataset.sid)">🗑️</button></td>';
     rows += '</tr>';
   });
   tbody.innerHTML = rows || '<tr><td colspan="6" style="text-align:center;color:var(--text-s);padding:16px">لا يوجد مجهزون</td></tr>';
@@ -12619,6 +12891,22 @@ function printRcp() {
   } else {
     window.print();
   }
+}
+
+function printReceiptModal() {
+  var overlay = document.getElementById('raya-print-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'raya-print-overlay';
+    document.body.appendChild(overlay);
+  }
+  var src = document.querySelector('#m-print .receipt-paper') || document.getElementById('print-body');
+  var content = src ? src.outerHTML : '<p style="text-align:center">لا يوجد محتوى</p>';
+  overlay.innerHTML = '<div id="raya-print-page" style="background:#fff;max-width:420px;margin:0 auto;padding:24px;font-family:Cairo,Arial,sans-serif;direction:rtl">' + content + '</div>';
+  setTimeout(function() {
+    window.print();
+    setTimeout(function() { if(overlay){overlay.innerHTML='';} }, 1500);
+  }, 150);
 }
 
 // ── convertReservation: تحويل حجز إلى فاتورة مبيعات ────────────────
@@ -14516,7 +14804,16 @@ function printSaleInvoice(entryId) {
     + '</body></html>';
 
   var w = window.open('', '_blank', 'width=800,height=700');
-  if (w) { w.document.write(html); w.document.close(); setTimeout(function(){ w.print(); }, 500); }
+  if (w) {
+    w.document.write(html);
+    w.document.close();
+    setTimeout(function(){ w.focus(); w.print(); }, 800);
+  } else {
+    var ov = document.getElementById('raya-print-overlay');
+    if (!ov) { ov = document.createElement('div'); ov.id = 'raya-print-overlay'; document.body.appendChild(ov); }
+    ov.innerHTML = '<div id="raya-print-page" style="background:#fff;max-width:800px;margin:0 auto;padding:24px">' + html + '</div>';
+    setTimeout(function(){ window.print(); setTimeout(function(){ if(ov)ov.innerHTML=''; }, 1500); }, 150);
+  }
 }
 
 // ============================================================
@@ -15038,6 +15335,13 @@ function deleteMaintAttach(idx) {
 
 </div>
 
+<!-- ITEM CARD MODAL -->
+<div class="modal-overlay" id="m-item-card"><div class="modal xl">
+<div class="modal-header"><h3 id="item-card-title">📦 بطاقة المادة</h3><button class="modal-close" onclick="closeM('m-item-card')">✕</button></div>
+<div class="modal-body" id="item-card-body" style="padding:0;min-height:300px"></div>
+<div class="modal-footer"><button class="btn btn-secondary" onclick="closeM('m-item-card')">إغلاق</button></div>
+</div></div>
+
 <!-- ===== INVENTORY ITEM MODAL ===== -->
 <div class="modal-overlay" id="m-inventory">
 <div class="modal">
@@ -15083,6 +15387,22 @@ function deleteMaintAttach(idx) {
       <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 14px;background:#f8f9fa;border-radius:8px;border:1px solid #e0e0e0">
         <input type="checkbox" id="inv-track-serial" style="width:18px;height:18px;accent-color:var(--odoo-blue)">
         <span style="font-size:.9rem">تفعيل تتبع رقم السيريل لكل وحدة</span>
+      </label>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <label style="font-weight:600;margin-bottom:8px;display:block">تتبع تاريخ الصلاحية</label>
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 14px;background:#fff8e1;border-radius:8px;border:1px solid #ffe082">
+        <input type="checkbox" id="inv-track-expiry" style="width:18px;height:18px;accent-color:#f59e0b">
+        <span style="font-size:.9rem">تفعيل تتبع تاريخ الصلاحية لهذا الصنف</span>
+      </label>
+    </div>
+    <div class="form-group">
+      <label style="font-weight:600;margin-bottom:8px;display:block">تتبع رقم الدفعة (Batch)</label>
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 14px;background:#e8f5e9;border-radius:8px;border:1px solid #a5d6a7">
+        <input type="checkbox" id="inv-track-batch" style="width:18px;height:18px;accent-color:#4caf50">
+        <span style="font-size:.9rem">تفعيل تتبع رقم الدفعة (Batch Number)</span>
       </label>
     </div>
   </div>
