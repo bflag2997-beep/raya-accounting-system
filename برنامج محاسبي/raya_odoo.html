@@ -1,0 +1,1657 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نظام الراية الزرقاء المحاسبي</title>
+<style>
+:root{
+  --blue:#1e4d8c; --blue-d:#143a6b; --blue-l:#2f6bc4; --sky:#eaf2fb;
+  --bg:#f4f6fa; --card:#ffffff; --ink:#1f2a3a; --muted:#6b7890;
+  --line:#e3e8f0; --ok:#1f9d57; --warn:#d98b00; --bad:#d23b3b;
+  --shadow:0 2px 10px rgba(20,40,80,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Segoe UI",Tahoma,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:14px}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit;font-size:14px}
+.hidden{display:none!important}
+
+/* Layout */
+#app{display:flex;min-height:100vh}
+#sidebar{width:230px;background:linear-gradient(180deg,var(--blue-d),var(--blue));color:#fff;flex-shrink:0;display:flex;flex-direction:column}
+#brand{padding:20px 18px;border-bottom:1px solid rgba(255,255,255,.12)}
+#brand h1{font-size:18px;font-weight:700}
+#brand span{font-size:11px;opacity:.7}
+.nav-item{padding:12px 18px;display:flex;align-items:center;gap:10px;color:#dbe6f5;border:none;background:none;width:100%;text-align:right;font-size:14px;border-right:3px solid transparent}
+.nav-item:hover{background:rgba(255,255,255,.08)}
+.nav-item.active{background:rgba(255,255,255,.14);border-right-color:#fff;color:#fff;font-weight:600}
+.nav-ico{width:20px;text-align:center;font-size:15px}
+#main{flex:1;display:flex;flex-direction:column;min-width:0}
+#topbar{background:var(--card);padding:14px 24px;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow);position:sticky;top:0;z-index:30}
+#topbar h2{font-size:18px;color:var(--blue)}
+#content{padding:24px;flex:1}
+
+/* Components */
+.card{background:var(--card);border-radius:10px;box-shadow:var(--shadow);padding:18px;margin-bottom:18px}
+.card h3{font-size:15px;color:var(--blue);margin-bottom:14px;border-bottom:2px solid var(--sky);padding-bottom:8px}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:900px){.g2,.g3,.g4{grid-template-columns:1fr}}
+.kpi{background:var(--card);border-radius:10px;padding:16px;box-shadow:var(--shadow);border-top:3px solid var(--blue)}
+.kpi .v{font-size:24px;font-weight:700;color:var(--blue);margin-top:6px}
+.kpi .l{font-size:12px;color:var(--muted)}
+.kpi.ok{border-top-color:var(--ok)} .kpi.ok .v{color:var(--ok)}
+.kpi.warn{border-top-color:var(--warn)} .kpi.warn .v{color:var(--warn)}
+.kpi.bad{border-top-color:var(--bad)} .kpi.bad .v{color:var(--bad)}
+
+.btn{background:var(--blue);color:#fff;border:none;padding:9px 16px;border-radius:7px;font-size:13px;font-weight:600}
+.btn:hover{background:var(--blue-l)}
+.btn.sec{background:#eef2f7;color:var(--blue)}
+.btn.ok{background:var(--ok)} .btn.warn{background:var(--warn)} .btn.bad{background:var(--bad)}
+.btn.sm{padding:5px 10px;font-size:12px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px;font-weight:600}
+.field{margin-bottom:12px}
+input,select,textarea{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink)}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue-l)}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.row>*{flex:1;min-width:140px}
+
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--line)}
+th{background:var(--sky);color:var(--blue-d);font-weight:700;font-size:12px}
+tbody tr:hover{background:#fafcff}
+.num{font-variant-numeric:tabular-nums;letter-spacing:.3px}
+.tag{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600}
+.tag.ok{background:#e3f6ec;color:var(--ok)}
+.tag.warn{background:#fdf0d9;color:var(--warn)}
+.tag.bad{background:#fbe4e4;color:var(--bad)}
+.tag.info{background:var(--sky);color:var(--blue)}
+
+.muted{color:var(--muted)} .small{font-size:12px}
+.right{text-align:left} .center{text-align:center}
+.scroll{overflow:auto;max-height:460px}
+.tree-row td:first-child{padding-right:10px}
+
+/* Modal */
+.modal-bg{position:fixed;inset:0;background:rgba(20,30,50,.55);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px}
+.modal{background:#fff;border-radius:12px;max-width:760px;width:100%;max-height:88vh;overflow:auto}
+.modal-h{padding:16px 20px;background:var(--blue);color:#fff;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0}
+.modal-h h3{font-size:16px}
+.modal-x{background:none;border:none;color:#fff;font-size:22px;line-height:1}
+.modal-b{padding:20px}
+.modal-f{padding:14px 20px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:flex-start;position:sticky;bottom:0;background:#fff}
+
+/* toast */
+#toast{position:fixed;bottom:24px;left:24px;z-index:200;display:flex;flex-direction:column;gap:8px}
+.toast{background:var(--ink);color:#fff;padding:11px 18px;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.2);font-size:13px;animation:slideIn .25s}
+.toast.ok{background:var(--ok)} .toast.bad{background:var(--bad)} .toast.warn{background:var(--warn)}
+@keyframes slideIn{from{transform:translateX(-30px);opacity:0}to{transform:none;opacity:1}}
+
+.bal-box{display:flex;gap:14px;align-items:center;background:var(--sky);padding:10px 14px;border-radius:8px;margin:10px 0;font-weight:600}
+.bal-box .b{color:var(--ok)} .bal-box .n{color:var(--bad)}
+.line-tbl input,.line-tbl select{padding:6px 8px}
+.ai-msg{padding:12px 14px;border-radius:9px;margin-bottom:10px;line-height:1.7}
+.ai-msg.u{background:var(--blue);color:#fff;margin-right:60px}
+.ai-msg.a{background:var(--sky);margin-left:40px}
+.ai-chip{display:inline-block;background:#fff;border:1px solid var(--line);padding:6px 12px;border-radius:14px;font-size:12px;margin:3px;cursor:pointer}
+.ai-chip:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
+.empty{text-align:center;padding:40px;color:var(--muted)}
+.empty .ico{font-size:40px;margin-bottom:10px}
+</style>
+</head>
+<body>
+<div id="app">
+  <aside id="sidebar">
+    <div id="brand">
+      <h1>الراية الزرقاء</h1>
+      <span>النظام المحاسبي المتكامل · v1.0</span>
+    </div>
+    <nav id="nav"></nav>
+    <div style="margin-top:auto;padding:14px 18px;font-size:11px;opacity:.6">شركة الراية الزرقاء<br>نظام محاسبي عراقي موحد</div>
+  </aside>
+  <div id="main">
+    <div id="topbar">
+      <h2 id="pageTitle">لوحة المعلومات</h2>
+      <div class="row" style="flex:0;gap:8px">
+        <button class="btn sec sm" onclick="App.backup()">نسخة احتياطية</button>
+        <button class="btn sec sm" onclick="App.restore()">استعادة</button>
+      </div>
+    </div>
+    <main id="content"></main>
+  </div>
+</div>
+<div id="modalHost"></div>
+<div id="toast"></div>
+<script>
+/* ============================================================
+   نظام الراية الزرقاء المحاسبي — ملف واحد متكامل
+   شركة الراية الزرقاء | نظام محاسبي عراقي موحد
+   ============================================================ */
+
+/* ---------- شجرة الحسابات العراقية الموحدة ---------- */
+const ACCOUNTS_SEED = [
+  // 1 الموجودات
+  {code:"1",   name:"الموجودات",                  type:"asset",  parent:null, header:true},
+  {code:"11",  name:"الموجودات الثابتة",          type:"asset",  parent:"1",  header:true},
+  {code:"1101",name:"الأراضي",                    type:"asset",  parent:"11"},
+  {code:"1102",name:"المباني والإنشاءات",         type:"asset",  parent:"11"},
+  {code:"1103",name:"الآلات والمعدات",            type:"asset",  parent:"11"},
+  {code:"1104",name:"المولدات الكهربائية",        type:"asset",  parent:"11"},
+  {code:"1105",name:"الأثاث والتجهيزات المكتبية", type:"asset",  parent:"11"},
+  {code:"1106",name:"وسائط النقل",                type:"asset",  parent:"11"},
+  {code:"1107",name:"أجهزة الحاسوب",              type:"asset",  parent:"11"},
+  {code:"1108",name:"العدد والأدوات",             type:"asset",  parent:"11"},
+  {code:"1109",name:"مجمع اندثار الموجودات الثابتة",type:"asset", parent:"11", contra:true},
+  {code:"12",  name:"الموجودات المتداولة",        type:"asset",  parent:"1",  header:true},
+  {code:"1201",name:"الصندوق",                    type:"asset",  parent:"12", cash:true},
+  {code:"1202",name:"المصرف - الحساب الجاري",     type:"asset",  parent:"12", cash:true},
+  {code:"1203",name:"المصرف - حساب التوفير",      type:"asset",  parent:"12", cash:true},
+  {code:"1204",name:"الذمم المدينة (الزبائن)",    type:"asset",  parent:"12", header:true},
+  {code:"1205",name:"أوراق القبض",                type:"asset",  parent:"12"},
+  {code:"1206",name:"المخزون - مولدات",           type:"asset",  parent:"12"},
+  {code:"1207",name:"المخزون - قطع غيار",         type:"asset",  parent:"12"},
+  {code:"1208",name:"المخزون - زيوت ومواد",       type:"asset",  parent:"12"},
+  {code:"1209",name:"سلف الموظفين",               type:"asset",  parent:"12"},
+  {code:"1210",name:"مصروفات مدفوعة مقدماً",      type:"asset",  parent:"12"},
+  {code:"1211",name:"إيرادات مستحقة غير مقبوضة",  type:"asset",  parent:"12"},
+  {code:"1212",name:"ضريبة المبيعات - مدخلات",    type:"asset",  parent:"12"},
+  // 2 الخصوم
+  {code:"2",   name:"الخصوم",                     type:"liability",parent:null,header:true},
+  {code:"21",  name:"الخصوم طويلة الأجل",         type:"liability",parent:"2", header:true},
+  {code:"2101",name:"قروض طويلة الأجل",           type:"liability",parent:"21"},
+  {code:"2102",name:"التزامات إيجار طويلة الأجل", type:"liability",parent:"21"},
+  {code:"22",  name:"الخصوم المتداولة",           type:"liability",parent:"2", header:true},
+  {code:"2201",name:"الذمم الدائنة (الموردون)",   type:"liability",parent:"22",header:true},
+  {code:"2202",name:"أوراق الدفع",                type:"liability",parent:"22"},
+  {code:"2203",name:"قروض قصيرة الأجل",           type:"liability",parent:"22"},
+  {code:"2204",name:"مصروفات مستحقة الدفع",       type:"liability",parent:"22"},
+  {code:"2205",name:"إيرادات مقبوضة مقدماً",      type:"liability",parent:"22"},
+  {code:"2206",name:"رواتب وأجور مستحقة",         type:"liability",parent:"22"},
+  {code:"2207",name:"ضريبة المبيعات - مخرجات",    type:"liability",parent:"22"},
+  {code:"2208",name:"أمانات وعرابين الزبائن",     type:"liability",parent:"22"},
+  // 3 حقوق الملكية
+  {code:"3",   name:"حقوق الملكية",               type:"equity", parent:null, header:true},
+  {code:"3101",name:"رأس المال",                  type:"equity", parent:"3"},
+  {code:"3102",name:"المسحوبات الشخصية",          type:"equity", parent:"3", contra:true},
+  {code:"3103",name:"الأرباح المحتجزة",           type:"equity", parent:"3"},
+  {code:"3104",name:"أرباح/خسائر الفترة الحالية", type:"equity", parent:"3"},
+  {code:"3105",name:"الاحتياطي القانوني",         type:"equity", parent:"3"},
+  // 4 الإيرادات
+  {code:"4",   name:"الإيرادات",                  type:"revenue",parent:null, header:true},
+  {code:"41",  name:"إيرادات التشغيل",            type:"revenue",parent:"4",  header:true},
+  {code:"4101",name:"مبيعات المولدات",            type:"revenue",parent:"41"},
+  {code:"4102",name:"مبيعات قطع الغيار",          type:"revenue",parent:"41"},
+  {code:"4103",name:"مبيعات الزيوت والمواد",      type:"revenue",parent:"41"},
+  {code:"4104",name:"إيرادات الخدمات والصيانة",   type:"revenue",parent:"41"},
+  {code:"4105",name:"إيرادات التركيب والتشغيل",   type:"revenue",parent:"41"},
+  {code:"42",  name:"إيرادات أخرى",               type:"revenue",parent:"4",  header:true},
+  {code:"4201",name:"إيرادات متنوعة",             type:"revenue",parent:"42"},
+  {code:"4202",name:"أرباح بيع موجودات ثابتة",    type:"revenue",parent:"42"},
+  {code:"4203",name:"الخصم المكتسب",              type:"revenue",parent:"42"},
+  // 5 المصروفات
+  {code:"5",   name:"المصروفات",                  type:"expense",parent:null, header:true},
+  {code:"51",  name:"تكلفة المبيعات",             type:"expense",parent:"5",  header:true},
+  {code:"5101",name:"تكلفة البضاعة المباعة",      type:"expense",parent:"51"},
+  {code:"5102",name:"مردودات وخصم المبيعات",      type:"expense",parent:"51"},
+  {code:"52",  name:"المصروفات التشغيلية والإدارية",type:"expense",parent:"5",header:true},
+  {code:"5201",name:"الرواتب والأجور",            type:"expense",parent:"52"},
+  {code:"5202",name:"الإيجارات",                  type:"expense",parent:"52"},
+  {code:"5203",name:"الكهرباء والماء",            type:"expense",parent:"52"},
+  {code:"5204",name:"الوقود والمحروقات",          type:"expense",parent:"52"},
+  {code:"5205",name:"الصيانة والإصلاح",           type:"expense",parent:"52"},
+  {code:"5206",name:"القرطاسية واللوازم المكتبية",type:"expense",parent:"52"},
+  {code:"5207",name:"الاتصالات والإنترنت",        type:"expense",parent:"52"},
+  {code:"5208",name:"النقل والشحن",               type:"expense",parent:"52"},
+  {code:"5209",name:"الدعاية والإعلان",           type:"expense",parent:"52"},
+  {code:"5210",name:"الضيافة والاستقبال",         type:"expense",parent:"52"},
+  {code:"5211",name:"المصروفات المصرفية",         type:"expense",parent:"52"},
+  {code:"5212",name:"اندثار الموجودات الثابتة",   type:"expense",parent:"52"},
+  {code:"5213",name:"الأتعاب القانونية والمهنية", type:"expense",parent:"52"},
+  {code:"5214",name:"التأمين",                    type:"expense",parent:"52"},
+  {code:"5215",name:"مصروفات متنوعة",             type:"expense",parent:"52"}
+];
+
+/* ---------- أصناف البيع الجاهزة (15 صنف) ---------- */
+const ITEMS_SEED = [
+  {sku:"GEN-100", name:"مولد كهربائي 10 KVA ديزل", cat:"مولدات",  price:3250000, cost:2600000, revAcc:"4101", invAcc:"1206", track:true, min:2,  max:15, qty:6},
+  {sku:"GEN-200", name:"مولد كهربائي 20 KVA ديزل", cat:"مولدات",  price:5400000, cost:4350000, revAcc:"4101", invAcc:"1206", track:true, min:2,  max:12, qty:4},
+  {sku:"GEN-300", name:"مولد كهربائي 30 KVA ديزل", cat:"مولدات",  price:7800000, cost:6300000, revAcc:"4101", invAcc:"1206", track:true, min:1,  max:8,  qty:3},
+  {sku:"GEN-060", name:"مولد كهربائي 6 KVA بنزين", cat:"مولدات",  price:1450000, cost:1120000, revAcc:"4101", invAcc:"1206", track:true, min:3,  max:20, qty:9},
+  {sku:"PRT-FLT", name:"فلتر زيت للمولدات",        cat:"قطع غيار",price:18000,   cost:11000,   revAcc:"4102", invAcc:"1207", track:true, min:20, max:120,qty:48},
+  {sku:"PRT-AIR", name:"فلتر هواء للمولدات",       cat:"قطع غيار",price:22000,   cost:14000,   revAcc:"4102", invAcc:"1207", track:true, min:20, max:120,qty:35},
+  {sku:"PRT-FUL", name:"فلتر وقود للمولدات",       cat:"قطع غيار",price:25000,   cost:16000,   revAcc:"4102", invAcc:"1207", track:true, min:15, max:100,qty:12},
+  {sku:"PRT-BLT", name:"حزام مروحة (سير)",         cat:"قطع غيار",price:35000,   cost:21000,   revAcc:"4102", invAcc:"1207", track:true, min:10, max:60, qty:22},
+  {sku:"PRT-BAT", name:"بطارية مولد 100 أمبير",    cat:"قطع غيار",price:95000,   cost:68000,   revAcc:"4102", invAcc:"1207", track:true, min:8,  max:40, qty:14},
+  {sku:"OIL-15W", name:"زيت محرك 15W-40 (20 لتر)", cat:"زيوت",    price:78000,   cost:55000,   revAcc:"4103", invAcc:"1208", track:true, min:15, max:90, qty:31},
+  {sku:"OIL-COOL",name:"سائل تبريد رادييتر (5 لتر)",cat:"زيوت",   price:24000,   cost:15000,   revAcc:"4103", invAcc:"1208", track:true, min:12, max:70, qty:6},
+  {sku:"OIL-GRS", name:"شحم تشحيم (1 كغم)",        cat:"زيوت",    price:14000,   cost:8500,    revAcc:"4103", invAcc:"1208", track:true, min:10, max:60, qty:25},
+  {sku:"SRV-MNT", name:"خدمة صيانة دورية للمولد",  cat:"خدمات",   price:120000,  cost:40000,   revAcc:"4104", invAcc:null,   track:false},
+  {sku:"SRV-INS", name:"خدمة تركيب وتشغيل مولد",   cat:"خدمات",   price:250000,  cost:90000,   revAcc:"4105", invAcc:null,   track:false},
+  {sku:"SRV-EMR", name:"خدمة إصلاح طارئ",          cat:"خدمات",   price:180000,  cost:65000,   revAcc:"4104", invAcc:null,   track:false}
+];
+
+/* ============================================================
+   طبقة البيانات والتخزين
+   ============================================================ */
+const STORE_KEY = "raya_blue_v1";
+const DB = {
+  state:null,
+  load(){
+    try{
+      const raw = localStorage.getItem(STORE_KEY);
+      if(raw){ this.state = JSON.parse(raw); return; }
+    }catch(e){ console.warn("load failed",e); }
+    this.seed();
+  },
+  seed(){
+    this.state = {
+      accounts: ACCOUNTS_SEED.map(a=>({...a})),
+      entries: [],
+      customers: [],
+      suppliers: [],
+      items: ITEMS_SEED.map(i=>({...i})),
+      invoices: [],
+      invMoves: [],
+      audit: [],
+      counters: {entry:1, invoice:1, customer:1, supplier:1},
+      meta: {created:new Date().toISOString(), company:"شركة الراية الزرقاء"}
+    };
+    // رصيد افتتاحي للمخزون لكل صنف متتبَّع
+    this.state.items.filter(i=>i.track && i.qty>0).forEach(i=>{
+      this.state.invMoves.push({id:uid(),date:today(),sku:i.sku,type:"in",qty:i.qty,note:"رصيد افتتاحي",ref:"OPEN"});
+    });
+    // قيد افتتاحي يعكس قيمة المخزون في الدفاتر مقابل رأس المال
+    const openMap={};
+    this.state.items.filter(i=>i.track && i.qty>0 && i.invAcc).forEach(i=>{
+      openMap[i.invAcc]=(openMap[i.invAcc]||0)+i.qty*i.cost;
+    });
+    const openLines=[]; let openTotal=0;
+    Object.keys(openMap).forEach(acc=>{ openLines.push({acc,debit:openMap[acc],credit:0}); openTotal+=openMap[acc]; });
+    if(openTotal>0){
+      openLines.push({acc:"3101",debit:0,credit:openTotal});
+      JE.post(today(),"قيد افتتاحي — قيمة المخزون مقابل رأس المال",openLines,"افتتاحي");
+    }
+    this.save();
+  },
+  save(){
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(this.state)); }
+    catch(e){ toast("تعذّر الحفظ — مساحة التخزين ممتلئة","bad"); }
+  },
+  log(action){
+    this.state.audit.unshift({ts:new Date().toISOString(), action});
+    if(this.state.audit.length>500) this.state.audit.length=500;
+  }
+};
+
+/* ============================================================
+   أدوات مساعدة
+   ============================================================ */
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function today(){ return new Date().toISOString().slice(0,10); }
+function fmt(n){ n=Math.round(Number(n)||0); return n.toLocaleString("en-US"); }
+function money(n){ return fmt(n)+" د.ع"; }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function el(id){ return document.getElementById(id); }
+function parseNum(v){ v=String(v).replace(/[,٬\s]/g,""); const n=parseFloat(v); return isNaN(n)?0:n; }
+function arDate(d){ if(!d) return "—"; const x=new Date(d); return x.toLocaleDateString("en-GB"); }
+
+function toast(msg,kind){
+  const t=document.createElement("div");
+  t.className="toast "+(kind||"");
+  t.textContent=msg;
+  el("toast").appendChild(t);
+  setTimeout(()=>{ t.style.opacity="0"; t.style.transition="opacity .3s"; setTimeout(()=>t.remove(),300); }, 3200);
+}
+
+function modal(title, bodyHTML, footerHTML){
+  const host=el("modalHost");
+  host.innerHTML=`<div class="modal-bg" onclick="if(event.target===this)closeModal()">
+    <div class="modal">
+      <div class="modal-h"><h3>${esc(title)}</h3><button class="modal-x" onclick="closeModal()">&times;</button></div>
+      <div class="modal-b">${bodyHTML}</div>
+      ${footerHTML?`<div class="modal-f">${footerHTML}</div>`:""}
+    </div></div>`;
+}
+function closeModal(){ el("modalHost").innerHTML=""; }
+
+/* ============================================================
+   محرك الحسابات والأرصدة
+   ============================================================ */
+const Acc = {
+  all(){ return DB.state.accounts; },
+  get(code){ return DB.state.accounts.find(a=>a.code===code); },
+  postable(){ return DB.state.accounts.filter(a=>!a.header); },
+  children(code){ return DB.state.accounts.filter(a=>a.parent===code); },
+  isDebitNormal(t){ return t==="asset"||t==="expense"; },
+  // رصيد حساب ترحيلي = مجموع المدين - مجموع الدائن من القيود غير الملغاة
+  rawBalance(code){
+    let bal=0;
+    DB.state.entries.forEach(e=>{
+      if(e.void) return;
+      e.lines.forEach(l=>{ if(l.acc===code) bal += (l.debit||0)-(l.credit||0); });
+    });
+    return bal;
+  },
+  // رصيد يشمل الحسابات الفرعية (للحسابات الرئيسية)
+  balance(code){
+    const a=this.get(code); if(!a) return 0;
+    if(a.header){
+      let s=0; this.children(code).forEach(c=>{ s+=this.balance(c.code); }); return s;
+    }
+    return this.rawBalance(code);
+  },
+  // الرصيد بإشارة طبيعية موجبة
+  natural(code){
+    const a=this.get(code); const b=this.balance(code);
+    return this.isDebitNormal(a.type) ? b : -b;
+  },
+  hasMovements(code){
+    return DB.state.entries.some(e=>!e.void && e.lines.some(l=>l.acc===code));
+  },
+  typeLabel(t){ return {asset:"موجودات",liability:"خصوم",equity:"حقوق ملكية",revenue:"إيرادات",expense:"مصروفات"}[t]||t; },
+  // إنشاء حساب فرعي للزبون/المورد
+  nextSub(parent){
+    const subs=DB.state.accounts.filter(a=>a.parent===parent);
+    let max=0; subs.forEach(s=>{ const tail=parseInt(s.code.slice(parent.length))||0; if(tail>max)max=tail; });
+    return parent+String(max+1).padStart(3,"0");
+  },
+  add(code,name,type,parent){
+    if(this.get(code)) return {ok:false,msg:"الكود مستخدم مسبقاً"};
+    DB.state.accounts.push({code,name,type,parent:parent||null});
+    DB.log("إضافة حساب: "+code+" "+name);
+    DB.save();
+    return {ok:true};
+  },
+  remove(code){
+    const a=this.get(code); if(!a) return {ok:false,msg:"حساب غير موجود"};
+    if(this.children(code).length) return {ok:false,msg:"لا يمكن حذف حساب رئيسي له حسابات فرعية"};
+    if(this.hasMovements(code)) return {ok:false,msg:"لا يمكن حذف حساب له حركات مسجّلة"};
+    DB.state.accounts = DB.state.accounts.filter(x=>x.code!==code);
+    DB.log("حذف حساب: "+code);
+    DB.save();
+    return {ok:true};
+  }
+};
+
+/* ============================================================
+   محرك القيود المحاسبية (القيد المزدوج)
+   ============================================================ */
+const JE = {
+  // lines: [{acc, debit, credit}]
+  totals(lines){
+    let d=0,c=0; lines.forEach(l=>{ d+=parseNum(l.debit); c+=parseNum(l.credit); });
+    return {debit:d, credit:c, diff:Math.round((d-c)*100)/100};
+  },
+  post(date, desc, lines, source){
+    const clean = lines
+      .map(l=>({acc:l.acc, debit:Math.round(parseNum(l.debit)), credit:Math.round(parseNum(l.credit))}))
+      .filter(l=>l.acc && (l.debit||l.credit));
+    if(clean.length<2) return {ok:false,msg:"القيد يحتاج طرفين على الأقل"};
+    const t=this.totals(clean);
+    if(t.debit===0) return {ok:false,msg:"قيمة القيد صفر"};
+    if(t.diff!==0) return {ok:false,msg:"القيد غير متوازن — الفرق: "+fmt(t.diff)+" د.ع"};
+    for(const l of clean){
+      const a=Acc.get(l.acc);
+      if(!a) return {ok:false,msg:"حساب غير موجود: "+l.acc};
+      if(a.header) return {ok:false,msg:"لا يمكن الترحيل لحساب رئيسي: "+a.name};
+      if(l.debit&&l.credit) return {ok:false,msg:"السطر لا يكون مديناً ودائناً معاً"};
+    }
+    const no=DB.state.counters.entry++;
+    const entry={id:uid(), no, date, desc:desc||"قيد محاسبي", lines:clean,
+                 source:source||"يدوي", void:false, createdAt:new Date().toISOString()};
+    DB.state.entries.push(entry);
+    DB.log(`ترحيل قيد #${no} — ${money(t.debit)} — ${entry.desc}`);
+    DB.save();
+    return {ok:true, entry};
+  },
+  // إلغاء قيد عبر قيد عكسي (حماية القيود المتوازنة)
+  reverse(id){
+    const e=DB.state.entries.find(x=>x.id===id);
+    if(!e) return {ok:false,msg:"قيد غير موجود"};
+    if(e.void) return {ok:false,msg:"القيد ملغى مسبقاً"};
+    if(e.reversed) return {ok:false,msg:"تم عكس هذا القيد مسبقاً"};
+    const rev = e.lines.map(l=>({acc:l.acc, debit:l.credit, credit:l.debit}));
+    const r=this.post(e.date, "عكس قيد #"+e.no+" — "+e.desc, rev, "عكس");
+    if(r.ok){ e.reversed=true; e.reversedBy=r.entry.no; DB.save(); }
+    return r;
+  }
+};
+
+/* ============================================================
+   الزبائن والموردون
+   ============================================================ */
+const Parties = {
+  addCustomer(name, phone){
+    name=(name||"").trim(); if(!name) return {ok:false,msg:"الاسم مطلوب"};
+    if(DB.state.customers.some(c=>c.name===name)) return {ok:false,msg:"الزبون موجود مسبقاً"};
+    const accCode=Acc.nextSub("1204");
+    DB.state.accounts.push({code:accCode,name:"ذمم - "+name,type:"asset",parent:"1204"});
+    const c={id:uid(),no:DB.state.counters.customer++,name,phone:phone||"",accCode,createdAt:today()};
+    DB.state.customers.push(c);
+    DB.log("إضافة زبون: "+name);
+    DB.save();
+    return {ok:true,customer:c};
+  },
+  addSupplier(name, phone){
+    name=(name||"").trim(); if(!name) return {ok:false,msg:"الاسم مطلوب"};
+    if(DB.state.suppliers.some(s=>s.name===name)) return {ok:false,msg:"المورد موجود مسبقاً"};
+    const accCode=Acc.nextSub("2201");
+    DB.state.accounts.push({code:accCode,name:"ذمم - "+name,type:"liability",parent:"2201"});
+    const s={id:uid(),no:DB.state.counters.supplier++,name,phone:phone||"",accCode,createdAt:today()};
+    DB.state.suppliers.push(s);
+    DB.log("إضافة مورد: "+name);
+    DB.save();
+    return {ok:true,supplier:s};
+  },
+  customer(id){ return DB.state.customers.find(c=>c.id===id); },
+  findCustomerByName(q){ q=(q||"").trim(); return DB.state.customers.find(c=>c.name.includes(q)); },
+  findSupplierByName(q){ q=(q||"").trim(); return DB.state.suppliers.find(s=>s.name.includes(q)); }
+};
+
+/* ============================================================
+   المخزون
+   ============================================================ */
+const Inv = {
+  item(sku){ return DB.state.items.find(i=>i.sku===sku); },
+  qty(sku){
+    let q=0;
+    DB.state.invMoves.forEach(m=>{
+      if(m.sku!==sku) return;
+      if(m.type==="in") q+=m.qty;
+      else if(m.type==="out") q-=m.qty;
+      else q = m.qty; // adjust = set absolute
+    });
+    return q;
+  },
+  move(sku,type,qty,note,ref){
+    const it=this.item(sku); if(!it||!it.track) return {ok:false,msg:"صنف غير متتبَّع"};
+    qty=Math.round(parseNum(qty));
+    if(qty<0) return {ok:false,msg:"كمية غير صالحة"};
+    if(type==="out" && qty>this.qty(sku)) return {ok:false,msg:"الكمية المطلوبة تتجاوز الرصيد المتاح"};
+    DB.state.invMoves.push({id:uid(),date:today(),sku,type,qty,note:note||"",ref:ref||""});
+    DB.log(`حركة مخزون ${type==="in"?"وارد":type==="out"?"صادر":"تسوية"}: ${it.name} (${qty})`);
+    DB.save();
+    return {ok:true};
+  },
+  status(sku){
+    const it=this.item(sku); const q=this.qty(sku);
+    if(!it.track) return {q:null,state:"untracked"};
+    if(q<=0) return {q,state:"out"};
+    if(q<it.min) return {q,state:"low"};
+    if(it.max && q>it.max) return {q,state:"over"};
+    return {q,state:"ok"};
+  },
+  lowItems(){
+    return DB.state.items.filter(i=>i.track).map(i=>({item:i,...this.status(i.sku)}))
+      .filter(x=>x.state==="low"||x.state==="out");
+  },
+  value(){
+    let v=0; DB.state.items.filter(i=>i.track).forEach(i=>{ v+=this.qty(i.sku)*i.cost; });
+    return v;
+  }
+};
+
+/* ============================================================
+   المبيعات والفواتير
+   ============================================================ */
+const Sales = {
+  // payload: {date, customerId, lines:[{sku,qty,price}], payMethod, paidAmount}
+  create(p){
+    if(!p.customerId) return {ok:false,msg:"اختر الزبون"};
+    const cust=Parties.customer(p.customerId);
+    if(!cust) return {ok:false,msg:"زبون غير موجود"};
+    const lines=(p.lines||[]).map(l=>{
+      const it=Inv.item(l.sku);
+      return it?{sku:it.sku,name:it.name,qty:Math.round(parseNum(l.qty)),
+                 price:Math.round(parseNum(l.price)),cost:it.cost,
+                 revAcc:it.revAcc,invAcc:it.invAcc,track:it.track}:null;
+    }).filter(l=>l&&l.qty>0&&l.price>=0);
+    if(!lines.length) return {ok:false,msg:"أضف صنفاً واحداً على الأقل"};
+    // فحص توفر المخزون
+    for(const l of lines){
+      if(l.track && l.qty>Inv.qty(l.sku))
+        return {ok:false,msg:"الكمية تتجاوز المخزون: "+l.name+" (المتاح "+Inv.qty(l.sku)+")"};
+    }
+    const total=lines.reduce((s,l)=>s+l.qty*l.price,0);
+    let paid=Math.round(parseNum(p.paidAmount));
+    if(paid<0) paid=0; if(paid>total) paid=total;
+    const remaining=total-paid;
+    const cashAcc = p.payMethod==="حوالة" ? "1202" : "1201";
+
+    // --- قيد الإيراد ---
+    const jLines=[];
+    if(paid>0) jLines.push({acc:cashAcc,debit:paid,credit:0});
+    if(remaining>0) jLines.push({acc:cust.accCode,debit:remaining,credit:0});
+    // تجميع الإيراد حسب الحساب
+    const revMap={};
+    lines.forEach(l=>{ revMap[l.revAcc]=(revMap[l.revAcc]||0)+l.qty*l.price; });
+    Object.keys(revMap).forEach(acc=>jLines.push({acc,debit:0,credit:revMap[acc]}));
+    const no=DB.state.counters.invoice++;
+    const invNo="INV-"+String(no).padStart(5,"0");
+    const r1=JE.post(p.date||today(), "فاتورة مبيعات "+invNo+" — "+cust.name, jLines, "مبيعات");
+    if(!r1.ok){ DB.state.counters.invoice--; return r1; }
+
+    // --- قيد تكلفة البضاعة المباعة ---
+    let cogsEntry=null;
+    const cogsTotal=lines.filter(l=>l.track).reduce((s,l)=>s+l.qty*l.cost,0);
+    if(cogsTotal>0){
+      const cLines=[{acc:"5101",debit:cogsTotal,credit:0}];
+      const invMap={};
+      lines.filter(l=>l.track).forEach(l=>{ invMap[l.invAcc]=(invMap[l.invAcc]||0)+l.qty*l.cost; });
+      Object.keys(invMap).forEach(acc=>cLines.push({acc,debit:0,credit:invMap[acc]}));
+      const r2=JE.post(p.date||today(),"تكلفة بضاعة مباعة — "+invNo,cLines,"مبيعات");
+      if(r2.ok) cogsEntry=r2.entry.id;
+    }
+    // --- حركة المخزون ---
+    lines.filter(l=>l.track).forEach(l=>{
+      Inv.move(l.sku,"out",l.qty,"بيع — "+cust.name,invNo);
+    });
+    const invoice={id:uid(),no,invNo,date:p.date||today(),customerId:cust.id,customerName:cust.name,
+      lines,total,paid,remaining,payMethod:p.payMethod||"نقد",
+      entryId:r1.entry.id,cogsEntryId:cogsEntry,createdAt:new Date().toISOString()};
+    DB.state.invoices.push(invoice);
+    DB.log(`فاتورة ${invNo} — ${cust.name} — ${money(total)} (${invoice.payMethod})`);
+    DB.save();
+    return {ok:true,invoice};
+  },
+  // تسجيل دفعة على فاتورة آجلة
+  collect(invId,amount,method){
+    const inv=DB.state.invoices.find(i=>i.id===invId);
+    if(!inv) return {ok:false,msg:"فاتورة غير موجودة"};
+    amount=Math.round(parseNum(amount));
+    if(amount<=0) return {ok:false,msg:"مبلغ غير صالح"};
+    if(amount>inv.remaining) return {ok:false,msg:"المبلغ يتجاوز المتبقي ("+money(inv.remaining)+")"};
+    const cust=Parties.customer(inv.customerId);
+    const cashAcc=method==="حوالة"?"1202":"1201";
+    const r=JE.post(today(),"تحصيل دفعة على "+inv.invNo+" — "+inv.customerName,
+      [{acc:cashAcc,debit:amount,credit:0},{acc:cust.accCode,debit:0,credit:amount}],"تحصيل");
+    if(!r.ok) return r;
+    inv.paid+=amount; inv.remaining-=amount;
+    DB.log("تحصيل "+money(amount)+" على "+inv.invNo);
+    DB.save();
+    return {ok:true};
+  }
+};
+
+/* ============================================================
+   محرك التقارير
+   ============================================================ */
+const Reports = {
+  inRange(d,from,to){ return (!from||d>=from)&&(!to||d<=to); },
+  // ميزان المراجعة
+  trialBalance(){
+    const rows=Acc.postable().map(a=>{
+      const b=Acc.rawBalance(a.code);
+      return {code:a.code,name:a.name,type:a.type,
+              debit:b>0?b:0, credit:b<0?-b:0, bal:b};
+    }).filter(r=>r.debit||r.credit);
+    const td=rows.reduce((s,r)=>s+r.debit,0);
+    const tc=rows.reduce((s,r)=>s+r.credit,0);
+    return {rows,td,tc,balanced:Math.abs(td-tc)<1};
+  },
+  // قائمة الدخل
+  income(from,to){
+    const rev={}, exp={};
+    DB.state.entries.forEach(e=>{
+      if(e.void||!this.inRange(e.date,from,to)) return;
+      e.lines.forEach(l=>{
+        const a=Acc.get(l.acc); if(!a) return;
+        if(a.type==="revenue") rev[l.acc]=(rev[l.acc]||0)+(l.credit-l.debit);
+        if(a.type==="expense") exp[l.acc]=(exp[l.acc]||0)+(l.debit-l.credit);
+      });
+    });
+    const revRows=Object.keys(rev).map(c=>({code:c,name:Acc.get(c).name,amount:rev[c]}));
+    const expRows=Object.keys(exp).map(c=>({code:c,name:Acc.get(c).name,amount:exp[c]}));
+    const totRev=revRows.reduce((s,r)=>s+r.amount,0);
+    const totExp=expRows.reduce((s,r)=>s+r.amount,0);
+    return {revRows,expRows,totRev,totExp,net:totRev-totExp};
+  },
+  // الميزانية العمومية
+  balanceSheet(){
+    const grp=t=>Acc.postable().filter(a=>a.type===t)
+      .map(a=>({code:a.code,name:a.name,amount:Acc.natural(a.code)}))
+      .filter(r=>Math.abs(r.amount)>0.5);
+    const assets=grp("asset"), liab=grp("liability"), eq=grp("equity");
+    const inc=this.income();
+    const tA=assets.reduce((s,r)=>s+r.amount,0);
+    const tL=liab.reduce((s,r)=>s+r.amount,0);
+    const tE=eq.reduce((s,r)=>s+r.amount,0)+inc.net;
+    return {assets,liab,eq,tA,tL,tE,net:inc.net,balanced:Math.abs(tA-(tL+tE))<1};
+  },
+  // كشف حساب
+  ledger(code,from,to){
+    const rows=[]; let run=0;
+    const a=Acc.get(code);
+    DB.state.entries.filter(e=>!e.void).sort((x,y)=>x.date<y.date?-1:x.no-y.no).forEach(e=>{
+      e.lines.forEach(l=>{
+        if(l.acc!==code) return;
+        if(!this.inRange(e.date,from,to)){ run+=l.debit-l.credit; return; }
+        run+=l.debit-l.credit;
+        rows.push({date:e.date,no:e.no,desc:e.desc,debit:l.debit,credit:l.credit,bal:run});
+      });
+    });
+    return {account:a,rows,closing:run};
+  },
+  // تقرير المبiعات
+  sales(from,to){
+    const rows=DB.state.invoices.filter(i=>this.inRange(i.date,from,to));
+    return {rows,
+      total:rows.reduce((s,i)=>s+i.total,0),
+      paid:rows.reduce((s,i)=>s+i.paid,0),
+      remaining:rows.reduce((s,i)=>s+i.remaining,0),
+      count:rows.length};
+  },
+  // أرصدة الزبائن
+  receivables(){
+    return DB.state.customers.map(c=>({customer:c,balance:Acc.rawBalance(c.accCode)}))
+      .filter(r=>Math.abs(r.balance)>0.5);
+  },
+  payables(){
+    return DB.state.suppliers.map(s=>({supplier:s,balance:-Acc.rawBalance(s.accCode)}))
+      .filter(r=>Math.abs(r.balance)>0.5);
+  },
+  // ربحية الأصناف
+  itemProfit(from,to){
+    const map={};
+    DB.state.invoices.filter(i=>this.inRange(i.date,from,to)).forEach(inv=>{
+      inv.lines.forEach(l=>{
+        if(!map[l.sku]) map[l.sku]={sku:l.sku,name:l.name,qty:0,revenue:0,cost:0};
+        map[l.sku].qty+=l.qty;
+        map[l.sku].revenue+=l.qty*l.price;
+        map[l.sku].cost+=l.qty*(l.cost||0);
+      });
+    });
+    return Object.values(map).map(r=>({...r,profit:r.revenue-r.cost}))
+      .sort((a,b)=>b.revenue-a.revenue);
+  }
+};
+
+/* ============================================================
+   محرك الذكاء الاصطناعي — فهم الأسئلة العربية
+   ============================================================ */
+const AI = {
+  history:[],
+  range(q){
+    const now=new Date(), t=today();
+    if(/أمس|البارحة/.test(q)){ const y=new Date(now-864e5).toISOString().slice(0,10); return {from:y,to:y,label:"أمس"}; }
+    if(/اليوم|النهار/.test(q)) return {from:t,to:t,label:"اليوم"};
+    if(/الأسبوع|اسبوع|أسبوع/.test(q)){ const w=new Date(now-6*864e5).toISOString().slice(0,10); return {from:w,to:t,label:"آخر 7 أيام"}; }
+    if(/الشهر|شهر/.test(q)){ const m=t.slice(0,7)+"-01"; return {from:m,to:t,label:"هذا الشهر"}; }
+    if(/السنة|العام|سنة/.test(q)){ const y=t.slice(0,4)+"-01-01"; return {from:y,to:t,label:"هذا العام"}; }
+    return {from:null,to:null,label:"كل الفترات"};
+  },
+  ask(q){
+    q=(q||"").trim(); if(!q) return "اكتب سؤالك من فضلك.";
+    DB.log("استعلام ذكي: "+q);
+    const r=this.range(q);
+    const rl=` <span class="muted">(${r.label})</span>`;
+
+    // 1) النقد والصندوق
+    if(/الصندوق|النقد|الكاش|كاش/.test(q) && !/مصرف|بنك/.test(q)){
+      return `رصيد <b>الصندوق</b>: <b>${money(Acc.balance("1201"))}</b>`;
+    }
+    // 2) المصرف
+    if(/المصرف|البنك|بنك/.test(q)){
+      return `رصيد <b>المصرف (الجاري)</b>: <b>${money(Acc.balance("1202"))}</b>`;
+    }
+    // 3) إجمالي المبيعات
+    if(/مبيعات|بعنا|البيع/.test(q) && !/صنف|أصناف/.test(q)){
+      const s=Reports.sales(r.from,r.to);
+      return `إجمالي المبيعات${rl}: <b>${money(s.total)}</b><br>عدد الفواتير: <b>${s.count}</b> · المحصّل: ${money(s.paid)} · المتبقي (آجل): ${money(s.remaining)}`;
+    }
+    // 4) صافي الربح
+    if(/ربح|أرباح|الارباح|خسارة|الصافي/.test(q)){
+      const inc=Reports.income(r.from,r.to);
+      const w=inc.net>=0?"ok":"bad";
+      return `صافي ${inc.net>=0?"الربح":"الخسارة"}${rl}: <b class="${w}">${money(Math.abs(inc.net))}</b><br>الإيرادات: ${money(inc.totRev)} − المصروفات: ${money(inc.totExp)}`;
+    }
+    // 5) عدد الفواتير
+    if(/كم.*فاتورة|عدد.*فواتير|الفواتير/.test(q)){
+      const s=Reports.sales(r.from,r.to);
+      return `عدد الفواتير${rl}: <b>${s.count}</b> فاتورة بقيمة ${money(s.total)}`;
+    }
+    // 6) المصروفات
+    if(/مصروف|المصاريف|صرفنا/.test(q)){
+      const inc=Reports.income(r.from,r.to);
+      let top=inc.expRows.slice().sort((a,b)=>b.amount-a.amount)[0];
+      return `إجمالي المصروفات${rl}: <b>${money(inc.totExp)}</b>`+
+        (top?`<br>أعلى بند: ${esc(top.name)} (${money(top.amount)})`:"");
+    }
+    // 7) الإيرادات
+    if(/إيراد|ايراد|الايرادات|الدخل/.test(q)){
+      const inc=Reports.income(r.from,r.to);
+      return `إجمالي الإيرادات${rl}: <b>${money(inc.totRev)}</b>`;
+    }
+    // 8) الأصناف المنخفضة
+    if(/منخفض|ناقص|نفد|نواقص|قليل|تنبيه/.test(q)){
+      const low=Inv.lowItems();
+      if(!low.length) return "لا توجد أصناف منخفضة — كل المخزون ضمن الحدود الآمنة. ✓";
+      return `<b>${low.length}</b> صنف يحتاج توريد:<br>`+
+        low.map(x=>`• ${esc(x.item.name)} — الرصيد ${x.q} (الحد الأدنى ${x.item.min})`).join("<br>");
+    }
+    // 9) قيمة المخزون
+    if(/قيمة المخزون|المخزون|البضاعة/.test(q)){
+      return `قيمة المخزون الحالية (بالتكلفة): <b>${money(Inv.value())}</b><br>عدد الأصناف المتتبعة: ${DB.state.items.filter(i=>i.track).length}`;
+    }
+    // 10) أكثر صنف مبيعاً
+    if(/أكثر|الأكثر|أفضل|أعلى صنف|أكثر صنف/.test(q)){
+      const ip=Reports.itemProfit(r.from,r.to);
+      if(!ip.length) return "لا توجد مبيعات في هذه الفترة.";
+      const t=ip[0];
+      return `الأكثر مبيعاً${rl}: <b>${esc(t.name)}</b><br>الكمية: ${t.qty} · الإيراد: ${money(t.revenue)} · الربح: ${money(t.profit)}`;
+    }
+    // 11) بحث زبون
+    let cm=q.match(/زبون\s+(.+)|الزبون\s+(.+)|حساب\s+(.+)/);
+    if(/زبون|الزبون/.test(q)){
+      const name=q.replace(/.*?(زبون|الزبون)\s*/,"").replace(/[؟?]/g,"").trim();
+      const c=name?Parties.findCustomerByName(name):null;
+      if(c){ const b=Acc.rawBalance(c.accCode);
+        return `الزبون <b>${esc(c.name)}</b>${c.phone?" — "+esc(c.phone):""}<br>الرصيد المستحق عليه: <b>${money(b)}</b>`; }
+      return "لم أجد زبوناً بهذا الاسم. عدد الزبائن المسجلين: "+DB.state.customers.length;
+    }
+    // 12) بحث مورد
+    if(/مورد|المورد/.test(q)){
+      const name=q.replace(/.*?(مورد|المورد)\s*/,"").replace(/[؟?]/g,"").trim();
+      const s=name?Parties.findSupplierByName(name):null;
+      if(s){ const b=-Acc.rawBalance(s.accCode);
+        return `المورد <b>${esc(s.name)}</b><br>الرصيد المستحق له: <b>${money(b)}</b>`; }
+      return "لم أجد مورداً بهذا الاسم. عدد الموردين: "+DB.state.suppliers.length;
+    }
+    // بحث باسم حساب
+    const acc=DB.state.accounts.find(a=>!a.header && q.includes(a.name));
+    if(acc) return `رصيد حساب <b>${esc(acc.name)}</b>: <b>${money(Acc.balance(acc.code))}</b>`;
+
+    return "لم أفهم السؤال تماماً. جرّب أسئلة مثل: «كم مبيعات اليوم؟»، «رصيد الصندوق»، «صافي الربح هذا الشهر»، «الأصناف المنخفضة»، «رصيد الزبون أحمد».";
+  }
+};
+
+/* ============================================================
+   التصدير: Excel (CSV) و PDF (طباعة)
+   ============================================================ */
+function exportCSV(filename, headers, rows){
+  let csv="﻿"+headers.join(",")+"\n";
+  rows.forEach(r=>{
+    csv+=r.map(c=>{
+      c=String(c==null?"":c);
+      return /[",\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c;
+    }).join(",")+"\n";
+  });
+  const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=filename+".csv";
+  a.click();
+  toast("تم تصدير الملف: "+filename+".csv","ok");
+}
+function printReport(title, innerHTML){
+  const w=window.open("","_blank");
+  w.document.write(`<html dir="rtl"><head><meta charset="UTF-8"><title>${esc(title)}</title>
+  <style>
+    body{font-family:Tahoma,Arial,sans-serif;padding:30px;color:#1f2a3a}
+    h1{color:#1e4d8c;font-size:20px;border-bottom:3px solid #1e4d8c;padding-bottom:8px}
+    .sub{color:#666;font-size:12px;margin-bottom:18px}
+    table{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px}
+    th,td{border:1px solid #ccc;padding:6px 8px;text-align:right}
+    th{background:#eaf2fb;color:#143a6b}
+    tfoot td{font-weight:bold;background:#f4f6fa}
+    .num{font-variant-numeric:tabular-nums}
+  </style></head><body>
+  <h1>شركة الراية الزرقاء — ${esc(title)}</h1>
+  <div class="sub">تاريخ الطباعة: ${arDate(today())}</div>
+  ${innerHTML}
+  </body></html>`);
+  w.document.close();
+  setTimeout(()=>w.print(),350);
+}
+
+/* ============================================================
+   التطبيق — التنقل والواجهات
+   ============================================================ */
+const App = {
+  page:"dashboard",
+  pages:[
+    {id:"dashboard", title:"لوحة المعلومات",   ico:"▣"},
+    {id:"accounts",  title:"شجرة الحسابات",    ico:"❏"},
+    {id:"journal",   title:"القيود المحاسبية", ico:"⇄"},
+    {id:"sales",     title:"فاتورة جديدة",     ico:"＋"},
+    {id:"invoices",  title:"الفواتير",         ico:"☰"},
+    {id:"inventory", title:"المخزون",          ico:"▦"},
+    {id:"parties",   title:"الزبائن والموردون",ico:"♟"},
+    {id:"ai",        title:"المساعد الذكي",    ico:"✦"},
+    {id:"reports",   title:"التقارير المالية", ico:"▤"},
+    {id:"audit",     title:"سجل التدقيق",      ico:"◷"}
+  ],
+  start(){
+    DB.load();
+    el("nav").innerHTML=this.pages.map(p=>
+      `<button class="nav-item" data-p="${p.id}" onclick="App.go('${p.id}')">
+        <span class="nav-ico">${p.ico}</span><span>${p.title}</span></button>`).join("");
+    this.go("dashboard");
+  },
+  go(id){
+    this.page=id;
+    const p=this.pages.find(x=>x.id===id);
+    el("pageTitle").textContent=p.title;
+    document.querySelectorAll(".nav-item").forEach(n=>
+      n.classList.toggle("active",n.dataset.p===id));
+    this.render();
+  },
+  render(){
+    const fn="render_"+this.page;
+    el("content").innerHTML = this[fn] ? this[fn]() : "<div class='empty'>قيد الإنشاء</div>";
+    if(this["after_"+this.page]) this["after_"+this.page]();
+  },
+
+  /* ---------- لوحة المعلومات ---------- */
+  render_dashboard(){
+    const cash=Acc.balance("1201")+Acc.balance("1202")+Acc.balance("1203");
+    const inc=Reports.income(today().slice(0,7)+"-01",today());
+    const sM=Reports.sales(today().slice(0,7)+"-01",today());
+    const recv=Reports.receivables().reduce((s,r)=>s+r.balance,0);
+    const low=Inv.lowItems();
+    const tb=Reports.trialBalance();
+    const recentInv=DB.state.invoices.slice(-6).reverse();
+    return `
+    <div class="grid g4">
+      <div class="kpi ok"><div class="l">النقد المتاح (صندوق + مصارف)</div><div class="v">${money(cash)}</div></div>
+      <div class="kpi"><div class="l">مبيعات الشهر</div><div class="v">${money(sM.total)}</div></div>
+      <div class="kpi ${inc.net>=0?'ok':'bad'}"><div class="l">صافي ربح الشهر</div><div class="v">${money(inc.net)}</div></div>
+      <div class="kpi ${recv>0?'warn':''}"><div class="l">ذمم مدينة (آجل)</div><div class="v">${money(recv)}</div></div>
+    </div>
+    <div class="grid g4" style="margin-top:16px">
+      <div class="kpi"><div class="l">قيمة المخزون</div><div class="v">${money(Inv.value())}</div></div>
+      <div class="kpi"><div class="l">عدد القيود</div><div class="v">${DB.state.entries.filter(e=>!e.void).length}</div></div>
+      <div class="kpi"><div class="l">عدد الفواتير</div><div class="v">${DB.state.invoices.length}</div></div>
+      <div class="kpi ${low.length?'bad':'ok'}"><div class="l">أصناف منخفضة</div><div class="v">${low.length}</div></div>
+    </div>
+    <div class="grid g2" style="margin-top:18px">
+      <div class="card">
+        <h3>تنبيهات المخزون</h3>
+        ${low.length? `<table><thead><tr><th>الصنف</th><th>الرصيد</th><th>الحد الأدنى</th><th>الحالة</th></tr></thead><tbody>`+
+          low.map(x=>`<tr><td>${esc(x.item.name)}</td><td class="num">${x.q}</td><td class="num">${x.item.min}</td>
+            <td><span class="tag ${x.state==='out'?'bad':'warn'}">${x.state==='out'?'نفد':'منخفض'}</span></td></tr>`).join("")+
+          `</tbody></table>`
+          : `<div class="empty"><div class="ico">✓</div>كل الأصناف ضمن الحدود الآمنة</div>`}
+      </div>
+      <div class="card">
+        <h3>آخر الفواتير</h3>
+        ${recentInv.length? `<table><thead><tr><th>الرقم</th><th>الزبون</th><th>القيمة</th><th>الدفع</th></tr></thead><tbody>`+
+          recentInv.map(i=>`<tr><td>${i.invNo}</td><td>${esc(i.customerName)}</td>
+            <td class="num">${money(i.total)}</td>
+            <td><span class="tag ${i.remaining>0?'warn':'ok'}">${i.remaining>0?'آجل جزئي':i.payMethod}</span></td></tr>`).join("")+
+          `</tbody></table>`
+          : `<div class="empty"><div class="ico">☰</div>لا توجد فواتير بعد</div>`}
+      </div>
+    </div>
+    <div class="card">
+      <h3>الحالة المحاسبية</h3>
+      <div class="bal-box">
+        <span>إجمالي المدين: <span class="b num">${money(tb.td)}</span></span>
+        <span>إجمالي الدائن: <span class="b num">${money(tb.tc)}</span></span>
+        <span class="tag ${tb.balanced?'ok':'bad'}">${tb.balanced?'النظام متوازن ✓':'غير متوازن!'}</span>
+      </div>
+    </div>`;
+  },
+
+  /* ---------- شجرة الحسابات ---------- */
+  render_accounts(){
+    const roots=DB.state.accounts.filter(a=>!a.parent);
+    let rows="";
+    const walk=(code,depth)=>{
+      const a=Acc.get(code);
+      const bal=Acc.balance(code);
+      const pad=depth*22;
+      rows+=`<tr class="tree-row">
+        <td style="padding-right:${pad+10}px">${a.header?'<b>':''}${esc(a.code)} — ${esc(a.name)}${a.header?'</b>':''}</td>
+        <td><span class="tag info">${Acc.typeLabel(a.type)}</span></td>
+        <td class="num ${a.header?'':''}">${money(bal)}</td>
+        <td class="right">
+          ${a.header?'':`<button class="btn sec sm" onclick="App.viewLedger('${a.code}')">كشف</button>
+          <button class="btn bad sm" onclick="App.delAccount('${a.code}')">حذف</button>`}
+        </td></tr>`;
+      Acc.children(code).sort((x,y)=>x.code<y.code?-1:1).forEach(c=>walk(c.code,depth+1));
+    };
+    roots.forEach(r=>walk(r.code,0));
+    return `
+    <div class="card">
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <h3 style="border:none;margin:0">شجرة الحسابات — ${DB.state.accounts.length} حساب</h3>
+        <div class="row" style="flex:0;gap:8px">
+          <button class="btn" onclick="App.newAccount()">+ حساب جديد</button>
+          <button class="btn sec" onclick="App.exportAccounts()">تصدير Excel</button>
+        </div>
+      </div>
+      <div class="scroll" style="margin-top:12px">
+        <table><thead><tr><th>الكود والاسم</th><th>التصنيف</th><th>الرصيد</th><th class="right">إجراءات</th></tr></thead>
+        <tbody>${rows}</tbody></table>
+      </div>
+    </div>`;
+  },
+
+  /* ---------- القيود ---------- */
+  render_journal(){
+    const entries=DB.state.entries.slice().reverse();
+    return `
+    <div class="card">
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <h3 style="border:none;margin:0">دفتر اليومية — ${DB.state.entries.length} قيد</h3>
+        <div class="row" style="flex:0;gap:8px">
+          <button class="btn" onclick="App.newEntry()">+ قيد جديد</button>
+          <button class="btn sec" onclick="App.exportJournal()">تصدير Excel</button>
+        </div>
+      </div>
+      <div class="scroll" style="margin-top:12px">
+      ${entries.length? `<table><thead><tr><th>#</th><th>التاريخ</th><th>البيان</th><th>المصدر</th><th>القيمة</th><th>الحالة</th><th></th></tr></thead><tbody>`+
+        entries.map(e=>{
+          const t=JE.totals(e.lines);
+          return `<tr>
+            <td>${e.no}</td><td>${arDate(e.date)}</td><td>${esc(e.desc)}</td>
+            <td><span class="tag info">${esc(e.source)}</span></td>
+            <td class="num">${money(t.debit)}</td>
+            <td>${e.void?'<span class="tag bad">ملغى</span>':e.reversed?'<span class="tag warn">معكوس</span>':'<span class="tag ok">مرحّل</span>'}</td>
+            <td class="right">
+              <button class="btn sec sm" onclick="App.viewEntry('${e.id}')">عرض</button>
+              ${(!e.void&&!e.reversed&&e.source!=='عكس')?`<button class="btn warn sm" onclick="App.reverseEntry('${e.id}')">عكس</button>`:''}
+            </td></tr>`;
+        }).join("")+`</tbody></table>`
+        : `<div class="empty"><div class="ico">⇄</div>لا توجد قيود — ابدأ بإضافة قيد جديد</div>`}
+      </div>
+    </div>`;
+  },
+
+  /* ---------- المخزون ---------- */
+  render_inventory(){
+    const items=DB.state.items;
+    return `
+    <div class="grid g3">
+      <div class="kpi"><div class="l">قيمة المخزون (تكلفة)</div><div class="v">${money(Inv.value())}</div></div>
+      <div class="kpi"><div class="l">أصناف متتبعة</div><div class="v">${items.filter(i=>i.track).length}</div></div>
+      <div class="kpi ${Inv.lowItems().length?'bad':'ok'}"><div class="l">تحتاج توريد</div><div class="v">${Inv.lowItems().length}</div></div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <h3 style="border:none;margin:0">الأصناف</h3>
+        <button class="btn sec" onclick="App.exportInventory()">تصدير Excel</button>
+      </div>
+      <div class="scroll" style="margin-top:12px">
+        <table><thead><tr><th>الرمز</th><th>الصنف</th><th>التصنيف</th><th>سعر البيع</th><th>التكلفة</th><th>الرصيد</th><th>أدنى/أقصى</th><th>الحالة</th><th></th></tr></thead><tbody>
+        ${items.map(i=>{
+          const st=Inv.status(i.sku);
+          const tg=st.state==="ok"?'<span class="tag ok">متوفر</span>':
+                   st.state==="low"?'<span class="tag warn">منخفض</span>':
+                   st.state==="out"?'<span class="tag bad">نفد</span>':
+                   st.state==="over"?'<span class="tag info">فائض</span>':
+                   '<span class="tag info">خدمة</span>';
+          return `<tr>
+            <td>${esc(i.sku)}</td><td>${esc(i.name)}</td><td>${esc(i.cat)}</td>
+            <td class="num">${money(i.price)}</td><td class="num">${money(i.cost)}</td>
+            <td class="num">${i.track?st.q:'—'}</td>
+            <td class="num">${i.track?i.min+' / '+i.max:'—'}</td>
+            <td>${tg}</td>
+            <td class="right">${i.track?`<button class="btn sec sm" onclick="App.stockMove('${i.sku}')">حركة</button>`:''}</td>
+          </tr>`;
+        }).join("")}
+        </tbody></table>
+      </div>
+    </div>
+    <div class="card">
+      <h3>آخر حركات المخزون</h3>
+      <div class="scroll">
+      ${DB.state.invMoves.length? `<table><thead><tr><th>التاريخ</th><th>الصنف</th><th>النوع</th><th>الكمية</th><th>ملاحظة</th></tr></thead><tbody>`+
+        DB.state.invMoves.slice(-30).reverse().map(m=>{
+          const it=Inv.item(m.sku);
+          return `<tr><td>${arDate(m.date)}</td><td>${esc(it?it.name:m.sku)}</td>
+            <td><span class="tag ${m.type==='in'?'ok':m.type==='out'?'bad':'warn'}">${m.type==='in'?'وارد':m.type==='out'?'صادر':'تسوية'}</span></td>
+            <td class="num">${m.qty}</td><td>${esc(m.note)}</td></tr>`;
+        }).join("")+`</tbody></table>`
+        : `<div class="empty">لا توجد حركات</div>`}
+      </div>
+    </div>`;
+  },
+
+  /* ---------- الزبائن والموردون ---------- */
+  render_parties(){
+    const cust=DB.state.customers, sup=DB.state.suppliers;
+    return `
+    <div class="grid g2">
+      <div class="card">
+        <div class="row" style="justify-content:space-between;align-items:center">
+          <h3 style="border:none;margin:0">الزبائن (${cust.length})</h3>
+          <button class="btn sm" onclick="App.newParty('customer')">+ زبون</button>
+        </div>
+        <div class="scroll" style="margin-top:10px">
+        ${cust.length?`<table><thead><tr><th>الاسم</th><th>الهاتف</th><th>الرصيد المستحق</th></tr></thead><tbody>`+
+          cust.map(c=>`<tr><td>${esc(c.name)}</td><td>${esc(c.phone||'—')}</td>
+            <td class="num">${money(Acc.rawBalance(c.accCode))}</td></tr>`).join("")+`</tbody></table>`
+          :`<div class="empty">لا يوجد زبائن</div>`}
+        </div>
+      </div>
+      <div class="card">
+        <div class="row" style="justify-content:space-between;align-items:center">
+          <h3 style="border:none;margin:0">الموردون (${sup.length})</h3>
+          <button class="btn sm" onclick="App.newParty('supplier')">+ مورد</button>
+        </div>
+        <div class="scroll" style="margin-top:10px">
+        ${sup.length?`<table><thead><tr><th>الاسم</th><th>الهاتف</th><th>الرصيد المستحق</th></tr></thead><tbody>`+
+          sup.map(s=>`<tr><td>${esc(s.name)}</td><td>${esc(s.phone||'—')}</td>
+            <td class="num">${money(-Acc.rawBalance(s.accCode))}</td></tr>`).join("")+`</tbody></table>`
+          :`<div class="empty">لا يوجد موردون</div>`}
+        </div>
+      </div>
+    </div>`;
+  },
+
+  /* ---------- المساعد الذكي ---------- */
+  render_ai(){
+    const chips=["كم مبيعات اليوم؟","رصيد الصندوق","صافي الربح هذا الشهر","الأصناف المنخفضة",
+      "قيمة المخزون","إجمالي المصروفات هذا الشهر","كم عدد الفواتير؟","الأكثر مبيعاً هذا الشهر"];
+    return `
+    <div class="card">
+      <h3>المساعد الذكي — اسأل بالعربية الطبيعية</h3>
+      <div id="aiLog" style="min-height:240px;max-height:420px;overflow:auto;padding:6px">
+        <div class="ai-msg a">مرحباً 👋 أنا المساعد المحاسبي للراية الزرقاء. اسألني عن المبيعات، الأرباح، الأرصدة، المخزون، أو الزبائن.</div>
+      </div>
+      <div style="margin:10px 0">${chips.map(c=>`<span class="ai-chip" onclick="App.aiQuick('${esc(c)}')">${esc(c)}</span>`).join("")}</div>
+      <div class="row" style="gap:8px">
+        <input id="aiInput" placeholder="اكتب سؤالك هنا..." onkeydown="if(event.key==='Enter')App.aiSend()" style="flex:1">
+        <button class="btn" style="flex:0" onclick="App.aiSend()">إرسال</button>
+      </div>
+    </div>`;
+  },
+  after_ai(){
+    AI.history.forEach(h=>this.aiAppend(h.q,h.a));
+  },
+
+  /* ---------- سجل التدقيق ---------- */
+  render_audit(){
+    return `<div class="card">
+      <h3>سجل التدقيق — آخر ${DB.state.audit.length} عملية</h3>
+      <div class="scroll">
+      ${DB.state.audit.length?`<table><thead><tr><th>الوقت</th><th>العملية</th></tr></thead><tbody>`+
+        DB.state.audit.map(a=>`<tr><td class="small muted">${new Date(a.ts).toLocaleString("en-GB")}</td><td>${esc(a.action)}</td></tr>`).join("")+
+        `</tbody></table>`:`<div class="empty">لا توجد عمليات</div>`}
+      </div>
+    </div>`;
+  }
+};
+
+/* ============================================================
+   شاشة فاتورة جديدة
+   ============================================================ */
+App.saleLines=[];
+App.render_sales=function(){
+  if(!App.saleLines.length) App.saleLines=[{sku:"",qty:1,price:0}];
+  const custOpts=DB.state.customers.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("");
+  return `
+  <div class="card">
+    <h3>فاتورة مبيعات جديدة</h3>
+    <div class="row">
+      <div class="field"><label>التاريخ</label><input type="date" id="saleDate" value="${today()}"></div>
+      <div class="field"><label>الزبون</label>
+        <select id="saleCust"><option value="">— اختر الزبون —</option>${custOpts}</select>
+      </div>
+      <div class="field" style="flex:0;display:flex;align-items:flex-end">
+        <button class="btn sec" onclick="App.newParty('customer')">+ زبون جديد</button>
+      </div>
+    </div>
+    <table class="line-tbl" id="saleLines"><thead><tr>
+      <th style="width:42%">الصنف</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th><th></th>
+    </tr></thead><tbody></tbody></table>
+    <button class="btn sec sm" style="margin-top:8px" onclick="App.addSaleLine()">+ إضافة سطر</button>
+    <div class="row" style="margin-top:14px">
+      <div class="field"><label>طريقة الدفع</label>
+        <select id="salePay" onchange="App.recalcSale()">
+          <option value="نقد">نقد</option><option value="حوالة">حوالة مصرفية</option>
+          <option value="عربون">عربون (دفعة جزئية)</option><option value="آجل">آجل (دين كامل)</option>
+        </select>
+      </div>
+      <div class="field"><label>المبلغ المدفوع</label><input type="number" id="salePaid" value="0" oninput="App.recalcSale()"></div>
+    </div>
+    <div class="bal-box">
+      <span>الإجمالي: <span class="b num" id="sTotal">0 د.ع</span></span>
+      <span>المدفوع: <span class="b num" id="sPaid">0 د.ع</span></span>
+      <span>الباقي (آجل): <span class="n num" id="sRem">0 د.ع</span></span>
+    </div>
+    <button class="btn ok" onclick="App.submitSale()">حفظ الفاتورة وترحيل القيد</button>
+  </div>`;
+};
+App.after_sales=function(){ App.renderSaleLines(); App.recalcSale(); };
+App.renderSaleLines=function(){
+  const tb=el("saleLines").querySelector("tbody");
+  const itemOpts=DB.state.items.map(i=>`<option value="${i.sku}">${esc(i.name)}</option>`).join("");
+  tb.innerHTML=App.saleLines.map((l,idx)=>`<tr>
+    <td><select onchange="App.saleLineChange(${idx},'sku',this.value)">
+      <option value="">— اختر —</option>
+      ${DB.state.items.map(i=>`<option value="${i.sku}" ${l.sku===i.sku?'selected':''}>${esc(i.name)}</option>`).join("")}
+    </select></td>
+    <td><input type="number" min="1" value="${l.qty}" oninput="App.saleLineChange(${idx},'qty',this.value)"></td>
+    <td><input type="number" min="0" value="${l.price}" oninput="App.saleLineChange(${idx},'price',this.value)"></td>
+    <td class="num">${money(parseNum(l.qty)*parseNum(l.price))}</td>
+    <td><button class="btn bad sm" onclick="App.delSaleLine(${idx})">×</button></td>
+  </tr>`).join("");
+};
+App.addSaleLine=function(){ App.saleLines.push({sku:"",qty:1,price:0}); App.renderSaleLines(); App.recalcSale(); };
+App.delSaleLine=function(i){ App.saleLines.splice(i,1); if(!App.saleLines.length)App.saleLines=[{sku:"",qty:1,price:0}]; App.renderSaleLines(); App.recalcSale(); };
+App.saleLineChange=function(i,f,v){
+  App.saleLines[i][f]=v;
+  if(f==="sku"){ const it=Inv.item(v); if(it) App.saleLines[i].price=it.price; App.renderSaleLines(); }
+  App.recalcSale();
+  if(f==="qty"||f==="price") App.renderSaleLines();
+};
+App.recalcSale=function(){
+  const total=App.saleLines.reduce((s,l)=>s+parseNum(l.qty)*parseNum(l.price),0);
+  const method=el("salePay")?el("salePay").value:"نقد";
+  const paidInput=el("salePaid");
+  if(method==="نقد"||method==="حوالة"){ if(paidInput) paidInput.value=total; }
+  else if(method==="آجل"){ if(paidInput) paidInput.value=0; }
+  let paid=paidInput?parseNum(paidInput.value):0;
+  if(paid>total)paid=total;
+  if(el("sTotal")) el("sTotal").textContent=money(total);
+  if(el("sPaid")) el("sPaid").textContent=money(paid);
+  if(el("sRem")) el("sRem").textContent=money(total-paid);
+};
+App.submitSale=function(){
+  const r=Sales.create({
+    date:el("saleDate").value,
+    customerId:el("saleCust").value,
+    lines:App.saleLines,
+    payMethod:el("salePay").value,
+    paidAmount:el("salePaid").value
+  });
+  if(!r.ok){ toast(r.msg,"bad"); return; }
+  toast("تم حفظ الفاتورة "+r.invoice.invNo+" ✓","ok");
+  App.saleLines=[{sku:"",qty:1,price:0}];
+  App.go("invoices");
+  App.viewInvoice(r.invoice.id);
+};
+
+/* ============================================================
+   شاشة الفواتير
+   ============================================================ */
+App.render_invoices=function(){
+  const invs=DB.state.invoices.slice().reverse();
+  return `<div class="card">
+    <div class="row" style="justify-content:space-between;align-items:center">
+      <h3 style="border:none;margin:0">الفواتير — ${invs.length}</h3>
+      <div class="row" style="flex:0;gap:8px">
+        <button class="btn" onclick="App.go('sales')">+ فاتورة جديدة</button>
+        <button class="btn sec" onclick="App.exportInvoices()">تصدير Excel</button>
+      </div>
+    </div>
+    <div class="scroll" style="margin-top:12px">
+    ${invs.length?`<table><thead><tr><th>الرقم</th><th>التاريخ</th><th>الزبون</th><th>الإجمالي</th><th>المدفوع</th><th>المتبقي</th><th>الدفع</th><th></th></tr></thead><tbody>`+
+      invs.map(i=>`<tr>
+        <td>${i.invNo}</td><td>${arDate(i.date)}</td><td>${esc(i.customerName)}</td>
+        <td class="num">${money(i.total)}</td><td class="num">${money(i.paid)}</td>
+        <td class="num">${money(i.remaining)}</td>
+        <td><span class="tag ${i.remaining>0?'warn':'ok'}">${i.remaining>0?'مستحق':'مسدّد'}</span></td>
+        <td class="right">
+          <button class="btn sec sm" onclick="App.viewInvoice('${i.id}')">عرض</button>
+          ${i.remaining>0?`<button class="btn ok sm" onclick="App.collectModal('${i.id}')">تحصيل</button>`:''}
+        </td></tr>`).join("")+`</tbody></table>`
+      :`<div class="empty"><div class="ico">☰</div>لا توجد فواتير</div>`}
+    </div>
+  </div>`;
+};
+
+/* ============================================================
+   شاشة التقارير
+   ============================================================ */
+App.curReport="trial";
+App.render_reports=function(){
+  const reps=[
+    ["trial","ميزان المراجعة"],["income","قائمة الدخل"],["balance","الميزانية العمومية"],
+    ["ledger","كشف حساب"],["journal","دفتر اليومية"],["sales","تقرير المبيعات"],
+    ["recv","أرصدة الزبائن"],["pay","أرصدة الموردين"],["inv","تقرير المخزون"],
+    ["moves","حركة المخزون"],["low","الأصناف المنخفضة"],["profit","ربحية الأصناف"]
+  ];
+  return `<div class="card">
+    <h3>التقارير المالية — 12 تقرير</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:6px">
+      ${reps.map(r=>`<button class="btn ${App.curReport===r[0]?'':'sec'} sm" onclick="App.curReport='${r[0]}';App.render()">${r[1]}</button>`).join("")}
+    </div>
+    <div class="row" style="margin-top:14px">
+      <div class="field"><label>من تاريخ</label><input type="date" id="repFrom"></div>
+      <div class="field"><label>إلى تاريخ</label><input type="date" id="repTo" value="${today()}"></div>
+      ${App.curReport==='ledger'?`<div class="field"><label>الحساب</label>
+        <select id="repAcc">${Acc.postable().map(a=>`<option value="${a.code}">${esc(a.code)} — ${esc(a.name)}</option>`).join("")}</select></div>`:''}
+      <div class="field" style="flex:0;display:flex;align-items:flex-end;gap:6px">
+        <button class="btn" onclick="App.render()">عرض</button>
+      </div>
+    </div>
+    <div id="repBody" style="margin-top:10px"></div>
+  </div>`;
+};
+App.after_reports=function(){ App.renderReport(); };
+App.renderReport=function(){
+  const from=el("repFrom")?el("repFrom").value||null:null;
+  const to=el("repTo")?el("repTo").value||null:null;
+  const host=el("repBody"); if(!host) return;
+  let html="", csv=null, title="";
+  const exBtn=()=>`<div class="row" style="flex:0;gap:8px;margin-bottom:10px">
+    <button class="btn sec sm" onclick="App.exportCurrentReport()">تصدير Excel</button>
+    <button class="btn sec sm" onclick="App.printCurrentReport()">طباعة PDF</button></div>`;
+
+  if(App.curReport==="trial"){
+    title="ميزان المراجعة";
+    const tb=Reports.trialBalance();
+    html=`<table><thead><tr><th>الكود</th><th>الحساب</th><th>مدين</th><th>دائن</th></tr></thead><tbody>`+
+      tb.rows.map(r=>`<tr><td>${r.code}</td><td>${esc(r.name)}</td>
+        <td class="num">${r.debit?money(r.debit):'—'}</td><td class="num">${r.credit?money(r.credit):'—'}</td></tr>`).join("")+
+      `</tbody><tfoot><tr><td colspan="2">الإجمالي</td><td class="num">${money(tb.td)}</td><td class="num">${money(tb.tc)}</td></tr></tfoot></table>
+      <div class="bal-box"><span class="tag ${tb.balanced?'ok':'bad'}">${tb.balanced?'الميزان متوازن ✓':'غير متوازن!'}</span></div>`;
+    App._repData={head:["الكود","الحساب","مدين","دائن"],rows:tb.rows.map(r=>[r.code,r.name,r.debit,r.credit])};
+  }
+  else if(App.curReport==="income"){
+    title="قائمة الدخل";
+    const inc=Reports.income(from,to);
+    html=`<table><thead><tr><th>البند</th><th>المبلغ</th></tr></thead><tbody>
+      <tr><td colspan="2"><b>الإيرادات</b></td></tr>`+
+      inc.revRows.map(r=>`<tr><td style="padding-right:24px">${esc(r.name)}</td><td class="num">${money(r.amount)}</td></tr>`).join("")+
+      `<tr><td><b>إجمالي الإيرادات</b></td><td class="num"><b>${money(inc.totRev)}</b></td></tr>
+      <tr><td colspan="2"><b>المصروفات</b></td></tr>`+
+      inc.expRows.map(r=>`<tr><td style="padding-right:24px">${esc(r.name)}</td><td class="num">${money(r.amount)}</td></tr>`).join("")+
+      `<tr><td><b>إجمالي المصروفات</b></td><td class="num"><b>${money(inc.totExp)}</b></td></tr>
+      </tbody><tfoot><tr><td>صافي ${inc.net>=0?'الربح':'الخسارة'}</td><td class="num">${money(Math.abs(inc.net))}</td></tr></tfoot></table>`;
+    App._repData={head:["البند","المبلغ"],rows:[...inc.revRows.map(r=>[r.name,r.amount]),
+      ["إجمالي الإيرادات",inc.totRev],...inc.expRows.map(r=>[r.name,r.amount]),
+      ["إجمالي المصروفات",inc.totExp],["صافي الربح",inc.net]]};
+  }
+  else if(App.curReport==="balance"){
+    title="الميزانية العمومية";
+    const bs=Reports.balanceSheet();
+    const sec=(t,rows,tot)=>`<tr><td colspan="2"><b>${t}</b></td></tr>`+
+      rows.map(r=>`<tr><td style="padding-right:24px">${esc(r.name)}</td><td class="num">${money(r.amount)}</td></tr>`).join("")+
+      `<tr><td><b>إجمالي ${t}</b></td><td class="num"><b>${money(tot)}</b></td></tr>`;
+    html=`<table><tbody>`+
+      sec("الموجودات",bs.assets,bs.tA)+
+      sec("الخصوم",bs.liab,bs.tL)+
+      `<tr><td colspan="2"><b>حقوق الملكية</b></td></tr>`+
+      bs.eq.map(r=>`<tr><td style="padding-right:24px">${esc(r.name)}</td><td class="num">${money(r.amount)}</td></tr>`).join("")+
+      `<tr><td style="padding-right:24px">صافي ربح الفترة</td><td class="num">${money(bs.net)}</td></tr>
+      <tr><td><b>إجمالي حقوق الملكية</b></td><td class="num"><b>${money(bs.tE)}</b></td></tr>
+      </tbody><tfoot><tr><td>الموجودات = الخصوم + حقوق الملكية</td>
+      <td class="num">${money(bs.tA)} = ${money(bs.tL+bs.tE)}</td></tr></tfoot></table>
+      <div class="bal-box"><span class="tag ${bs.balanced?'ok':'bad'}">${bs.balanced?'الميزانية متوازنة ✓':'غير متوازنة!'}</span></div>`;
+    App._repData={head:["البند","المبلغ"],rows:[...bs.assets.map(r=>[r.name,r.amount]),
+      ...bs.liab.map(r=>[r.name,r.amount]),...bs.eq.map(r=>[r.name,r.amount]),["صافي الربح",bs.net]]};
+  }
+  else if(App.curReport==="ledger"){
+    const code=el("repAcc")?el("repAcc").value:null;
+    const lg=Reports.ledger(code,from,to);
+    title="كشف حساب — "+(lg.account?lg.account.name:"");
+    html=`<table><thead><tr><th>التاريخ</th><th>القيد</th><th>البيان</th><th>مدين</th><th>دائن</th><th>الرصيد</th></tr></thead><tbody>`+
+      (lg.rows.length?lg.rows.map(r=>`<tr><td>${arDate(r.date)}</td><td>#${r.no}</td><td>${esc(r.desc)}</td>
+        <td class="num">${r.debit?money(r.debit):'—'}</td><td class="num">${r.credit?money(r.credit):'—'}</td>
+        <td class="num">${money(r.bal)}</td></tr>`).join("")
+        :`<tr><td colspan="6" class="center muted">لا توجد حركات</td></tr>`)+
+      `</tbody><tfoot><tr><td colspan="5">الرصيد الختامي</td><td class="num">${money(lg.closing)}</td></tr></tfoot></table>`;
+    App._repData={head:["التاريخ","القيد","البيان","مدين","دائن","الرصيد"],
+      rows:lg.rows.map(r=>[r.date,r.no,r.desc,r.debit,r.credit,r.bal])};
+  }
+  else if(App.curReport==="journal"){
+    title="دفتر اليومية";
+    const ents=DB.state.entries.filter(e=>!e.void&&Reports.inRange(e.date,from,to));
+    html=`<table><thead><tr><th>#</th><th>التاريخ</th><th>الحساب</th><th>البيان</th><th>مدين</th><th>دائن</th></tr></thead><tbody>`+
+      ents.flatMap(e=>e.lines.map((l,i)=>`<tr><td>${i===0?e.no:''}</td><td>${i===0?arDate(e.date):''}</td>
+        <td>${esc(Acc.get(l.acc)?Acc.get(l.acc).name:l.acc)}</td><td>${i===0?esc(e.desc):''}</td>
+        <td class="num">${l.debit?money(l.debit):''}</td><td class="num">${l.credit?money(l.credit):''}</td></tr>`)).join("")+
+      `</tbody></table>`;
+    App._repData={head:["#","التاريخ","الحساب","البيان","مدين","دائن"],
+      rows:ents.flatMap(e=>e.lines.map((l,i)=>[i===0?e.no:'',i===0?e.date:'',
+        Acc.get(l.acc)?Acc.get(l.acc).name:l.acc,i===0?e.desc:'',l.debit,l.credit]))};
+  }
+  else if(App.curReport==="sales"){
+    title="تقرير المبيعات";
+    const s=Reports.sales(from,to);
+    html=`<table><thead><tr><th>الرقم</th><th>التاريخ</th><th>الزبون</th><th>الإجمالي</th><th>المدفوع</th><th>المتبقي</th><th>الدفع</th></tr></thead><tbody>`+
+      (s.rows.length?s.rows.map(i=>`<tr><td>${i.invNo}</td><td>${arDate(i.date)}</td><td>${esc(i.customerName)}</td>
+        <td class="num">${money(i.total)}</td><td class="num">${money(i.paid)}</td><td class="num">${money(i.remaining)}</td>
+        <td>${esc(i.payMethod)}</td></tr>`).join("")
+        :`<tr><td colspan="7" class="center muted">لا توجد فواتير</td></tr>`)+
+      `</tbody><tfoot><tr><td colspan="3">الإجمالي (${s.count} فاتورة)</td>
+      <td class="num">${money(s.total)}</td><td class="num">${money(s.paid)}</td><td class="num">${money(s.remaining)}</td><td></td></tr></tfoot></table>`;
+    App._repData={head:["الرقم","التاريخ","الزبون","الإجمالي","المدفوع","المتبقي","الدفع"],
+      rows:s.rows.map(i=>[i.invNo,i.date,i.customerName,i.total,i.paid,i.remaining,i.payMethod])};
+  }
+  else if(App.curReport==="recv"){
+    title="أرصدة الزبائن";
+    const rc=Reports.receivables();
+    html=`<table><thead><tr><th>الزبون</th><th>الهاتف</th><th>الرصيد المستحق</th></tr></thead><tbody>`+
+      (rc.length?rc.map(r=>`<tr><td>${esc(r.customer.name)}</td><td>${esc(r.customer.phone||'—')}</td>
+        <td class="num">${money(r.balance)}</td></tr>`).join("")
+        :`<tr><td colspan="3" class="center muted">لا توجد أرصدة</td></tr>`)+
+      `</tbody><tfoot><tr><td colspan="2">الإجمالي</td><td class="num">${money(rc.reduce((s,r)=>s+r.balance,0))}</td></tr></tfoot></table>`;
+    App._repData={head:["الزبون","الهاتف","الرصيد"],rows:rc.map(r=>[r.customer.name,r.customer.phone,r.balance])};
+  }
+  else if(App.curReport==="pay"){
+    title="أرصدة الموردين";
+    const pc=Reports.payables();
+    html=`<table><thead><tr><th>المورد</th><th>الهاتف</th><th>الرصيد المستحق</th></tr></thead><tbody>`+
+      (pc.length?pc.map(r=>`<tr><td>${esc(r.supplier.name)}</td><td>${esc(r.supplier.phone||'—')}</td>
+        <td class="num">${money(r.balance)}</td></tr>`).join("")
+        :`<tr><td colspan="3" class="center muted">لا توجد أرصدة</td></tr>`)+
+      `</tbody><tfoot><tr><td colspan="2">الإجمالي</td><td class="num">${money(pc.reduce((s,r)=>s+r.balance,0))}</td></tr></tfoot></table>`;
+    App._repData={head:["المورد","الهاتف","الرصيد"],rows:pc.map(r=>[r.supplier.name,r.supplier.phone,r.balance])};
+  }
+  else if(App.curReport==="inv"){
+    title="تقرير المخزون";
+    const its=DB.state.items.filter(i=>i.track);
+    html=`<table><thead><tr><th>الرمز</th><th>الصنف</th><th>الرصيد</th><th>التكلفة</th><th>قيمة المخزون</th><th>الحالة</th></tr></thead><tbody>`+
+      its.map(i=>{const q=Inv.qty(i.sku),st=Inv.status(i.sku);
+        return `<tr><td>${esc(i.sku)}</td><td>${esc(i.name)}</td><td class="num">${q}</td>
+        <td class="num">${money(i.cost)}</td><td class="num">${money(q*i.cost)}</td>
+        <td>${st.state==='ok'?'متوفر':st.state==='low'?'منخفض':st.state==='out'?'نفد':'فائض'}</td></tr>`;}).join("")+
+      `</tbody><tfoot><tr><td colspan="4">إجمالي قيمة المخزون</td><td class="num">${money(Inv.value())}</td><td></td></tr></tfoot></table>`;
+    App._repData={head:["الرمز","الصنف","الرصيد","التكلفة","القيمة"],
+      rows:its.map(i=>[i.sku,i.name,Inv.qty(i.sku),i.cost,Inv.qty(i.sku)*i.cost])};
+  }
+  else if(App.curReport==="moves"){
+    title="حركة المخزون";
+    const mv=DB.state.invMoves.filter(m=>Reports.inRange(m.date,from,to));
+    html=`<table><thead><tr><th>التاريخ</th><th>الصنف</th><th>النوع</th><th>الكمية</th><th>المرجع</th><th>ملاحظة</th></tr></thead><tbody>`+
+      (mv.length?mv.slice().reverse().map(m=>{const it=Inv.item(m.sku);
+        return `<tr><td>${arDate(m.date)}</td><td>${esc(it?it.name:m.sku)}</td>
+        <td>${m.type==='in'?'وارد':m.type==='out'?'صادر':'تسوية'}</td><td class="num">${m.qty}</td>
+        <td>${esc(m.ref||'—')}</td><td>${esc(m.note||'—')}</td></tr>`;}).join("")
+        :`<tr><td colspan="6" class="center muted">لا توجد حركات</td></tr>`)+`</tbody></table>`;
+    App._repData={head:["التاريخ","الصنف","النوع","الكمية","المرجع","ملاحظة"],
+      rows:mv.map(m=>[m.date,Inv.item(m.sku)?Inv.item(m.sku).name:m.sku,m.type,m.qty,m.ref,m.note])};
+  }
+  else if(App.curReport==="low"){
+    title="الأصناف المنخفضة";
+    const low=Inv.lowItems();
+    html=`<table><thead><tr><th>الصنف</th><th>الرصيد</th><th>الحد الأدنى</th><th>الحد الأقصى</th><th>الكمية المقترح توريدها</th></tr></thead><tbody>`+
+      (low.length?low.map(x=>`<tr><td>${esc(x.item.name)}</td><td class="num">${x.q}</td>
+        <td class="num">${x.item.min}</td><td class="num">${x.item.max}</td>
+        <td class="num">${Math.max(0,x.item.max-x.q)}</td></tr>`).join("")
+        :`<tr><td colspan="5" class="center muted">كل الأصناف ضمن الحدود الآمنة ✓</td></tr>`)+`</tbody></table>`;
+    App._repData={head:["الصنف","الرصيد","الحد الأدنى","الحد الأقصى","المقترح"],
+      rows:low.map(x=>[x.item.name,x.q,x.item.min,x.item.max,Math.max(0,x.item.max-x.q)])};
+  }
+  else if(App.curReport==="profit"){
+    title="ربحية الأصناف";
+    const ip=Reports.itemProfit(from,to);
+    html=`<table><thead><tr><th>الصنف</th><th>الكمية المباعة</th><th>الإيراد</th><th>التكلفة</th><th>الربح</th><th>هامش الربح</th></tr></thead><tbody>`+
+      (ip.length?ip.map(r=>`<tr><td>${esc(r.name)}</td><td class="num">${r.qty}</td>
+        <td class="num">${money(r.revenue)}</td><td class="num">${money(r.cost)}</td>
+        <td class="num">${money(r.profit)}</td><td class="num">${r.revenue?Math.round(r.profit/r.revenue*100):0}%</td></tr>`).join("")
+        :`<tr><td colspan="6" class="center muted">لا توجد مبيعات</td></tr>`)+
+      `</tbody><tfoot><tr><td>الإجمالي</td><td class="num">${ip.reduce((s,r)=>s+r.qty,0)}</td>
+      <td class="num">${money(ip.reduce((s,r)=>s+r.revenue,0))}</td>
+      <td class="num">${money(ip.reduce((s,r)=>s+r.cost,0))}</td>
+      <td class="num">${money(ip.reduce((s,r)=>s+r.profit,0))}</td><td></td></tr></tfoot></table>`;
+    App._repData={head:["الصنف","الكمية","الإيراد","التكلفة","الربح"],
+      rows:ip.map(r=>[r.name,r.qty,r.revenue,r.cost,r.profit])};
+  }
+  App._repTitle=title;
+  host.innerHTML=exBtn()+html;
+};
+App.exportCurrentReport=function(){
+  if(!App._repData) return;
+  exportCSV(App._repTitle,App._repData.head,App._repData.rows);
+};
+App.printCurrentReport=function(){
+  const body=el("repBody").querySelector("table");
+  printReport(App._repTitle, body?body.outerHTML:"");
+};
+
+/* ============================================================
+   النوافذ والإجراءات
+   ============================================================ */
+Object.assign(App,{
+  /* قيد جديد */
+  jeLines:[],
+  newEntry(){
+    App.jeLines=[{acc:"",debit:0,credit:0},{acc:"",debit:0,credit:0}];
+    const opts=Acc.postable().map(a=>`<option value="${a.code}">${esc(a.code)} — ${esc(a.name)}</option>`).join("");
+    modal("قيد محاسبي جديد",
+      `<div class="row">
+        <div class="field"><label>التاريخ</label><input type="date" id="jeDate" value="${today()}"></div>
+        <div class="field" style="flex:2"><label>البيان</label><input id="jeDesc" placeholder="وصف القيد"></div>
+      </div>
+      <table class="line-tbl"><thead><tr><th style="width:50%">الحساب</th><th>مدين</th><th>دائن</th><th></th></tr></thead>
+      <tbody id="jeBody"></tbody></table>
+      <button class="btn sec sm" style="margin-top:8px" onclick="App.addJeLine()">+ سطر</button>
+      <div class="bal-box" id="jeBal"></div>`,
+      `<button class="btn ok" onclick="App.saveEntry()">ترحيل القيد</button>
+       <button class="btn sec" onclick="closeModal()">إلغاء</button>`);
+    App._jeOpts=opts;
+    App.renderJeLines();
+  },
+  renderJeLines(){
+    const tb=el("jeBody");
+    tb.innerHTML=App.jeLines.map((l,i)=>`<tr>
+      <td><select onchange="App.jeChange(${i},'acc',this.value)">
+        <option value="">— اختر الحساب —</option>${App._jeOpts}
+      </select></td>
+      <td><input type="number" value="${l.debit||''}" oninput="App.jeChange(${i},'debit',this.value)"></td>
+      <td><input type="number" value="${l.credit||''}" oninput="App.jeChange(${i},'credit',this.value)"></td>
+      <td><button class="btn bad sm" onclick="App.delJeLine(${i})">×</button></td></tr>`).join("");
+    // ضبط قيم select
+    tb.querySelectorAll("tr").forEach((tr,i)=>{ tr.querySelector("select").value=App.jeLines[i].acc; });
+    App.jeBal();
+  },
+  jeChange(i,f,v){
+    App.jeLines[i][f]=v;
+    if(f==="debit"&&parseNum(v)) App.jeLines[i].credit=0;
+    if(f==="credit"&&parseNum(v)) App.jeLines[i].debit=0;
+    if(f!=="acc"){ const tb=el("jeBody"); const tr=tb.children[i];
+      tr.children[1].querySelector("input").value=App.jeLines[i].debit||'';
+      tr.children[2].querySelector("input").value=App.jeLines[i].credit||''; }
+    App.jeBal();
+  },
+  addJeLine(){ App.jeLines.push({acc:"",debit:0,credit:0}); App.renderJeLines(); },
+  delJeLine(i){ App.jeLines.splice(i,1); if(App.jeLines.length<2)App.jeLines.push({acc:"",debit:0,credit:0}); App.renderJeLines(); },
+  jeBal(){
+    const t=JE.totals(App.jeLines);
+    el("jeBal").innerHTML=`<span>مدين: <span class="b num">${money(t.debit)}</span></span>
+      <span>دائن: <span class="b num">${money(t.credit)}</span></span>
+      <span class="tag ${t.diff===0&&t.debit>0?'ok':'bad'}">${t.diff===0?'متوازن ✓':'فرق: '+money(t.diff)}</span>`;
+  },
+  saveEntry(){
+    const r=JE.post(el("jeDate").value, el("jeDesc").value, App.jeLines, "يدوي");
+    if(!r.ok){ toast(r.msg,"bad"); return; }
+    toast("تم ترحيل القيد #"+r.entry.no+" ✓","ok");
+    closeModal(); App.render();
+  },
+  viewEntry(id){
+    const e=DB.state.entries.find(x=>x.id===id); if(!e) return;
+    const t=JE.totals(e.lines);
+    modal("قيد #"+e.no,
+      `<p class="muted small">التاريخ: ${arDate(e.date)} · المصدر: ${esc(e.source)} ${e.void?'· <span class="tag bad">ملغى</span>':''}</p>
+      <p style="margin:8px 0"><b>${esc(e.desc)}</b></p>
+      <table><thead><tr><th>الحساب</th><th>مدين</th><th>دائن</th></tr></thead><tbody>`+
+      e.lines.map(l=>`<tr><td>${esc(Acc.get(l.acc)?Acc.get(l.acc).name:l.acc)}</td>
+        <td class="num">${l.debit?money(l.debit):'—'}</td><td class="num">${l.credit?money(l.credit):'—'}</td></tr>`).join("")+
+      `</tbody><tfoot><tr><td>الإجمالي</td><td class="num">${money(t.debit)}</td><td class="num">${money(t.credit)}</td></tr></tfoot></table>`,
+      `<button class="btn sec" onclick="closeModal()">إغلاق</button>`);
+  },
+  reverseEntry(id){
+    if(!confirm("سيتم إنشاء قيد عكسي لإلغاء أثر هذا القيد. متابعة؟")) return;
+    const r=JE.reverse(id);
+    toast(r.ok?"تم عكس القيد ✓":r.msg, r.ok?"ok":"bad");
+    if(r.ok) App.render();
+  },
+  /* حساب جديد */
+  newAccount(){
+    const headers=DB.state.accounts.filter(a=>a.header);
+    modal("إضافة حساب جديد",
+      `<div class="field"><label>الكود</label><input id="acCode" placeholder="مثال: 5216"></div>
+      <div class="field"><label>اسم الحساب</label><input id="acName"></div>
+      <div class="field"><label>التصنيف</label><select id="acType">
+        <option value="asset">موجودات</option><option value="liability">خصوم</option>
+        <option value="equity">حقوق ملكية</option><option value="revenue">إيرادات</option>
+        <option value="expense">مصروفات</option></select></div>
+      <div class="field"><label>الحساب الأب</label><select id="acParent">
+        <option value="">— بدون —</option>
+        ${headers.map(h=>`<option value="${h.code}">${esc(h.code)} — ${esc(h.name)}</option>`).join("")}
+      </select></div>`,
+      `<button class="btn ok" onclick="App.saveAccount()">حفظ</button>
+       <button class="btn sec" onclick="closeModal()">إلغاء</button>`);
+  },
+  saveAccount(){
+    const r=Acc.add(el("acCode").value.trim(),el("acName").value.trim(),
+      el("acType").value,el("acParent").value||null);
+    if(!r.ok){ toast(r.msg,"bad"); return; }
+    toast("تمت إضافة الحساب ✓","ok"); closeModal(); App.render();
+  },
+  delAccount(code){
+    if(!confirm("حذف الحساب "+code+"؟")) return;
+    const r=Acc.remove(code);
+    toast(r.ok?"تم الحذف ✓":r.msg, r.ok?"ok":"bad");
+    if(r.ok) App.render();
+  },
+  viewLedger(code){ App.curReport="ledger"; App.go("reports");
+    setTimeout(()=>{ if(el("repAcc")){el("repAcc").value=code; App.renderReport();} },50); },
+  /* زبون/مورد */
+  newParty(kind){
+    const t=kind==="customer"?"زبون":"مورد";
+    modal("إضافة "+t+" جديد",
+      `<div class="field"><label>الاسم</label><input id="ptName"></div>
+       <div class="field"><label>رقم الهاتف</label><input id="ptPhone"></div>`,
+      `<button class="btn ok" onclick="App.saveParty('${kind}')">حفظ</button>
+       <button class="btn sec" onclick="closeModal()">إلغاء</button>`);
+  },
+  saveParty(kind){
+    const name=el("ptName").value, phone=el("ptPhone").value;
+    const r=kind==="customer"?Parties.addCustomer(name,phone):Parties.addSupplier(name,phone);
+    if(!r.ok){ toast(r.msg,"bad"); return; }
+    toast("تمت الإضافة ✓","ok"); closeModal();
+    if(App.page==="sales"){ App.render(); }
+    else App.render();
+  },
+  /* حركة مخزون */
+  stockMove(sku){
+    const it=Inv.item(sku);
+    modal("حركة مخزون — "+it.name,
+      `<p class="muted small">الرصيد الحالي: <b>${Inv.qty(sku)}</b></p>
+      <div class="field"><label>نوع الحركة</label><select id="mvType">
+        <option value="in">وارد (إضافة)</option><option value="out">صادر (سحب)</option>
+        <option value="adjust">تسوية (تحديد رصيد)</option></select></div>
+      <div class="field"><label>الكمية</label><input type="number" id="mvQty" value="1"></div>
+      <div class="field"><label>ملاحظة</label><input id="mvNote" placeholder="سبب الحركة"></div>`,
+      `<button class="btn ok" onclick="App.saveMove('${sku}')">تسجيل</button>
+       <button class="btn sec" onclick="closeModal()">إلغاء</button>`);
+  },
+  saveMove(sku){
+    const r=Inv.move(sku,el("mvType").value,el("mvQty").value,el("mvNote").value,"يدوي");
+    if(!r.ok){ toast(r.msg,"bad"); return; }
+    toast("تم تسجيل الحركة ✓","ok"); closeModal(); App.render();
+  },
+  /* فاتورة: عرض وتحصيل */
+  viewInvoice(id){
+    const i=DB.state.invoices.find(x=>x.id===id); if(!i) return;
+    const body=`<p class="muted small">${i.invNo} · ${arDate(i.date)} · ${esc(i.payMethod)}</p>
+      <p style="margin:6px 0"><b>الزبون:</b> ${esc(i.customerName)}</p>
+      <table><thead><tr><th>الصنف</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th></tr></thead><tbody>`+
+      i.lines.map(l=>`<tr><td>${esc(l.name)}</td><td class="num">${l.qty}</td>
+        <td class="num">${money(l.price)}</td><td class="num">${money(l.qty*l.price)}</td></tr>`).join("")+
+      `</tbody><tfoot>
+        <tr><td colspan="3">الإجمالي</td><td class="num">${money(i.total)}</td></tr>
+        <tr><td colspan="3">المدفوع</td><td class="num">${money(i.paid)}</td></tr>
+        <tr><td colspan="3">المتبقي</td><td class="num">${money(i.remaining)}</td></tr>
+      </tfoot></table>`;
+    modal("فاتورة "+i.invNo, body,
+      `<button class="btn sec" onclick="App.printInvoice('${id}')">طباعة</button>
+       <button class="btn sec" onclick="closeModal()">إغلاق</button>`);
+  },
+  printInvoice(id){
+    const i=DB.state.invoices.find(x=>x.id===id);
+    printReport("فاتورة "+i.invNo,
+      `<p>الزبون: ${esc(i.customerName)} — التاريخ: ${arDate(i.date)} — الدفع: ${esc(i.payMethod)}</p>
+      <table><thead><tr><th>الصنف</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th></tr></thead><tbody>`+
+      i.lines.map(l=>`<tr><td>${esc(l.name)}</td><td>${l.qty}</td><td>${money(l.price)}</td><td>${money(l.qty*l.price)}</td></tr>`).join("")+
+      `</tbody><tfoot><tr><td colspan="3">الإجمالي</td><td>${money(i.total)}</td></tr>
+      <tr><td colspan="3">المدفوع</td><td>${money(i.paid)}</td></tr>
+      <tr><td colspan="3">المتبقي</td><td>${money(i.remaining)}</td></tr></tfoot></table>`);
+  },
+  collectModal(id){
+    const i=DB.state.invoices.find(x=>x.id===id);
+    modal("تحصيل دفعة — "+i.invNo,
+      `<p class="muted small">المتبقي على الزبون: <b>${money(i.remaining)}</b></p>
+      <div class="field"><label>المبلغ المحصّل</label><input type="number" id="clAmt" value="${i.remaining}"></div>
+      <div class="field"><label>طريقة التحصيل</label><select id="clM">
+        <option value="نقد">نقد</option><option value="حوالة">حوالة مصرفية</option></select></div>`,
+      `<button class="btn ok" onclick="App.doCollect('${id}')">تأكيد التحصيل</button>
+       <button class="btn sec" onclick="closeModal()">إلغاء</button>`);
+  },
+  doCollect(id){
+    const r=Sales.collect(id,el("clAmt").value,el("clM").value);
+    if(!r.ok){ toast(r.msg,"bad"); return; }
+    toast("تم التحصيل ✓","ok"); closeModal(); App.render();
+  },
+  /* المساعد الذكي */
+  aiSend(){
+    const inp=el("aiInput"); const q=inp.value.trim(); if(!q) return;
+    const a=AI.ask(q);
+    AI.history.push({q,a});
+    App.aiAppend(q,a);
+    inp.value="";
+  },
+  aiQuick(q){ const a=AI.ask(q); AI.history.push({q,a}); App.aiAppend(q,a); },
+  aiAppend(q,a){
+    const log=el("aiLog"); if(!log) return;
+    log.innerHTML+=`<div class="ai-msg u">${esc(q)}</div><div class="ai-msg a">${a}</div>`;
+    log.scrollTop=log.scrollHeight;
+  },
+  /* تصدير */
+  exportAccounts(){
+    exportCSV("شجرة الحسابات",["الكود","الاسم","التصنيف","الرصيد"],
+      Acc.all().map(a=>[a.code,a.name,Acc.typeLabel(a.type),Acc.balance(a.code)]));
+  },
+  exportJournal(){
+    const rows=[];
+    DB.state.entries.forEach(e=>e.lines.forEach((l,i)=>rows.push(
+      [i===0?e.no:'',i===0?e.date:'',Acc.get(l.acc)?Acc.get(l.acc).name:l.acc,
+       i===0?e.desc:'',l.debit,l.credit])));
+    exportCSV("دفتر اليومية",["#","التاريخ","الحساب","البيان","مدين","دائن"],rows);
+  },
+  exportInventory(){
+    exportCSV("المخزون",["الرمز","الصنف","التصنيف","سعر البيع","التكلفة","الرصيد","حد أدنى","حد أقصى"],
+      DB.state.items.map(i=>[i.sku,i.name,i.cat,i.price,i.cost,i.track?Inv.qty(i.sku):'-',i.min||'-',i.max||'-']));
+  },
+  exportInvoices(){
+    exportCSV("الفواتير",["الرقم","التاريخ","الزبون","الإجمالي","المدفوع","المتبقي","الدفع"],
+      DB.state.invoices.map(i=>[i.invNo,i.date,i.customerName,i.total,i.paid,i.remaining,i.payMethod]));
+  },
+  /* نسخ احتياطي */
+  backup(){
+    const blob=new Blob([JSON.stringify(DB.state)],{type:"application/json"});
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download="raya_backup_"+today()+".json";
+    a.click();
+    toast("تم إنشاء نسخة احتياطية ✓","ok");
+  },
+  restore(){
+    const inp=document.createElement("input");
+    inp.type="file"; inp.accept=".json";
+    inp.onchange=()=>{
+      const f=inp.files[0]; if(!f) return;
+      const rd=new FileReader();
+      rd.onload=()=>{
+        try{
+          const data=JSON.parse(rd.result);
+          if(!data.accounts||!data.entries) throw new Error("ملف غير صالح");
+          DB.state=data; DB.save();
+          toast("تمت الاستعادة بنجاح ✓","ok");
+          App.go("dashboard");
+        }catch(e){ toast("ملف غير صالح","bad"); }
+      };
+      rd.readAsText(f);
+    };
+    inp.click();
+  }
+});
+
+/* ---------- التشغيل ---------- */
+App.start();
+</script>
+</body>
+</html>

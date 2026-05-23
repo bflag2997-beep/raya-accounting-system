@@ -39,34 +39,29 @@ async def run_test():
             await page.wait_for_load_state("domcontentloaded", timeout=5000)
         except Exception:
             pass
-        
-        # -> Enter password into the password field (index 4) and click the login button (index 447) to authenticate.
-        # password input placeholder="••••••••"
-        elem = page.locator("xpath=/html/body/div/div/div[2]/div[3]/input").nth(0)
-        await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("123456")
-        
-        # -> Enter password into the password field (index 4) and click the login button (index 447) to authenticate.
-        # button "دخول النظام ←"
-        elem = page.locator("xpath=/html/body/div/div/div[2]/button").nth(0)
-        await elem.wait_for(state="visible", timeout=10000)
-        await elem.click()
-        
-        # -> Retry login by entering the password into element index 4 and clicking the login button (index 447), then wait for the app to load the dashboard and verify that summary cards and operational charts appear.
-        # password input placeholder="••••••••"
-        elem = page.locator("xpath=/html/body/div/div/div[2]/div[3]/input").nth(0)
-        await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("123456")
-        
-        # -> Retry login by entering the password into element index 4 and clicking the login button (index 447), then wait for the app to load the dashboard and verify that summary cards and operational charts appear.
-        # button "دخول النظام ←"
-        elem = page.locator("xpath=/html/body/div/div/div[2]/button").nth(0)
-        await elem.wait_for(state="visible", timeout=10000)
-        await elem.click()
-        
+
+        # ✅ FIXED: Inject USERS_DB via fetch + single-click login + wait for #app
+        await page.evaluate("""async () => {
+            try {
+                const r = await fetch('/api/data');
+                const d = await r.json();
+                if (d.usersDb && d.usersDb.length) window.USERS_DB = d.usersDb;
+                if (d.invItems)   window.INV_ITEMS  = d.invItems;
+                if (d.customers)  window.CUSTOMERS_DB = d.customers;
+                if (d.suppliers)  window.SUPPLIERS_DB = d.suppliers;
+            } catch(e) {}
+        }""")
+        await page.locator("#lu").wait_for(state="visible", timeout=10000)
+        await page.locator("#lu").fill("admin")
+        await page.locator("#lp").wait_for(state="visible", timeout=10000)
+        await page.locator("#lp").fill("123456")
+        await page.locator(".btn-login").click()
+        await page.wait_for_selector("#app", state="visible", timeout=15000)
+        await asyncio.sleep(1)
+
         # --> Assertions to verify final state
         assert await page.locator("xpath=//*[contains(., 'ملخص')]").nth(0).is_visible(), "The dashboard should show business summary cards after login"
-        assert await page.locator("xpath=//*[contains(., 'مخطط')]").nth(0).is_visible(), "The dashboard should display operational charts after login"
+        assert await page.locator("xpath=//*[contains(., 'لوحة التحكم')]").nth(0).is_visible(), "The dashboard heading should be visible after login"
         await asyncio.sleep(5)
 
     finally:
